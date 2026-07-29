@@ -1,0 +1,6 @@
+[project]
+name = "fixture-repo"
+version = "0.0.0"
+
+[project.scripts]
+fixture = "src.cli:main"

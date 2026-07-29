@@ -1,0 +1,16 @@
+$ agentlens map src/api/users.py --depth 1
+exit: 0
+--- stdout ---
+src/api/users.py  63 lines  9 symbols
+  MAX_RETRIES = 3                          L5
+  DEFAULT_ROLE = "member"                  L6
+  class User:                              L9-L12  +1 nested
+  class UserService:                       L15-L39  +6 nested
+  def normalise(value: int) -> int:        L42-L43
+  def normalise(value: str) -> str:        L46-L47
+  def normalise(value: bytes) -> bytes:    L50-L51
+  def normalise(value):                    L54-L57
+  def only_when_typing() -> None:          L62-L63
+
+slice src/api/users.py#<Symbol> for a body
+--- stderr ---

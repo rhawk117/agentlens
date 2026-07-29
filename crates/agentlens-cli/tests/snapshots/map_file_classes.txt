@@ -1,0 +1,10 @@
+$ agentlens map src/api/users.py --kind class
+exit: 0
+--- stdout ---
+src/api/users.py  63 lines  3 symbols
+  class User:           L9-L12
+  class UserService:    L15-L39
+    class Cursor:       L37-L39  +1 nested
+
+slice src/api/users.py#<Symbol> for a body
+--- stderr ---

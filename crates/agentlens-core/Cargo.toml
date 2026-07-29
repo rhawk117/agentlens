@@ -1,0 +1,19 @@
+[package]
+name = "agentlens-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Symbol-addressed code intelligence core for agentlens"
+
+[dependencies]
+tree-sitter.workspace = true
+tree-sitter-python.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+regex.workspace = true
+walkdir.workspace = true
+
+[lints]
+workspace = true

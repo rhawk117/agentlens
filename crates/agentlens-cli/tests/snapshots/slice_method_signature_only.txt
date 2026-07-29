@@ -1,0 +1,10 @@
+$ agentlens slice src/api/users.py#UserService.create_user --signature-only
+exit: 0
+--- stdout ---
+src/api/users.py#UserService.create_user  L21-L23  3 lines
+    @transaction.atomic
+    @audit("user.create")
+    def create_user(self, email: str, name: str) -> User:
+
+1 match, 3 lines
+--- stderr ---

@@ -1,0 +1,23 @@
+$ agentlens slice src/api/users.py#normalise
+exit: 0
+--- stdout ---
+src/api/users.py#normalise  L42-L43  2 lines  (1 of 4)
+@overload
+def normalise(value: int) -> int: ...
+
+src/api/users.py#normalise  L46-L47  2 lines  (2 of 4)
+@overload
+def normalise(value: str) -> str: ...
+
+src/api/users.py#normalise  L50-L51  2 lines  (3 of 4)
+@overload
+def normalise(value: bytes) -> bytes: ...
+
+src/api/users.py#normalise  L54-L57  4 lines  (4 of 4)
+def normalise(value):
+    if isinstance(value, bytes):
+        return value.strip()
+    return value
+
+4 matches, 10 lines
+--- stderr ---

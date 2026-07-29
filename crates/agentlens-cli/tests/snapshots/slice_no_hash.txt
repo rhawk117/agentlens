@@ -1,0 +1,5 @@
+$ agentlens slice src/api/users.py
+exit: 2
+--- stdout ---
+--- stderr ---
+agentlens: address `src/api/users.py` has no `#`: use `src/api/users.py#Symbol`, or `src/api/users.py#` for the outline

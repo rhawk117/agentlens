@@ -1,0 +1,13 @@
+$ agentlens slice src/api/users.py#UserService.create_user --no-decorators
+exit: 0
+--- stdout ---
+src/api/users.py#UserService.create_user  L23-L28  6 lines
+    def create_user(self, email: str, name: str) -> User:
+        if not email:
+            raise ValueError("email is required")
+        user = User(email, name)
+        self._log("created user %s", email)
+        return user
+
+1 match, 6 lines
+--- stderr ---

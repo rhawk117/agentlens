@@ -1,0 +1,15 @@
+$ agentlens slice src/api/users.py#UserService.create_user
+exit: 0
+--- stdout ---
+src/api/users.py#UserService.create_user  L21-L28  8 lines
+    @transaction.atomic
+    @audit("user.create")
+    def create_user(self, email: str, name: str) -> User:
+        if not email:
+            raise ValueError("email is required")
+        user = User(email, name)
+        self._log("created user %s", email)
+        return user
+
+1 match, 8 lines
+--- stderr ---

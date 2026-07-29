@@ -1,0 +1,12 @@
+$ agentlens slice src/api/users.py#L20-L24
+exit: 0
+--- stdout ---
+src/api/users.py#L20-L24  L20-L24  5 lines
+    # This comment must never appear in the slice.
+    @transaction.atomic
+    @audit("user.create")
+    def create_user(self, email: str, name: str) -> User:
+        if not email:
+
+1 match, 5 lines
+--- stderr ---

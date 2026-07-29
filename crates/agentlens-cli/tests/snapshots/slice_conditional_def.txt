@@ -1,0 +1,9 @@
+$ agentlens slice src/api/users.py#only_when_typing
+exit: 0
+--- stdout ---
+src/api/users.py#only_when_typing  L62-L63  2 lines
+    def only_when_typing() -> None:
+        pass
+
+1 match, 2 lines
+--- stderr ---
