@@ -101,13 +101,30 @@ without parsing output.
 ## Verification gate
 
 ```
-cargo fmt --all --check
-cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace
+scripts/ci.sh
 ```
+
+This is the same entry point GitHub Actions runs. Individual stages:
+`scripts/format.sh`, `scripts/lint.sh`, `scripts/build.sh`, `scripts/test.sh`,
+`scripts/audit.sh`, `scripts/coverage.sh`.
 
 Snapshots live in `crates/agentlens-cli/tests/snapshots`. Regenerate with
 `AGENTLENS_UPDATE_SNAPSHOTS=1 cargo test --workspace`.
+
+## Contributing
+
+Bootstrap your environment (installs and verifies the toolchain):
+
+```
+./precheck.sh --install
+pre-commit install
+```
+
+Then run the gate:
+
+```
+scripts/ci.sh
+```
 
 ## Non-goals
 
