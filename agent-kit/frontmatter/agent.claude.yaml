@@ -1,0 +1,4 @@
+name: agentlens-scout
+description: Use when several questions about a codebase need answering and reading the files directly would burn the primary agent's context. Accepts a list of questions and returns capped findings with the exact commands run.
+model: claude-haiku-4.5
+tools: Bash, Read

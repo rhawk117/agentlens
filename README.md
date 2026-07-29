@@ -1,10 +1,25 @@
 # agentlens
 
+[![ci](https://github.com/rhawk117/agentlens/actions/workflows/ci.yml/badge.svg)](https://github.com/rhawk117/agentlens/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/rhawk117/agentlens?sort=semver&display_name=tag)](https://github.com/rhawk117/agentlens/releases)
+[![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE)
+[![rust](https://img.shields.io/badge/rust-1.97%2B-orange)](rust-toolchain.toml)
+
 Symbol-addressed code intelligence for coding agents. The currency is **tokens
 per useful fact**, not milliseconds.
 
 An agent reading a 900-line file to see one 30-line method spends ~9,000 tokens.
 The same fact through `agentlens slice` costs ~150.
+
+> [!WARNING]
+> Pre-1.0 and unreleased. No version has been tagged yet, so `install.sh` builds
+> from source rather than downloading anything. The CLI surface may change
+> without a deprecation period until 1.0.
+
+> [!NOTE]
+> `agentlens` resolves symbols in **Python only**. `doclens` handles json, yaml
+> and markdown in any repository. For other languages, ripgrep is still the
+> right tool — see [Non-goals](#non-goals).
 
 ## Status
 
@@ -18,8 +33,57 @@ The same fact through `agentlens slice` costs ~150.
 ## Install
 
 ```
-cargo install --path crates/agentlens-cli
+curl -fsSL https://raw.githubusercontent.com/rhawk117/agentlens/dev/install.sh | sh
 ```
+
+The script detects your platform and installs both binaries into `~/.local/bin`.
+Where a release binary exists it downloads and checksums it; otherwise it builds
+from source, which needs Rust 1.97 or newer. Nothing is tagged yet, so for now
+it always builds.
+
+| Flag | Meaning |
+|---|---|
+| `--version <tag>` | Install a specific release rather than the latest |
+| `--dir <path>` | Install somewhere other than `~/.local/bin` |
+| `--from-source` | Skip the download and build with cargo |
+| `--yes` | Answer every prompt yes; implied when stdin is not a terminal |
+| `--no-agent-kit` | Skip the skill and agent prompt |
+
+> [!IMPORTANT]
+> `~/.local/bin` must be on your `PATH`. The installer checks and prints the
+> `export` line if it is missing, but it will not edit your shell profile for
+> you.
+
+Prefer cargo, or already have the repo cloned:
+
+```
+cargo install --path crates/agentlens-cli
+cargo install --path crates/doclens-cli
+```
+
+Windows users: `install.sh` covers WSL and Git Bash. For native Windows, take
+the `x86_64-pc-windows-msvc` archive from the releases page or use `cargo
+install`.
+
+## Agent kit
+
+A skill and a subagent that teach a coding agent to drive these binaries,
+for both Claude Code and GitHub Copilot.
+
+```
+sh agent-kit/install-kit.sh              # Claude Code, into ~/.claude
+sh agent-kit/install-kit.sh --copilot    # Copilot, into ./.github
+sh agent-kit/install-kit.sh --dry-run    # show the destinations, write nothing
+```
+
+The skill maps question shapes onto commands, so an agent reaches for `packet`
+instead of reading a file. The `agentlens-scout` subagent takes a list of
+questions and returns capped findings with the exact commands it ran — the
+answers land in the caller's context without the file contents behind them.
+
+Both are authored once under `agent-kit/`; the script assembles the frontmatter
+each toolchain expects. Claude Code agents install globally, Copilot agents
+per-repository, which is why the Copilot flag takes a directory.
 
 ## Addresses
 
