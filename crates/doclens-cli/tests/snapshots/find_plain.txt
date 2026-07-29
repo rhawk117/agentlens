@@ -1,0 +1,10 @@
+$ doclens find postgres
+exit: 0
+--- stdout ---
+compose.yaml
+  compose.yaml#services.web.environment.DSN  L11     value  postgres://db:5432/app
+  compose.yaml#services.db.image             L13     value  postgres:16
+  compose.yaml#services.db.volumes[0]        L15     value  pgdata:/var/lib/postgresql/data
+
+3 matches
+--- stderr ---

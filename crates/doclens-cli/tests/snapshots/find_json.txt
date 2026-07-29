@@ -1,0 +1,25 @@
+$ doclens find 8443 --json
+exit: 0
+--- stdout ---
+{
+  "budget": 4000,
+  "command": "find",
+  "degraded": false,
+  "detail": "full",
+  "found": true,
+  "matches": [
+    {
+      "address": "compose.yaml#services.web.ports[1]",
+      "line": 8,
+      "path": "compose.yaml",
+      "text": "\"8443:443\"",
+      "where_": "value"
+    }
+  ],
+  "pattern": "8443",
+  "summary": {
+    "matches": 1
+  },
+  "tokens": 24
+}
+--- stderr ---

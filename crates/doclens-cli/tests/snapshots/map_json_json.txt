@@ -1,0 +1,139 @@
+$ doclens map package.json --json
+exit: 0
+--- stdout ---
+{
+  "budget": 4000,
+  "command": "map",
+  "degraded": false,
+  "detail": "full",
+  "entries": [
+    {
+      "address": "package.json#name",
+      "depth": 1,
+      "end_line": 2,
+      "hidden_children": 0,
+      "key": "name",
+      "kind": "scalar",
+      "start_line": 2,
+      "summary": "\"fixture\""
+    },
+    {
+      "address": "package.json#version",
+      "depth": 1,
+      "end_line": 3,
+      "hidden_children": 0,
+      "key": "version",
+      "kind": "scalar",
+      "start_line": 3,
+      "summary": "\"1.2.3\""
+    },
+    {
+      "address": "package.json#scripts",
+      "depth": 1,
+      "end_line": 7,
+      "hidden_children": 0,
+      "key": "scripts",
+      "kind": "mapping",
+      "start_line": 4,
+      "summary": "{2 keys}"
+    },
+    {
+      "address": "package.json#scripts.build",
+      "depth": 2,
+      "end_line": 5,
+      "hidden_children": 0,
+      "key": "build",
+      "kind": "scalar",
+      "start_line": 5,
+      "summary": "\"tsc -p .\""
+    },
+    {
+      "address": "package.json#scripts.test",
+      "depth": 2,
+      "end_line": 6,
+      "hidden_children": 0,
+      "key": "test",
+      "kind": "scalar",
+      "start_line": 6,
+      "summary": "\"vitest run\""
+    },
+    {
+      "address": "package.json#dependencies",
+      "depth": 1,
+      "end_line": 11,
+      "hidden_children": 0,
+      "key": "dependencies",
+      "kind": "mapping",
+      "start_line": 8,
+      "summary": "{2 keys}"
+    },
+    {
+      "address": "package.json#dependencies.react",
+      "depth": 2,
+      "end_line": 9,
+      "hidden_children": 0,
+      "key": "react",
+      "kind": "scalar",
+      "start_line": 9,
+      "summary": "\"^18.3.1\""
+    },
+    {
+      "address": "package.json#dependencies.zod",
+      "depth": 2,
+      "end_line": 10,
+      "hidden_children": 0,
+      "key": "zod",
+      "kind": "scalar",
+      "start_line": 10,
+      "summary": "\"^3.23.8\""
+    },
+    {
+      "address": "package.json#keywords",
+      "depth": 1,
+      "end_line": 12,
+      "hidden_children": 0,
+      "key": "keywords",
+      "kind": "sequence",
+      "start_line": 12,
+      "summary": "[3 items]"
+    },
+    {
+      "address": "package.json#keywords[0]",
+      "depth": 2,
+      "end_line": 12,
+      "hidden_children": 0,
+      "key": "0",
+      "kind": "scalar",
+      "start_line": 12,
+      "summary": "\"a\""
+    },
+    {
+      "address": "package.json#keywords[1]",
+      "depth": 2,
+      "end_line": 12,
+      "hidden_children": 0,
+      "key": "1",
+      "kind": "scalar",
+      "start_line": 12,
+      "summary": "\"b\""
+    },
+    {
+      "address": "package.json#keywords[2]",
+      "depth": 2,
+      "end_line": 12,
+      "hidden_children": 0,
+      "key": "2",
+      "kind": "scalar",
+      "start_line": 12,
+      "summary": "\"c\""
+    }
+  ],
+  "format": "json",
+  "found": true,
+  "summary": {
+    "entries": 12
+  },
+  "target": "package.json",
+  "tokens": 139
+}
+--- stderr ---

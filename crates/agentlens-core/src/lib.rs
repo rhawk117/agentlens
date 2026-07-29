@@ -1,6 +1,7 @@
 pub mod address;
 pub mod budget;
 pub mod calls;
+pub mod doc;
 pub mod error;
 pub mod index;
 pub mod lang;

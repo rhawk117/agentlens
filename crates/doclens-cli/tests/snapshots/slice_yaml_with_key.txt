@@ -1,0 +1,11 @@
+$ doclens slice compose.yaml#services.db --with-key
+exit: 0
+--- stdout ---
+compose.yaml#services.db  L12-L15  3 lines  mapping
+  db:
+    image: postgres:16
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+1 match
+--- stderr ---

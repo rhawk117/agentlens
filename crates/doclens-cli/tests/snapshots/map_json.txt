@@ -1,0 +1,19 @@
+$ doclens map package.json
+exit: 0
+--- stdout ---
+package.json  json  12 entries
+  name            L2            "fixture"
+  version         L3            "1.2.3"
+  scripts         L4-L7         {2 keys}
+    build         L5            "tsc -p ."
+    test          L6            "vitest run"
+  dependencies    L8-L11        {2 keys}
+    react         L9            "^18.3.1"
+    zod           L10           "^3.23.8"
+  keywords        L12           [3 items]
+    0             L12           "a"
+    1             L12           "b"
+    2             L12           "c"
+
+slice package.json#name for the value
+--- stderr ---

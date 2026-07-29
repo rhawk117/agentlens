@@ -1,0 +1,8 @@
+$ doclens slice package.json#keywords[2]
+exit: 0
+--- stdout ---
+package.json#keywords[2]  L12  1 line  scalar
+"c"
+
+1 match
+--- stderr ---
