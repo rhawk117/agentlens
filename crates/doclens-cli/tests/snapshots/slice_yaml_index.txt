@@ -1,0 +1,8 @@
+$ doclens slice compose.yaml#services.web.ports[1]
+exit: 0
+--- stdout ---
+compose.yaml#services.web.ports[1]  L8  1 line  scalar
+"8443:443"
+
+1 match
+--- stderr ---

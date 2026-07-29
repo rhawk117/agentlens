@@ -1,0 +1,14 @@
+$ doclens slice compose.yaml#services.web
+exit: 0
+--- stdout ---
+compose.yaml#services.web  L5-L11  7 lines  mapping
+    image: nginx:1.27  # pinned deliberately
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      LOG_LEVEL: debug
+      DSN: postgres://db:5432/app
+
+1 match
+--- stderr ---

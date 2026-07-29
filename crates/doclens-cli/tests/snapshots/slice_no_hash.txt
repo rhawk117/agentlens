@@ -1,0 +1,5 @@
+$ doclens slice package.json
+exit: 2
+--- stdout ---
+--- stderr ---
+doclens: address `package.json` has no `#`: use `package.json#Symbol`, or `package.json#` for the outline

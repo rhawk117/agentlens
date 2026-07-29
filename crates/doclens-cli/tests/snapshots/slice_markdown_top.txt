@@ -1,0 +1,10 @@
+$ doclens slice README.md#Fixture/Usage
+exit: 0
+--- stdout ---
+README.md#Fixture/Usage  L20-L23  4 lines  section
+## Usage
+
+Call it with an address.
+
+1 match
+--- stderr ---

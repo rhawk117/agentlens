@@ -1,0 +1,8 @@
+$ doclens slice compose.yaml#version
+exit: 0
+--- stdout ---
+compose.yaml#version  L1  1 line  scalar
+"3.9"
+
+1 match
+--- stderr ---

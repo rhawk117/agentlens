@@ -1,0 +1,29 @@
+$ doclens slice compose.yaml#services.db --json
+exit: 0
+--- stdout ---
+{
+  "address": "compose.yaml#services.db",
+  "budget": 4000,
+  "command": "slice",
+  "degraded": false,
+  "detail": "full",
+  "format": "yaml",
+  "found": true,
+  "matches": [
+    {
+      "address": "compose.yaml#services.db",
+      "end_line": 15,
+      "kind": "mapping",
+      "lines": 3,
+      "path": "compose.yaml",
+      "start_line": 13,
+      "summary": "{2 keys}",
+      "text": "    image: postgres:16\n    volumes:\n      - pgdata:/var/lib/postgresql/data"
+    }
+  ],
+  "summary": {
+    "matches": 1
+  },
+  "tokens": 35
+}
+--- stderr ---

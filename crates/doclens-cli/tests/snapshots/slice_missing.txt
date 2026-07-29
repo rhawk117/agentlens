@@ -1,0 +1,18 @@
+$ doclens slice package.json#scripts.deploy
+exit: 1
+--- stdout ---
+no entry `scripts.deploy` in package.json
+available:
+  package.json#name
+  package.json#version
+  package.json#scripts
+  package.json#scripts.build
+  package.json#scripts.test
+  package.json#dependencies
+  package.json#dependencies.react
+  package.json#dependencies.zod
+  package.json#keywords
+  package.json#keywords[0]
+  package.json#keywords[1]
+  package.json#keywords[2]
+--- stderr ---

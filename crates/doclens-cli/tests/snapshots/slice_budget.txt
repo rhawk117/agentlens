@@ -1,0 +1,8 @@
+$ doclens slice compose.yaml#services --budget 20
+exit: 0
+--- stdout ---
+compose.yaml#services  L4-L15  mapping  {2 keys}
+raise --budget to see the value
+
+1 match
+--- stderr ---

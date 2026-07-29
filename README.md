@@ -13,6 +13,7 @@ The same fact through `agentlens slice` costs ~150.
 | MVP-0 | `slice` and `map` on a single Python file | shipped |
 | Phase 1 | `map` on a directory, `find`, `literals` | shipped |
 | Phase 2 | index, callers, context packet, dead-code candidates | shipped |
+| Doc tool | `doclens` for json, yaml and markdown | shipped |
 
 ## Install
 
@@ -241,8 +242,44 @@ This is the same entry point GitHub Actions runs. Individual stages:
 `scripts/format.sh`, `scripts/lint.sh`, `scripts/build.sh`, `scripts/test.sh`,
 `scripts/audit.sh`, `scripts/coverage.sh`.
 
-Snapshots live in `crates/agentlens-cli/tests/snapshots`. Regenerate with
+Snapshots live in `crates/agentlens-cli/tests/snapshots` and
+`crates/doclens-cli/tests/snapshots`. Regenerate with
 `AGENTLENS_UPDATE_SNAPSHOTS=1 cargo test --workspace`.
+
+## `doclens` — the doc tool
+
+A second binary sharing the same core crate. Stateless and file-addressed: no
+index, no cache. Slices are **byte spans, not re-serialised values**, so
+comments, key order and formatting survive intact.
+
+```
+doclens slice compose.yaml#services.web
+doclens slice compose.yaml#services.web.ports[1]
+doclens slice package.json#scripts
+doclens slice README.md#Install/From source
+doclens map compose.yaml --depth 3
+doclens find postgres --values
+```
+
+Addresses use `.` and `[n]` for JSON and YAML, and `/` between headings for
+Markdown. A quoted step survives dots: `config.json#["a.b"].c`.
+
+```
+compose.yaml  yaml  16 entries
+  version            L1            "3.9"
+  services           L4-L15        {2 keys}
+    web              L5-L11        {3 keys}
+      image          L5            nginx:1.27
+      ports          L7-L8         [2 items]  +2 nested
+```
+
+| Command | Flags |
+|---|---|
+| `slice <address>` | `--with-key` includes the key or heading line in the span |
+| `map <path>` | `--depth <n>`; a directory lists documents instead |
+| `find <pattern> [paths...]` | `--exact`, `--keys`, `--values` |
+
+Global flags, output contracts and exit codes match `agentlens`.
 
 ## Contributing
 

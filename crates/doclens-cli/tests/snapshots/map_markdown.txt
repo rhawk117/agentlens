@@ -1,0 +1,13 @@
+$ doclens map README.md --depth 3
+exit: 0
+--- stdout ---
+README.md  markdown  6 entries
+  Fixture               L1-L26        h1 — A document used by the doclens tests....
+    Install             L5-L19        h2 — Run the installer. ### From source ``...
+      From source       L9-L15        h3 — ``` cargo build --release # this hash...
+      From a release    L16-L19       h3 — Download the tarball.
+    Usage               L20-L23       h2 — Call it with an address.
+    Troubleshooting     L24-L26       h2 — Connection refused: check the DSN.
+
+slice README.md#Fixture for the value
+--- stderr ---

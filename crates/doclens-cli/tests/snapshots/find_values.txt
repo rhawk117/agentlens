@@ -1,0 +1,8 @@
+$ doclens find vitest --values
+exit: 0
+--- stdout ---
+package.json
+  package.json#scripts.test  L6      value  "vitest run"
+
+1 match
+--- stderr ---

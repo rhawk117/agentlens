@@ -7,6 +7,7 @@ pub enum Error {
     AddressEmptyPath(String),
     BadLineSpan(String),
     UnsupportedLanguage(PathBuf),
+    UnsupportedFormat(PathBuf),
     Io(PathBuf, std::io::Error),
     NotUtf8(PathBuf),
     Parse(PathBuf),
@@ -31,6 +32,11 @@ impl fmt::Display for Error {
             Self::UnsupportedLanguage(path) => {
                 write!(f, "unsupported language for `{}`", path.display())
             }
+            Self::UnsupportedFormat(path) => write!(
+                f,
+                "unsupported format for `{}`: doclens reads json, yaml and markdown",
+                path.display()
+            ),
             Self::Io(path, err) => {
                 write!(
                     f,
