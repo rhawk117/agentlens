@@ -12,9 +12,7 @@ An agent reading a 900-line file to see one 30-line method spends ~9,000 tokens.
 The same fact through `agentlens slice` costs ~150.
 
 > [!WARNING]
-> Pre-1.0 and unreleased. No version has been tagged yet, so `install.sh` builds
-> from source rather than downloading anything. The CLI surface may change
-> without a deprecation period until 1.0.
+> Pre-1.0. The CLI surface may change without a deprecation period until 1.0.
 
 > [!NOTE]
 > `agentlens` resolves symbols in **Python only**. `doclens` handles json, yaml
@@ -38,8 +36,7 @@ curl -fsSL https://raw.githubusercontent.com/rhawk117/agentlens/dev/install.sh |
 
 The script detects your platform and installs both binaries into `~/.local/bin`.
 Where a release binary exists it downloads and checksums it; otherwise it builds
-from source, which needs Rust 1.97 or newer. Nothing is tagged yet, so for now
-it always builds.
+from source, which needs Rust 1.97 or newer.
 
 | Flag | Meaning |
 |---|---|
