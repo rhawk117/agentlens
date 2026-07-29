@@ -6,6 +6,11 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "agentlens command line interface"
+homepage = "https://github.com/agentlens/agentlens"
+documentation = "https://docs.rs/agentlens-cli"
+readme = "../../README.md"
+keywords = ["cli", "code", "symbols", "static-analysis"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name = "agentlens"

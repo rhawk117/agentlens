@@ -55,6 +55,9 @@ pub struct EntryPoint {
     pub reason: String,
 }
 
+/// # Errors
+///
+/// Returns an error if `path` cannot be read or parsed.
 pub fn run(path: &Path, options: &MapOptions) -> Result<Report> {
     if path.is_dir() {
         return map_directory(path, options);

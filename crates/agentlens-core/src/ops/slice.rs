@@ -44,6 +44,9 @@ pub struct SliceMatch {
     pub text: String,
 }
 
+/// # Errors
+///
+/// Returns an error if the addressed file cannot be read, parsed, or the symbol is not found.
 pub fn run(address: &Address, options: &SliceOptions) -> Result<Report> {
     if matches!(address.selector, Selector::Outline) {
         let map_options = map::MapOptions {

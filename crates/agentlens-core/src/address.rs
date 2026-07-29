@@ -17,6 +17,10 @@ pub struct Address {
 }
 
 impl Address {
+    /// # Errors
+    ///
+    /// Returns [`Error::AddressMissingHash`] if `raw` has no `#`, or an address
+    /// parse error if the selector is malformed.
     pub fn parse(raw: &str) -> Result<Self> {
         let Some(hash) = raw.find('#') else {
             return Err(Error::AddressMissingHash(raw.to_string()));

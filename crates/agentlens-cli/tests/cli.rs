@@ -1,3 +1,11 @@
+#![allow(
+    unreachable_pub,
+    clippy::expect_used,
+    clippy::unwrap_used,
+    clippy::panic,
+    clippy::indexing_slicing
+)]
+
 mod support;
 
 use support::{Case, case, check_snapshot, run};

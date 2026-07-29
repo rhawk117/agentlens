@@ -59,7 +59,7 @@ pub fn source_files(root: &Path) -> Vec<PathBuf> {
             }
             !is_skipped_dir(&entry.file_name().to_string_lossy())
         })
-        .filter_map(std::result::Result::ok)
+        .filter_map(Result::ok)
         .filter(|entry| entry.file_type().is_file())
         .map(walkdir::DirEntry::into_path)
         .filter(|path| Lang::from_path(path).is_some())
@@ -83,7 +83,7 @@ pub fn manifests(root: &Path) -> Vec<PathBuf> {
             }
             !is_skipped_dir(&entry.file_name().to_string_lossy())
         })
-        .filter_map(std::result::Result::ok)
+        .filter_map(Result::ok)
         .filter(|entry| entry.file_type().is_file())
         .map(walkdir::DirEntry::into_path)
         .filter(|path| {

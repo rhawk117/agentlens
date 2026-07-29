@@ -6,6 +6,11 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Symbol-addressed code intelligence core for agentlens"
+homepage = "https://github.com/agentlens/agentlens"
+documentation = "https://docs.rs/agentlens-core"
+readme = "../../README.md"
+keywords = ["code", "tree-sitter", "symbols", "static-analysis"]
+categories = ["development-tools"]
 
 [dependencies]
 tree-sitter.workspace = true

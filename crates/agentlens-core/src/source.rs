@@ -16,6 +16,10 @@ pub struct SourceFile {
 }
 
 impl SourceFile {
+    /// # Errors
+    ///
+    /// Returns [`Error::UnsupportedLanguage`] if the extension is unknown,
+    /// [`Error::Io`] if the file cannot be read, or [`Error::NotUtf8`] if it is not UTF-8.
     pub fn load(path: &Path) -> Result<Self> {
         let Some(lang) = Lang::from_path(path) else {
             return Err(Error::UnsupportedLanguage(path.to_path_buf()));
@@ -25,6 +29,9 @@ impl SourceFile {
         Self::from_text(path, lang, text)
     }
 
+    /// # Errors
+    ///
+    /// Returns [`Error::Parse`] if the text cannot be parsed as `lang`.
     pub fn from_text(path: &Path, lang: Lang, text: String) -> Result<Self> {
         let mut parser = Parser::new();
         parser
@@ -115,7 +122,7 @@ fn compute_line_starts(text: &str) -> Vec<usize> {
             starts.push(index + 1);
         }
     }
-    if starts.len() > 1 && starts[starts.len() - 1] == text.len() {
+    if starts.len() > 1 && starts.last() == Some(&text.len()) {
         starts.pop();
     }
     starts
