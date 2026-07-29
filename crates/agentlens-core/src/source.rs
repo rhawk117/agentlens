@@ -16,10 +16,13 @@ pub struct SourceFile {
 }
 
 impl SourceFile {
+    /// Load and parse a source file from disk.
+    ///
     /// # Errors
     ///
-    /// Returns [`Error::UnsupportedLanguage`] if the extension is unknown,
-    /// [`Error::Io`] if the file cannot be read, or [`Error::NotUtf8`] if it is not UTF-8.
+    /// Returns [`Error::UnsupportedLanguage`] if the extension maps to no known
+    /// language, [`Error::Io`] if `path` cannot be read, and [`Error::NotUtf8`]
+    /// if its contents are not valid UTF-8.
     pub fn load(path: &Path) -> Result<Self> {
         let Some(lang) = Lang::from_path(path) else {
             return Err(Error::UnsupportedLanguage(path.to_path_buf()));
@@ -29,9 +32,11 @@ impl SourceFile {
         Self::from_text(path, lang, text)
     }
 
+    /// Parse already-loaded source text.
+    ///
     /// # Errors
     ///
-    /// Returns [`Error::Parse`] if the text cannot be parsed as `lang`.
+    /// Returns [`Error::Parse`] if the tree-sitter parser cannot produce a tree.
     pub fn from_text(path: &Path, lang: Lang, text: String) -> Result<Self> {
         let mut parser = Parser::new();
         parser
@@ -112,6 +117,24 @@ impl SourceFile {
         let start = self.line_start_byte(start_line);
         let end = self.line_end_byte(end_line.min(self.line_count()));
         (start, end)
+    }
+}
+
+pub fn visit_nodes(root: Node<'_>, visit: &mut impl FnMut(Node<'_>)) {
+    let mut cursor = root.walk();
+    loop {
+        visit(cursor.node());
+        if cursor.goto_first_child() {
+            continue;
+        }
+        loop {
+            if cursor.goto_next_sibling() {
+                break;
+            }
+            if !cursor.goto_parent() {
+                return;
+            }
+        }
     }
 }
 

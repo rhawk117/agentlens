@@ -5,7 +5,13 @@ pub fn collapse_ws(text: &str) -> String {
 }
 
 pub fn slash_path(path: &Path) -> String {
-    path.to_string_lossy().replace('\\', "/")
+    let text = path.to_string_lossy().replace('\\', "/");
+    let trimmed = text.strip_prefix("./").unwrap_or(&text);
+    if trimmed.is_empty() {
+        ".".to_string()
+    } else {
+        trimmed.to_string()
+    }
 }
 
 pub fn commas(value: usize) -> String {
@@ -124,6 +130,12 @@ mod tests {
     #[test]
     fn collapses_multiline_signatures() {
         assert_eq!(collapse_ws("def f(a,\n   b):"), "def f(a, b):");
+    }
+
+    #[test]
+    fn strips_the_leading_dot_slash() {
+        assert_eq!(slash_path(Path::new("./src/a.py")), "src/a.py");
+        assert_eq!(slash_path(Path::new(".")), ".");
     }
 
     #[test]

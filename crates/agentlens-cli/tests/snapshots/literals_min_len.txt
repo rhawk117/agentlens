@@ -1,0 +1,18 @@
+$ agentlens literals src/api --min-len 12
+exit: 0
+--- stdout ---
+1                    number  x1
+  src/api/users.py#UserService.Cursor.next  L39
+2                    number  x1
+  src/api/users.py#UserService.RETRY_BACKOFF  L18
+3                    number  x1
+  src/api/users.py#MAX_RETRIES  L5
+"created user %s"    string  x1
+  src/api/users.py#UserService.create_user  L27
+"deleting user %d"   string  x1
+  src/api/users.py#UserService.delete_user  L31
+"email is required"  string  x1
+  src/api/users.py#UserService.create_user  L25
+
+6 literals, 6 distinct
+--- stderr ---

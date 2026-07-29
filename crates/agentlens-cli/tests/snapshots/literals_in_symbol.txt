@@ -1,0 +1,12 @@
+$ agentlens literals --in src/api/users.py#UserService.create_user
+exit: 0
+--- stdout ---
+"created user %s"    string  x1
+  src/api/users.py#UserService.create_user  L27
+"email is required"  string  x1
+  src/api/users.py#UserService.create_user  L25
+"user.create"        string  x1
+  src/api/users.py#UserService.create_user  L22
+
+3 literals, 3 distinct
+--- stderr ---

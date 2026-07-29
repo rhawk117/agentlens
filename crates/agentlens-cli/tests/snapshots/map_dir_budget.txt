@@ -1,0 +1,7 @@
+$ agentlens map . --budget 60
+exit: 0
+--- stdout ---
+.  5 source files  121 lines
+  5 entry points  1 manifest
+raise --budget for the tree and entry points
+--- stderr ---

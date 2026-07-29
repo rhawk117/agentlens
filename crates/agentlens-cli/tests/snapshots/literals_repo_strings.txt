@@ -1,0 +1,38 @@
+$ agentlens literals --kind string
+exit: 0
+--- stdout ---
+"a@example.com"                  string  x3
+  src/cli.py#main                       L8
+  tests/test_users.py#test_create_user  L6
+  tests/test_users.py#test_create_user  L7
+"/health"                        string  x1
+  src/api/routes.py#health  L7
+"/users"                         string  x1
+  src/api/routes.py#create  L12
+"__main__"                       string  x1
+  src/cli.py#L12  L12
+"connection refused: <>:<>"      string  x1
+  src/core/config.py#describe  L10
+"connection refused: nowhere"    string  x1
+  src/core/config.py#banner  L14
+"created user %s"                string  x1
+  src/api/users.py#UserService.create_user  L27
+"deleting user %d"               string  x1
+  src/api/users.py#UserService.delete_user  L31
+"email"                          string  x1
+  src/api/routes.py#create  L15
+"email is required"              string  x1
+  src/api/users.py#UserService.create_user  L25
+"member"                         string  x1
+  src/api/users.py#DEFAULT_ROLE  L6
+"ok"                             string  x1
+  src/api/routes.py#health  L9
+"postgres://localhost:5432/app"  string  x1
+  src/core/config.py#DSN  L5
+"status"                         string  x1
+  src/api/routes.py#health  L9
+"user.create"                    string  x1
+  src/api/users.py#UserService.create_user  L22
+
+17 literals, 15 distinct
+--- stderr ---

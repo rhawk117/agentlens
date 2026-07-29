@@ -31,32 +31,12 @@ impl fmt::Display for Error {
             Self::UnsupportedLanguage(path) => {
                 write!(f, "unsupported language for `{}`", path.display())
             }
-            Self::Io(path, err) => {
-                write!(
-                    f,
-                    "cannot read `{}`: {}",
-                    path.display(),
-                    stable_reason(err)
-                )
-            }
+            Self::Io(path, err) => write!(f, "cannot read `{}`: {err}", path.display()),
             Self::NotUtf8(path) => write!(f, "`{}` is not valid utf-8", path.display()),
             Self::Parse(path) => write!(f, "cannot parse `{}`", path.display()),
             Self::BadRegex(pattern) => write!(f, "bad pattern `{pattern}`"),
             Self::BadKind(kind) => write!(f, "unknown kind `{kind}`"),
         }
-    }
-}
-
-/// `io::Error`'s own `Display` is the OS's message, which differs between
-/// platforms for the same condition. Output is a contract here, so map the kind
-/// to fixed text. The original error stays reachable through `source()`.
-fn stable_reason(err: &std::io::Error) -> &'static str {
-    use std::io::ErrorKind;
-    match err.kind() {
-        ErrorKind::NotFound => "not found",
-        ErrorKind::PermissionDenied => "permission denied",
-        ErrorKind::IsADirectory => "is a directory",
-        _ => "read failed",
     }
 }
 

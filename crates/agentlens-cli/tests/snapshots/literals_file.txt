@@ -1,0 +1,18 @@
+$ agentlens literals src/core/config.py
+exit: 0
+--- stdout ---
+3                                number  x1
+  src/core/config.py#RETRY_LIMIT  L4
+30                               number  x1
+  src/core/config.py#TIMEOUT_SECONDS  L3
+"^[a-z0-9-]+$"                   regex   x1
+  src/core/config.py#SLUG_PATTERN  L6
+"connection refused: <>:<>"      string  x1
+  src/core/config.py#describe  L10
+"connection refused: nowhere"    string  x1
+  src/core/config.py#banner  L14
+"postgres://localhost:5432/app"  string  x1
+  src/core/config.py#DSN  L5
+
+6 literals, 6 distinct
+--- stderr ---

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use agentlens_core::budget::DEFAULT_BUDGET;
-use agentlens_core::ops::{map, slice};
+use agentlens_core::ops::{find, literals, map, slice};
 use agentlens_core::{Address, KindFilter, Report};
 use clap::{Parser, Subcommand};
 
@@ -49,6 +49,45 @@ enum Command {
         depth: usize,
         #[arg(long, default_value = "all", value_name = "k")]
         kind: String,
+    },
+    #[command(about = "kind-aware search: definition, call, reference")]
+    Find {
+        #[arg(value_name = "pattern")]
+        pattern: String,
+        #[arg(value_name = "paths")]
+        paths: Vec<PathBuf>,
+        #[arg(long, default_value = "any", value_name = "k")]
+        kind: String,
+        #[arg(long, help = "whole-symbol match rather than regex")]
+        exact: bool,
+        #[arg(long, help = "search comment bodies too")]
+        include_comments: bool,
+        #[arg(long, help = "search string bodies too")]
+        include_strings: bool,
+        #[arg(long, default_value = "symbol", value_name = "c")]
+        context: String,
+    },
+    #[command(about = "extract string, number and regex literals")]
+    Literals {
+        #[arg(value_name = "paths")]
+        paths: Vec<PathBuf>,
+        #[arg(long, default_value = "all", value_name = "k")]
+        kind: String,
+        #[arg(long = "match", value_name = "pat")]
+        match_pattern: Option<String>,
+        #[arg(long, default_value_t = 2, value_name = "n")]
+        min_len: usize,
+        #[arg(long = "in", value_name = "address")]
+        scope: Option<String>,
+        #[arg(long, help = "list every occurrence instead of grouping by value")]
+        no_group: bool,
+        #[arg(
+            long,
+            help = "keep interpolation verbatim instead of normalising to <>"
+        )]
+        no_skeleton: bool,
+        #[arg(long, help = "include docstrings")]
+        include_docstrings: bool,
     },
 }
 
@@ -97,6 +136,61 @@ fn dispatch(cli: &Cli) -> Result<Report, String> {
                 quiet: cli.quiet,
             };
             map::run(path, &options).map_err(|err| err.to_string())
+        }
+        Command::Find {
+            pattern,
+            paths,
+            kind,
+            exact,
+            include_comments,
+            include_strings,
+            context,
+        } => {
+            let kind = find::OccurrenceFilter::parse(kind).ok_or_else(|| {
+                format!("unknown kind `{kind}`: use definition, call, reference or any")
+            })?;
+            let context = find::Context::parse(context)
+                .ok_or_else(|| format!("unknown context `{context}`: use symbol or none"))?;
+            let options = find::FindOptions {
+                kind,
+                exact: *exact,
+                include_comments: *include_comments,
+                include_strings: *include_strings,
+                context,
+                budget: cli.budget,
+                quiet: cli.quiet,
+            };
+            find::run(pattern, paths, &options).map_err(|err| err.to_string())
+        }
+        Command::Literals {
+            paths,
+            kind,
+            match_pattern,
+            min_len,
+            scope,
+            no_group,
+            no_skeleton,
+            include_docstrings,
+        } => {
+            let kind = literals::LiteralFilter::parse(kind).ok_or_else(|| {
+                format!("unknown kind `{kind}`: use string, number, regex or all")
+            })?;
+            let scope = match scope {
+                Some(raw) => Some(Address::parse(raw).map_err(|err| err.to_string())?),
+                None => None,
+            };
+            let options = literals::LiteralsOptions {
+                kind,
+                match_pattern: match_pattern.clone(),
+                min_len: *min_len,
+                scope,
+                group: !*no_group,
+                skeleton: !*no_skeleton,
+                include_docstrings: *include_docstrings,
+                budget: cli.budget,
+                quiet: cli.quiet,
+            };
+            literals::run(paths, &options).map_err(|err| err.to_string())
         }
     }
 }

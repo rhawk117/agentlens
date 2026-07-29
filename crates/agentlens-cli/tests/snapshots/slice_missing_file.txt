@@ -2,4 +2,4 @@ $ agentlens slice src/api/ghost.py#Thing
 exit: 2
 --- stdout ---
 --- stderr ---
-agentlens: cannot read `src/api/ghost.py`: not found
+agentlens: cannot read `src/api/ghost.py`: No such file or directory (os error 2)

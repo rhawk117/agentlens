@@ -1,0 +1,10 @@
+$ agentlens literals --match connection
+exit: 0
+--- stdout ---
+"connection refused: <>:<>"    string  x1
+  src/core/config.py#describe  L10
+"connection refused: nowhere"  string  x1
+  src/core/config.py#banner  L14
+
+2 literals, 2 distinct
+--- stderr ---

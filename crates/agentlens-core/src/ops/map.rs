@@ -55,9 +55,12 @@ pub struct EntryPoint {
     pub reason: String,
 }
 
+/// Produce a structural map of a file or directory.
+///
 /// # Errors
 ///
-/// Returns an error if `path` cannot be read or parsed.
+/// Propagates [`Error::Io`], [`Error::NotUtf8`], and [`Error::Parse`] from
+/// the files it visits.
 pub fn run(path: &Path, options: &MapOptions) -> Result<Report> {
     if path.is_dir() {
         return map_directory(path, options);
@@ -286,7 +289,7 @@ fn map_directory(root: &Path, options: &MapOptions) -> Result<Report> {
     }
 
     for manifest in walk::manifests(root) {
-        entry_points.extend(console_scripts(&manifest));
+        entry_points.extend(console_scripts(root, &manifest));
     }
     entry_points.sort_by(|a, b| a.address.cmp(&b.address).then(a.reason.cmp(&b.reason)));
     entry_points.dedup_by(|a, b| a.address == b.address && a.reason == b.reason);
@@ -471,7 +474,24 @@ fn collect_entry_points(file: &SourceFile, rel: &str, route: &Regex, out: &mut V
     }
 }
 
-fn console_scripts(manifest: &Path) -> Vec<EntryPoint> {
+fn resolve_console_target(root: &Path, target: &str) -> Option<String> {
+    let (module, function) = target.split_once(':')?;
+    let relative = format!("{}.py", module.replace('.', "/"));
+    let candidate = root.join(&relative);
+    if candidate.is_file() {
+        return Some(format!("{relative}#{function}"));
+    }
+    let package = root.join(module.replace('.', "/")).join("__main__.py");
+    if package.is_file() {
+        return Some(format!(
+            "{}/__main__.py#{function}",
+            module.replace('.', "/")
+        ));
+    }
+    None
+}
+
+fn console_scripts(root: &Path, manifest: &Path) -> Vec<EntryPoint> {
     if manifest.file_name().and_then(|name| name.to_str()) != Some("pyproject.toml") {
         return Vec::new();
     }
@@ -493,8 +513,10 @@ fn console_scripts(manifest: &Path) -> Vec<EntryPoint> {
             continue;
         };
         let target = target.trim().trim_matches('"').trim_matches('\'');
+        let address = resolve_console_target(root, target)
+            .unwrap_or_else(|| format!("{target} (unresolved)"));
         out.push(EntryPoint {
-            address: target.to_string(),
+            address,
             reason: format!("console script `{}`", name.trim()),
         });
     }
