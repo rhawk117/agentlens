@@ -1,6 +1,6 @@
 mod support;
 
-use support::{case, check_snapshot, run, Case};
+use support::{Case, case, check_snapshot, run};
 
 const CASES: &[Case] = &[
     case(

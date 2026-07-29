@@ -2,11 +2,11 @@ use serde::Serialize;
 use serde_json::json;
 
 use crate::address::{Address, Selector};
-use crate::budget::{estimate_tokens, fit, Detail, DEFAULT_BUDGET};
+use crate::budget::{DEFAULT_BUDGET, Detail, estimate_tokens, fit};
 use crate::error::Result;
-use crate::ops::map;
 use crate::ops::Report;
-use crate::render::{collapse_ws, commas, line_span, plural, slash_path, truncation_note, Lines};
+use crate::ops::map;
+use crate::render::{Lines, collapse_ws, commas, line_span, plural, slash_path, truncation_note};
 use crate::source::SourceFile;
 use crate::symbols::{self, Symbol};
 

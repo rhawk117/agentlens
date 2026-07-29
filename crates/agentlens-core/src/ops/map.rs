@@ -6,10 +6,10 @@ use regex::Regex;
 use serde::Serialize;
 use serde_json::json;
 
-use crate::budget::{estimate_tokens, fit, Detail, DEFAULT_BUDGET};
+use crate::budget::{DEFAULT_BUDGET, Detail, estimate_tokens, fit};
 use crate::error::{Error, Result};
 use crate::ops::Report;
-use crate::render::{collapse_ws, indent, line_span, pad, plural, slash_path, Lines};
+use crate::render::{Lines, collapse_ws, indent, line_span, pad, plural, slash_path};
 use crate::source::SourceFile;
 use crate::symbols::{self, KindFilter, Symbol, SymbolKind};
 use crate::walk;

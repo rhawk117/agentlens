@@ -9,7 +9,7 @@ pub mod symbols;
 pub mod walk;
 
 pub use address::{Address, Selector};
-pub use budget::{Detail, DEFAULT_BUDGET};
+pub use budget::{DEFAULT_BUDGET, Detail};
 pub use error::{Error, Result};
 pub use lang::Lang;
 pub use ops::Report;
