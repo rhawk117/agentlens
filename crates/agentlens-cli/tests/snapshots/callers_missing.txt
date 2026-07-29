@@ -1,0 +1,12 @@
+$ agentlens callers src/core/config.py#nope --no-cache
+exit: 1
+--- stdout ---
+no symbol `nope` in src/core/config.py
+available:
+  src/core/config.py#TIMEOUT_SECONDS
+  src/core/config.py#RETRY_LIMIT
+  src/core/config.py#DSN
+  src/core/config.py#SLUG_PATTERN
+  src/core/config.py#describe
+  src/core/config.py#banner
+--- stderr ---

@@ -1,0 +1,57 @@
+$ agentlens callers src/api/users.py#UserService.create_user --json --no-cache
+exit: 0
+--- stdout ---
+{
+  "address": "src/api/users.py#UserService.create_user",
+  "budget": 4000,
+  "callers": [
+    {
+      "address": "src/api/routes.py#create",
+      "arity": 2,
+      "call": "service.create_user",
+      "confidence": "likely",
+      "is_test": false,
+      "line": 14,
+      "path": "src/api/routes.py",
+      "reason": "attribute call on `service`, name unique in repo"
+    },
+    {
+      "address": "src/cli.py#main",
+      "arity": 2,
+      "call": "service.create_user",
+      "confidence": "likely",
+      "is_test": false,
+      "line": 8,
+      "path": "src/cli.py",
+      "reason": "attribute call on `service`, name unique in repo"
+    },
+    {
+      "address": "tests/test_users.py#test_create_user",
+      "arity": 2,
+      "call": "service.create_user",
+      "confidence": "likely",
+      "is_test": true,
+      "line": 6,
+      "path": "tests/test_users.py",
+      "reason": "attribute call on `service`, name unique in repo"
+    }
+  ],
+  "command": "callers",
+  "degraded": false,
+  "detail": "full",
+  "found": true,
+  "summary": {
+    "callers": 3,
+    "certain": 0,
+    "likely": 3,
+    "possible": 0,
+    "tests": 1
+  },
+  "target": {
+    "definitions": 1,
+    "homonyms": 1,
+    "signature": "def create_user(self, email: str, name: str) -> User:"
+  },
+  "tokens": 119
+}
+--- stderr ---

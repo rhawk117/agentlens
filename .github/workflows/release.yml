@@ -1,0 +1,152 @@
+name: release
+
+# Publishes binaries for the four targets we build natively. Tag-triggered for
+# real releases; workflow_dispatch produces a draft so the pipeline can be
+# exercised without spending a version number.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: never
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+            ext: ""
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+            archive: tar.gz
+            ext: ""
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive: tar.gz
+            ext: ""
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+            ext: ".exe"
+    steps:
+      - uses: actions/checkout@v4
+
+      # Toolchain version comes from rust-toolchain.toml; only the target is
+      # added here.
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "tag=v0.0.0-dev" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build
+        run: |
+          cargo build --release --locked \
+            --target ${{ matrix.target }} \
+            -p agentlens-cli -p doclens-cli
+
+      # Both binaries ship in one archive. They share a core crate and the agent
+      # kit teaches both, so splitting them would mean two downloads to make the
+      # skill work.
+      # Matrix values reach the shell as environment variables rather than
+      # inline ${{ }} substitution, which keeps them out of the script text.
+      - name: Stage archive contents
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          TARGET: ${{ matrix.target }}
+          EXT: ${{ matrix.ext }}
+        run: |
+          stage="agentlens-${TAG}-${TARGET}"
+          mkdir -p "dist/${stage}"
+          cp "target/${TARGET}/release/agentlens${EXT}" "dist/${stage}/"
+          cp "target/${TARGET}/release/doclens${EXT}" "dist/${stage}/"
+          cp LICENSE README.md "dist/${stage}/"
+          echo "stage=${stage}" >> "${GITHUB_ENV}"
+
+      - name: Archive
+        working-directory: dist
+        env:
+          ARCHIVE: ${{ matrix.archive }}
+        run: |
+          if [ "${ARCHIVE}" = zip ]; then
+            7z a "${stage}.zip" "${stage}"
+          else
+            tar czf "${stage}.tar.gz" "${stage}"
+          fi
+          rm -rf "${stage}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: publish
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: staging
+
+      # Every checksum is produced by one tool on one platform, so a mismatch
+      # means a corrupted download rather than a coreutils difference.
+      - name: Collect and checksum
+        working-directory: staging
+        run: |
+          mkdir -p ../dist
+          find . -type f \( -name '*.tar.gz' -o -name '*.zip' \) -exec mv {} ../dist/ \;
+          cd ../dist
+          # Listed explicitly rather than with a bare glob, so SHA256SUMS can
+          # never end up checksumming itself.
+          sha256sum -- *.tar.gz *.zip > ../SHA256SUMS
+          mv ../SHA256SUMS .
+          cat SHA256SUMS
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            gh release create "${GITHUB_REF#refs/tags/}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "${GITHUB_REF#refs/tags/}" \
+              --generate-notes \
+              dist/*
+          else
+            gh release create "v0.0.0-dev-${GITHUB_RUN_ID}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "draft build ${GITHUB_RUN_ID}" \
+              --draft \
+              --notes "Draft produced by workflow_dispatch. Not a real release." \
+              dist/*
+          fi

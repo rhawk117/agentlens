@@ -44,9 +44,12 @@ pub struct SliceMatch {
     pub text: String,
 }
 
+/// Extract the source slice a resolved address points at.
+///
 /// # Errors
 ///
-/// Returns an error if the addressed file cannot be read, parsed, or the symbol is not found.
+/// Propagates [`Error::Io`], [`Error::NotUtf8`], and [`Error::Parse`] from the
+/// addressed file.
 pub fn run(address: &Address, options: &SliceOptions) -> Result<Report> {
     if matches!(address.selector, Selector::Outline) {
         let map_options = map::MapOptions {

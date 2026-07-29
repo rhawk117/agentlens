@@ -1,0 +1,13 @@
+$ doclens slice compose.yaml#
+exit: 0
+--- stdout ---
+compose.yaml  yaml  6 entries
+  version     L1            "3.9"
+  services    L4-L15        {2 keys}
+    web       L5-L11        {3 keys}  +7 nested
+    db        L13-L15       {2 keys}  +3 nested
+  volumes     L18           {1 key}
+    pgdata    L18           {0 keys}
+
+slice compose.yaml#version for the value
+--- stderr ---

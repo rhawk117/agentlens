@@ -1,0 +1,9 @@
+$ doclens find image --keys
+exit: 0
+--- stdout ---
+compose.yaml
+  compose.yaml#services.web.image  L5      key    image
+  compose.yaml#services.db.image   L13     key    image
+
+2 matches
+--- stderr ---

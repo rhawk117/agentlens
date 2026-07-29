@@ -1,0 +1,11 @@
+$ doclens slice package.json#scripts
+exit: 0
+--- stdout ---
+package.json#scripts  L4-L7  4 lines  mapping
+{
+    "build": "tsc -p .",
+    "test": "vitest run"
+  }
+
+1 match
+--- stderr ---

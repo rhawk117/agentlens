@@ -1,0 +1,13 @@
+$ agentlens literals src/core/config.py --no-group
+exit: 0
+--- stdout ---
+src/core/config.py
+  L3      number  30
+  L4      number  3
+  L5      string  "postgres://localhost:5432/app"
+  L6      regex   "^[a-z0-9-]+$"
+  L10     string  "connection refused: <>:<>"
+  L14     string  "connection refused: nowhere"
+
+6 literals, 6 distinct
+--- stderr ---

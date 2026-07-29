@@ -1,0 +1,10 @@
+$ doclens map .
+exit: 0
+--- stdout ---
+.  3 documents
+  README.md     markdown   6 entries     26 lines
+  compose.yaml  yaml       16 entries    18 lines
+  package.json  json       12 entries    13 lines
+
+map ./<file> for a document outline
+--- stderr ---

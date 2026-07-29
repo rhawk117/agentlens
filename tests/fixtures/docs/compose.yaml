@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  web:
+    image: nginx:1.27  # pinned deliberately
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      LOG_LEVEL: debug
+      DSN: postgres://db:5432/app
+  db:
+    image: postgres:16
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}

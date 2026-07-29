@@ -1,0 +1,24 @@
+$ agentlens map . --depth 1
+exit: 0
+--- stdout ---
+.  5 source files  121 lines
+
+languages
+  python    5 files  121 lines
+
+tree (depth 1)
+  src/  4 files  109 lines
+  tests/  1 file  12 lines
+
+entry points
+  src/api/routes.py#create  @app.post("/users")
+  src/api/routes.py#health  @app.get("/health")
+  src/cli.py#L12            __main__ guard
+  src/cli.py#main           console script `fixture`
+  src/cli.py#main           main function
+
+manifests
+  pyproject.toml
+
+map ./<file> for a file outline
+--- stderr ---

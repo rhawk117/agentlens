@@ -1,0 +1,8 @@
+$ agentlens find never appear --include-comments
+exit: 0
+--- stdout ---
+src/api/users.py
+  L20     comment     # This comment must never appear in the slice.  in #UserService
+
+1 match in 1 file
+--- stderr ---

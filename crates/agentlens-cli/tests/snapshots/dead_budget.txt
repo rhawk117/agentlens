@@ -1,0 +1,9 @@
+$ agentlens dead --budget 40 --no-cache
+exit: 0
+--- stdout ---
+dead-code candidates: zero call sites, not exported, not entry points, not tests
+  7 candidates, 17 lines
+raise --budget for the addresses
+
+7 candidates — reflection and DI defeat this, verify before deleting
+--- stderr ---

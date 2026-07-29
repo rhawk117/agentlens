@@ -1,4 +1,10 @@
+pub mod callers;
+pub mod dead;
+pub mod doc;
+pub mod find;
+pub mod literals;
 pub mod map;
+pub mod packet;
 pub mod slice;
 
 use serde_json::Value;

@@ -1,0 +1,13 @@
+$ doclens slice README.md#Fixture/Install/From source
+exit: 0
+--- stdout ---
+README.md#Fixture/Install/From source  L9-L15  7 lines  section
+### From source
+
+```
+cargo build --release
+# this hash is not a heading
+```
+
+1 match
+--- stderr ---

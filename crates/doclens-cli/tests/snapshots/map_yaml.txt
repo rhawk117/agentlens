@@ -1,0 +1,18 @@
+$ doclens map compose.yaml --depth 3
+exit: 0
+--- stdout ---
+compose.yaml  yaml  11 entries
+  version            L1            "3.9"
+  services           L4-L15        {2 keys}
+    web              L5-L11        {3 keys}
+      image          L5            nginx:1.27
+      ports          L7-L8         [2 items]  +2 nested
+      environment    L10-L11       {2 keys}  +2 nested
+    db               L13-L15       {2 keys}
+      image          L13           postgres:16
+      volumes        L15           [1 item]  +1 nested
+  volumes            L18           {1 key}
+    pgdata           L18           {0 keys}
+
+slice compose.yaml#version for the value
+--- stderr ---

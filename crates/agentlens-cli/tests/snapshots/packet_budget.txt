@@ -1,0 +1,17 @@
+$ agentlens packet src/api/users.py#UserService.create_user --budget 120 --no-cache
+exit: 0
+--- stdout ---
+packet src/api/users.py#UserService.create_user
+
+target  L21-L28
+    @transaction.atomic
+    @audit("user.create")
+    def create_user(self, email: str, name: str) -> User:
+        if not email:
+            raise ValueError("email is required")
+        user = User(email, name)
+        self._log("created user %s", email)
+        return user
+
+3 callers, 2 callees, 1 type — raise --budget for their signatures
+--- stderr ---
