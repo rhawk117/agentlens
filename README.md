@@ -12,7 +12,7 @@ The same fact through `agentlens slice` costs ~150.
 |---|---|---|
 | MVP-0 | `slice` and `map` on a single Python file | shipped |
 | Phase 1 | `map` on a directory, `find`, `literals` | shipped |
-| Phase 2 | index, callers, context packet, dead-code candidates | planned |
+| Phase 2 | index, callers, context packet, dead-code candidates | shipped |
 
 ## Install
 
@@ -151,6 +151,62 @@ source that emitted it. Docstrings are excluded by default.
 | `--no-skeleton` | skeleton on | Keep interpolation verbatim |
 | `--include-docstrings` | off | Include docstrings |
 
+### `callers` — direct callers, depth 1
+
+```
+agentlens callers src/api/users.py#UserService.create_user
+```
+
+```
+src/api/users.py#UserService.create_user  def create_user(self, email: str, name: str) -> User:
+
+certain
+  src/cli.py#main                       L8   2 args         imported by name
+
+likely
+  src/api/routes.py#create              L14  2 args         attribute call on `service`, name unique in repo
+  tests/test_users.py#test_create_user  L6   2 args [test]  attribute call on `service`
+
+3 callers (2 non-test, 1 test)
+```
+
+Results carry a confidence tier — `certain`, `likely`, `possible` — and the
+reason for it. Python is the hardest language for this and it is deliberately
+first: expect `possible`-tier noise from duck typing and decorators. Test call
+sites are tagged `[test]`; `--no-tests` drops them.
+
+### `packet` — context packet
+
+```
+agentlens packet src/api/users.py#UserService.create_user
+```
+
+The full body of the target, signature-only lines for direct callers and
+callees, and the types named in the signature. When the budget bites, the body
+survives and the signature sections go first.
+
+### `dead` — dead-code candidates
+
+```
+agentlens dead
+```
+
+Zero call sites, minus exported (`__all__`, package `__init__.py`), minus entry
+points, minus tests, minus registration decorators. Labelled **candidates**,
+never "dead" — reflection and DI defeat this.
+
+## The index
+
+Index-backed commands (`callers`, `packet`, `dead`) keep an in-repo
+`.agentlens-cache/` containing a `.gitignore` of `*`, so it conceals itself.
+Freshness is a stat walk over `(mtime_ns, size)`, then a blake3 content hash
+over only the candidates — git rewrites mtimes wholesale on checkout and rebase,
+so mtime alone over-invalidates badly.
+
+The cache is a cache, never a source of truth: missing or corrupt means a silent
+rebuild, and there is no `index` command anyone has to remember. `--no-cache`
+skips reading and writing it; `--root <path>` sets the repo root.
+
 ## Global flags
 
 | Flag | Meaning |
@@ -159,6 +215,8 @@ source that emitted it. Docstrings are excluded by default.
 | `--json` | Machine-readable output |
 | `--no-color` | Accepted; agentlens never emits ANSI |
 | `--quiet` | Suppress the summary line |
+| `--no-cache` | Ignore and do not write `.agentlens-cache` |
+| `--root <path>` | Repo root for index-backed commands |
 
 Exit codes: **0** found, **1** not found, **2** error. An agent can branch
 without parsing output.

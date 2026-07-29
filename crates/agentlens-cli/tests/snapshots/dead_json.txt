@@ -1,0 +1,82 @@
+$ agentlens dead --json --no-cache
+exit: 0
+--- stdout ---
+{
+  "budget": 4000,
+  "candidates": [
+    {
+      "address": "src/api/routes.py#_unused_helper",
+      "end_line": 19,
+      "kind": "function",
+      "lines": 2,
+      "path": "src/api/routes.py",
+      "signature": "def _unused_helper(value: str) -> str:",
+      "start_line": 18
+    },
+    {
+      "address": "src/api/users.py#UserService.Cursor",
+      "end_line": 39,
+      "kind": "class",
+      "lines": 3,
+      "path": "src/api/users.py",
+      "signature": "class Cursor:",
+      "start_line": 37
+    },
+    {
+      "address": "src/api/users.py#UserService.Cursor.next",
+      "end_line": 39,
+      "kind": "function",
+      "lines": 2,
+      "path": "src/api/users.py",
+      "signature": "def next(self) -> int:",
+      "start_line": 38
+    },
+    {
+      "address": "src/api/users.py#normalise",
+      "end_line": 57,
+      "kind": "function",
+      "lines": 4,
+      "path": "src/api/users.py",
+      "signature": "def normalise(value):",
+      "start_line": 54
+    },
+    {
+      "address": "src/api/users.py#only_when_typing",
+      "end_line": 63,
+      "kind": "function",
+      "lines": 2,
+      "path": "src/api/users.py",
+      "signature": "def only_when_typing() -> None:",
+      "start_line": 62
+    },
+    {
+      "address": "src/core/config.py#describe",
+      "end_line": 10,
+      "kind": "function",
+      "lines": 2,
+      "path": "src/core/config.py",
+      "signature": "def describe(host: str, port: int) -> str:",
+      "start_line": 9
+    },
+    {
+      "address": "src/core/config.py#banner",
+      "end_line": 14,
+      "kind": "function",
+      "lines": 2,
+      "path": "src/core/config.py",
+      "signature": "def banner() -> str:",
+      "start_line": 13
+    }
+  ],
+  "command": "dead",
+  "degraded": false,
+  "detail": "full",
+  "found": true,
+  "summary": {
+    "candidates": 7,
+    "files_scanned": 5,
+    "lines": 17
+  },
+  "tokens": 202
+}
+--- stderr ---

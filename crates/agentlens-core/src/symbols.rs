@@ -1,10 +1,10 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tree_sitter::Node;
 
 use crate::render::collapse_ws;
 use crate::source::SourceFile;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SymbolKind {
     Class,
@@ -59,6 +59,10 @@ pub struct Symbol {
     pub def_start: usize,
     pub sig_end: usize,
     pub decorators: Vec<String>,
+    pub params: Vec<String>,
+    pub required: usize,
+    pub max_args: Option<usize>,
+    pub type_names: Vec<String>,
     pub children: Vec<Symbol>,
 }
 
@@ -152,6 +156,7 @@ fn push_definition(
             trim_back(file, def.start_byte(), body.start_byte())
         });
     let decorators = decorated.map_or_else(Vec::new, |node| decorator_texts(file, node));
+    let signature_info = signature_info(file, def, prefix);
 
     let mut children = Vec::new();
     if let Some(body) = def.child_by_field_name("body") {
@@ -175,7 +180,90 @@ fn push_definition(
         def_start: def.start_byte(),
         sig_end,
         decorators,
+        params: signature_info.params,
+        required: signature_info.required,
+        max_args: signature_info.max_args,
+        type_names: signature_info.type_names,
         children,
+    });
+}
+
+#[derive(Debug, Default)]
+struct SignatureInfo {
+    params: Vec<String>,
+    required: usize,
+    max_args: Option<usize>,
+    type_names: Vec<String>,
+}
+
+const IMPLICIT_RECEIVERS: &[&str] = &["self", "cls"];
+
+fn signature_info(file: &SourceFile, def: Node<'_>, prefix: &str) -> SignatureInfo {
+    let mut info = SignatureInfo::default();
+    if let Some(return_type) = def.child_by_field_name("return_type") {
+        collect_type_names(file, return_type, &mut info.type_names);
+    }
+    let Some(parameters) = def.child_by_field_name("parameters") else {
+        info.max_args = Some(0);
+        return info;
+    };
+    let mut cursor = parameters.walk();
+    let mut positional = 0usize;
+    let mut required = 0usize;
+    let mut unbounded = false;
+    let mut first = true;
+    for child in parameters.named_children(&mut cursor) {
+        let kind = child.kind();
+        if matches!(
+            kind,
+            "keyword_separator" | "positional_separator" | "comment"
+        ) {
+            continue;
+        }
+        let name = parameter_name(file, child);
+        let implicit = first && !prefix.is_empty() && IMPLICIT_RECEIVERS.contains(&name.as_str());
+        first = false;
+        info.params.push(name);
+        if let Some(type_node) = child.child_by_field_name("type") {
+            collect_type_names(file, type_node, &mut info.type_names);
+        }
+        if implicit {
+            continue;
+        }
+        match kind {
+            "list_splat_pattern" => unbounded = true,
+            "dictionary_splat_pattern" => {}
+            "default_parameter" | "typed_default_parameter" => positional += 1,
+            _ => {
+                positional += 1;
+                required += 1;
+            }
+        }
+    }
+    info.required = required;
+    info.max_args = if unbounded { None } else { Some(positional) };
+    info.type_names.sort();
+    info.type_names.dedup();
+    info
+}
+
+fn parameter_name(file: &SourceFile, node: Node<'_>) -> String {
+    if let Some(name) = node.child_by_field_name("name") {
+        return file.node_text(name).to_string();
+    }
+    if node.kind() == "typed_parameter"
+        && let Some(first) = node.named_child(0)
+    {
+        return collapse_ws(file.node_text(first));
+    }
+    collapse_ws(file.node_text(node))
+}
+
+fn collect_type_names(file: &SourceFile, node: Node<'_>, out: &mut Vec<String>) {
+    crate::source::visit_nodes(node, &mut |inner| {
+        if inner.kind() == "identifier" {
+            out.push(file.node_text(inner).to_string());
+        }
     });
 }
 
@@ -208,6 +296,10 @@ fn push_assignments(file: &SourceFile, statement: Node<'_>, prefix: &str, out: &
             def_start: span_start,
             sig_end: span_end,
             decorators: Vec::new(),
+            params: Vec::new(),
+            required: 0,
+            max_args: Some(0),
+            type_names: Vec::new(),
             children: Vec::new(),
         });
     }
@@ -345,6 +437,19 @@ mod tests {
         let file = parse("if TYPE_CHECKING:\n    def only_typing():\n        pass\n");
         let symbols = extract(&file);
         assert_eq!(resolve(&symbols, &["only_typing".into()]).len(), 1);
+    }
+
+    #[test]
+    fn counts_arity_without_the_implicit_receiver() {
+        let file = parse(
+            "class A:\n    def f(self, a: int, b: str = \"x\", *rest) -> User:\n        pass\n",
+        );
+        let symbols = extract(&file);
+        let method = resolve(&symbols, &["A".into(), "f".into()])[0];
+        assert_eq!(method.required, 1);
+        assert_eq!(method.max_args, None);
+        assert_eq!(method.params, vec!["self", "a", "b", "*rest"]);
+        assert_eq!(method.type_names, vec!["User", "int", "str"]);
     }
 
     #[test]

@@ -1,6 +1,8 @@
 pub mod address;
 pub mod budget;
+pub mod calls;
 pub mod error;
+pub mod index;
 pub mod lang;
 pub mod matcher;
 pub mod ops;
@@ -12,6 +14,7 @@ pub mod walk;
 pub use address::{Address, Selector};
 pub use budget::{DEFAULT_BUDGET, Detail};
 pub use error::{Error, Result};
+pub use index::Index;
 pub use lang::Lang;
 pub use matcher::Matcher;
 pub use ops::Report;

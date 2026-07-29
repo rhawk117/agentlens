@@ -1,0 +1,29 @@
+$ agentlens packet src/api/users.py#UserService.create_user --no-cache
+exit: 0
+--- stdout ---
+packet src/api/users.py#UserService.create_user
+
+target  L21-L28
+    @transaction.atomic
+    @audit("user.create")
+    def create_user(self, email: str, name: str) -> User:
+        if not email:
+            raise ValueError("email is required")
+        user = User(email, name)
+        self._log("created user %s", email)
+        return user
+
+callers  3
+  src/api/routes.py#create              def create(email: str, name: str) -> dict:  (likely L14)
+  src/cli.py#main                       def main(argv: list[str] | None = None) -> int:  (likely L8)
+  tests/test_users.py#test_create_user  def test_create_user():  (likely L6)
+
+callees  2
+  src/api/users.py#User              class User:  (certain)
+  src/api/users.py#UserService._log  def _log(self, template: str, *args: object) -> None:  (certain)
+
+types in the signature  1
+  src/api/users.py#User  class User:  (named in the signature as `User`)
+
+3 callers, 2 callees, 1 type
+--- stderr ---

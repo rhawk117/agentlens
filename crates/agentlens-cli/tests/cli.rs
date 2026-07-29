@@ -144,6 +144,84 @@ const CASES: &[Case] = &[
         &["literals", "src/core/config.py", "--json"],
     ),
     case("literals_budget", &["literals", "--budget", "40"]),
+    case(
+        "callers_method",
+        &[
+            "callers",
+            "src/api/users.py#UserService.create_user",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "callers_same_file",
+        &["callers", "src/cli.py#main", "--no-cache"],
+    ),
+    case(
+        "callers_no_tests",
+        &[
+            "callers",
+            "src/api/users.py#UserService.create_user",
+            "--no-tests",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "callers_none",
+        &["callers", "src/core/config.py#banner", "--no-cache"],
+    ),
+    case(
+        "callers_missing",
+        &["callers", "src/core/config.py#nope", "--no-cache"],
+    ),
+    case(
+        "callers_json",
+        &[
+            "callers",
+            "src/api/users.py#UserService.create_user",
+            "--json",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "callers_budget",
+        &[
+            "callers",
+            "src/api/users.py#UserService.create_user",
+            "--budget",
+            "40",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "packet_method",
+        &[
+            "packet",
+            "src/api/users.py#UserService.create_user",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "packet_json",
+        &[
+            "packet",
+            "src/core/config.py#describe",
+            "--json",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "packet_budget",
+        &[
+            "packet",
+            "src/api/users.py#UserService.create_user",
+            "--budget",
+            "120",
+            "--no-cache",
+        ],
+    ),
+    case("dead_repo", &["dead", "--no-cache"]),
+    case("dead_json", &["dead", "--json", "--no-cache"]),
+    case("dead_budget", &["dead", "--budget", "40", "--no-cache"]),
 ];
 
 #[test]
@@ -221,6 +299,81 @@ fn directory_map_finds_entry_points() {
 fn budget_degrades_instead_of_truncating() {
     let output = run(&["find", "user", "--budget", "40"]);
     assert!(output.contains("raise --budget") || output.contains("budget reached"));
+}
+
+#[test]
+fn callers_are_graded_and_tagged() {
+    let output = run(&[
+        "callers",
+        "src/api/users.py#UserService.create_user",
+        "--no-cache",
+    ]);
+    assert!(output.contains("likely"));
+    assert!(output.contains("[test]"));
+    assert!(output.contains("1 test"));
+}
+
+#[test]
+fn a_bare_same_file_call_is_certain() {
+    let output = run(&["callers", "src/cli.py#main", "--no-cache"]);
+    assert!(output.contains("certain"));
+}
+
+#[test]
+fn packet_carries_body_plus_signatures_only() {
+    let output = run(&[
+        "packet",
+        "src/api/users.py#UserService.create_user",
+        "--no-cache",
+    ]);
+    assert!(output.contains("def create_user(self, email: str, name: str) -> User:"));
+    assert!(output.contains("raise ValueError"));
+    assert!(output.contains("types in the signature"));
+    assert!(!output.contains("return {\"email\": user.email}"));
+}
+
+#[test]
+fn dead_lists_candidates_never_dead_code() {
+    let output = run(&["dead", "--no-cache"]);
+    assert!(output.contains("candidates"));
+    assert!(output.contains("src/api/routes.py#_unused_helper"));
+    assert!(!output.contains("src/cli.py#main"));
+    assert!(!output.contains("tests/test_users.py"));
+}
+
+#[test]
+fn the_cache_is_self_concealing_and_silent() {
+    let repo = support::temp_repo("cache");
+    let first = support::run_in(&repo, &["dead"]);
+    assert!(repo.join(".agentlens-cache/index.json").is_file());
+    assert_eq!(
+        std::fs::read_to_string(repo.join(".agentlens-cache/.gitignore")).expect("gitignore"),
+        "*\n"
+    );
+    let second = support::run_in(&repo, &["dead"]);
+    assert_eq!(first, second, "cached run must match the cold run");
+}
+
+#[test]
+fn a_corrupt_cache_rebuilds_silently() {
+    let repo = support::temp_repo("corrupt");
+    let cold = support::run_in(&repo, &["dead"]);
+    std::fs::write(repo.join(".agentlens-cache/index.json"), "{ not json").expect("corrupt");
+    let after = support::run_in(&repo, &["dead"]);
+    assert_eq!(cold, after);
+}
+
+#[test]
+fn edits_invalidate_the_cached_entry() {
+    let repo = support::temp_repo("invalidate");
+    let before = support::run_in(&repo, &["map", "src/core/config.py"]);
+    assert!(before.contains("def banner() -> str:"));
+    let path = repo.join("src/core/config.py");
+    let text = std::fs::read_to_string(&path).expect("read");
+    std::fs::write(&path, text.replace("def banner()", "def masthead()")).expect("write");
+    let after = support::run_in(&repo, &["callers", "src/core/config.py#masthead"]);
+    assert!(after.contains("src/core/config.py#masthead"));
+    assert!(!after.contains("no symbol"));
 }
 
 #[test]

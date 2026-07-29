@@ -128,8 +128,7 @@ struct FileGroup {
 /// # Errors
 ///
 /// Returns [`Error::BadRegex`] if `pattern` is not a valid regex and
-/// `options.exact` is unset, and propagates [`Error::Io`], [`Error::NotUtf8`],
-/// and [`Error::Parse`] from the files it visits.
+/// `options.exact` is unset, and propagates read and parse failures.
 pub fn run(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Result<Report> {
     let matcher = Matcher::new(pattern, options.exact)?;
     let targets = collect_targets(paths);

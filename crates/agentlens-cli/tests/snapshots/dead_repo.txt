@@ -1,0 +1,20 @@
+$ agentlens dead --no-cache
+exit: 0
+--- stdout ---
+dead-code candidates: zero call sites, not exported, not entry points, not tests
+
+src/api/routes.py
+  src/api/routes.py#_unused_helper          L18-L19       def _unused_helper(value: str) -> str:
+
+src/api/users.py
+  src/api/users.py#UserService.Cursor       L37-L39       class Cursor:
+  src/api/users.py#UserService.Cursor.next  L38-L39       def next(self) -> int:
+  src/api/users.py#normalise                L54-L57       def normalise(value):
+  src/api/users.py#only_when_typing         L62-L63       def only_when_typing() -> None:
+
+src/core/config.py
+  src/core/config.py#describe               L9-L10        def describe(host: str, port: int) -> str:
+  src/core/config.py#banner                 L13-L14       def banner() -> str:
+
+7 candidates — reflection and DI defeat this, verify before deleting
+--- stderr ---
