@@ -17,6 +17,10 @@ target
 # Coverage output
 lcov.info
 
+# Staged phase snapshot and loop scratchpad. Never committed: the migration
+# copies source OUT of here, and the zip itself must not land in a phase PR.
+.agent-lens-phase/
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
