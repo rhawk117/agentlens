@@ -20,8 +20,11 @@ fi
 log_step_end
 log_success "clippy clean"
 
+# -W on the command line re-enables lints the manifest deliberately allows, so
+# the ones we opted out of are suppressed again here to keep the signal useful.
 log_step "lint: clippy nursery (advisory)"
-cargo clippy --workspace --all-targets --locked -- -A clippy::all -W clippy::nursery || true
+cargo clippy --workspace --all-targets --locked -- \
+    -A clippy::all -W clippy::nursery -A clippy::missing_const_for_fn || true
 log_step_end
 
 if command -v cargo-machete >/dev/null 2>&1; then
