@@ -1,0 +1,9 @@
+$ agentlens callers src/api/users.py#UserService.create_user --budget 40 --no-cache
+exit: 0
+--- stdout ---
+src/api/users.py#UserService.create_user  def create_user(self, email: str, name: str) -> User:
+  3 callers: 0 certain, 3 likely, 0 possible
+raise --budget for the call sites
+
+3 callers (2 non-test, 1 test)
+--- stderr ---

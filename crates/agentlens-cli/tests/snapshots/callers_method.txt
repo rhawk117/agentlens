@@ -1,0 +1,12 @@
+$ agentlens callers src/api/users.py#UserService.create_user --no-cache
+exit: 0
+--- stdout ---
+src/api/users.py#UserService.create_user  def create_user(self, email: str, name: str) -> User:
+
+likely
+  src/api/routes.py#create              L14     2 args          attribute call on `service`, name unique in repo
+  src/cli.py#main                       L8      2 args          attribute call on `service`, name unique in repo
+  tests/test_users.py#test_create_user  L6      2 args [test]   attribute call on `service`, name unique in repo
+
+3 callers (2 non-test, 1 test)
+--- stderr ---

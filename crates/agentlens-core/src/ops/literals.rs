@@ -123,9 +123,8 @@ pub struct Site {
 ///
 /// # Errors
 ///
-/// Returns [`Error::BadRegex`] if `options.match_pattern` is not a valid
-/// regex, and propagates [`Error::Io`], [`Error::NotUtf8`], and
-/// [`Error::Parse`] from the files it visits.
+/// Returns [`Error::BadRegex`] if `options.match_pattern` is not a valid regex,
+/// and propagates read and parse failures.
 pub fn run(paths: &[PathBuf], options: &LiteralsOptions) -> Result<Report> {
     let value_matcher = match &options.match_pattern {
         Some(pattern) => Some(Matcher::new(pattern, false)?),

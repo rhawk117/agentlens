@@ -1,0 +1,7 @@
+$ agentlens callers src/core/config.py#banner --no-cache
+exit: 1
+--- stdout ---
+src/core/config.py#banner  def banner() -> str:
+  no call sites found
+  reflection, DI and dynamic dispatch are invisible here
+--- stderr ---

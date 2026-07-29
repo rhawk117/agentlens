@@ -59,8 +59,8 @@ pub struct EntryPoint {
 ///
 /// # Errors
 ///
-/// Propagates [`Error::Io`], [`Error::NotUtf8`], and [`Error::Parse`] from
-/// the files it visits.
+/// Propagates [`Error::Io`], [`Error::NotUtf8`], and [`Error::Parse`] from the
+/// files it visits.
 pub fn run(path: &Path, options: &MapOptions) -> Result<Report> {
     if path.is_dir() {
         return map_directory(path, options);

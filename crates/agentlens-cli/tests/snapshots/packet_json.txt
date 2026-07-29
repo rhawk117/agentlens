@@ -1,0 +1,23 @@
+$ agentlens packet src/core/config.py#describe --json --no-cache
+exit: 0
+--- stdout ---
+{
+  "address": "src/core/config.py#describe",
+  "budget": 4000,
+  "callees": [],
+  "callers": [],
+  "command": "packet",
+  "degraded": false,
+  "detail": "full",
+  "found": true,
+  "target": {
+    "address": "src/core/config.py#describe",
+    "body": "def describe(host: str, port: int) -> str:\n    return f\"connection refused: {host}:{port}\"",
+    "end_line": 10,
+    "signature": "def describe(host: str, port: int) -> str:",
+    "start_line": 9
+  },
+  "tokens": 60,
+  "types": []
+}
+--- stderr ---

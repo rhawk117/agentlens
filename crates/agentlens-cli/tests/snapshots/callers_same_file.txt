@@ -1,0 +1,10 @@
+$ agentlens callers src/cli.py#main --no-cache
+exit: 0
+--- stdout ---
+src/cli.py#main  def main(argv: list[str] | None = None) -> int:
+
+certain
+  src/cli.py#L13  L13     0 args          bare call in the same file
+
+1 caller (1 non-test, 0 test)
+--- stderr ---
