@@ -1,0 +1,54 @@
+$ agentlens find delete_user --json
+exit: 0
+--- stdout ---
+{
+  "budget": 4000,
+  "command": "find",
+  "degraded": false,
+  "detail": "full",
+  "files": [
+    {
+      "hits": [
+        {
+          "address": "src/api/users.py#UserService.delete_user",
+          "enclosing": "UserService.delete_user",
+          "line": 30,
+          "occurrence": "definition",
+          "path": "src/api/users.py",
+          "text": "delete_user"
+        }
+      ],
+      "path": "src/api/users.py"
+    },
+    {
+      "hits": [
+        {
+          "address": "tests/test_users.py#test_delete_user",
+          "enclosing": "test_delete_user",
+          "line": 10,
+          "occurrence": "definition",
+          "path": "tests/test_users.py",
+          "text": "test_delete_user"
+        },
+        {
+          "address": "tests/test_users.py#test_delete_user",
+          "enclosing": "test_delete_user",
+          "line": 12,
+          "occurrence": "call",
+          "path": "tests/test_users.py",
+          "text": "delete_user"
+        }
+      ],
+      "path": "tests/test_users.py"
+    }
+  ],
+  "found": true,
+  "pattern": "delete_user",
+  "summary": {
+    "files": 2,
+    "matches": 3
+  },
+  "tokens": 63,
+  "truncated": false
+}
+--- stderr ---

@@ -1,0 +1,12 @@
+$ agentlens literals --kind number src/api
+exit: 0
+--- stdout ---
+1  number  x1
+  src/api/users.py#UserService.Cursor.next  L39
+2  number  x1
+  src/api/users.py#UserService.RETRY_BACKOFF  L18
+3  number  x1
+  src/api/users.py#MAX_RETRIES  L5
+
+3 literals, 3 distinct
+--- stderr ---

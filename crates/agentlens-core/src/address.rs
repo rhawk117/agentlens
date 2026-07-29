@@ -17,10 +17,13 @@ pub struct Address {
 }
 
 impl Address {
+    /// Parse a `path#selector` address.
+    ///
     /// # Errors
     ///
-    /// Returns [`Error::AddressMissingHash`] if `raw` has no `#`, or an address
-    /// parse error if the selector is malformed.
+    /// Returns [`Error::AddressMissingHash`] if `raw` has no `#`,
+    /// [`Error::AddressEmptyPath`] if the path before `#` is empty, and
+    /// [`Error::BadLineSpan`] if a line-span selector is malformed.
     pub fn parse(raw: &str) -> Result<Self> {
         let Some(hash) = raw.find('#') else {
             return Err(Error::AddressMissingHash(raw.to_string()));

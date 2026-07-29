@@ -1,0 +1,51 @@
+$ agentlens map . --json
+exit: 0
+--- stdout ---
+{
+  "budget": 4000,
+  "command": "map",
+  "degraded": false,
+  "detail": "full",
+  "entry_points": [
+    {
+      "address": "src/api/routes.py#create",
+      "reason": "@app.post(\"/users\")"
+    },
+    {
+      "address": "src/api/routes.py#health",
+      "reason": "@app.get(\"/health\")"
+    },
+    {
+      "address": "src/cli.py#L12",
+      "reason": "__main__ guard"
+    },
+    {
+      "address": "src/cli.py#main",
+      "reason": "console script `fixture`"
+    },
+    {
+      "address": "src/cli.py#main",
+      "reason": "main function"
+    }
+  ],
+  "found": true,
+  "kind": "directory",
+  "languages": [
+    {
+      "files": 5,
+      "language": "python",
+      "lines": 121
+    }
+  ],
+  "manifests": [
+    "pyproject.toml"
+  ],
+  "summary": {
+    "entry_points": 5,
+    "files": 5,
+    "lines": 121
+  },
+  "target": ".",
+  "tokens": 127
+}
+--- stderr ---

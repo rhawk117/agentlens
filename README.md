@@ -11,7 +11,7 @@ The same fact through `agentlens slice` costs ~150.
 | Phase | Scope | State |
 |---|---|---|
 | MVP-0 | `slice` and `map` on a single Python file | shipped |
-| Phase 1 | `map` on a directory, `find`, `literals` | planned |
+| Phase 1 | `map` on a directory, `find`, `literals` | shipped |
 | Phase 2 | index, callers, context packet, dead-code candidates | planned |
 
 ## Install
@@ -73,8 +73,83 @@ exits 1 and lists what is actually there.
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `--depth <n>` | 2 | Nesting depth |
+| `--depth <n>` | 2 | Nesting depth for a file outline; directory depth for a repo map |
 | `--kind <k>` | all | `function`, `class`, `variable`, `all` |
+
+Given a directory, `map` gives repo orientation instead: languages with file and
+line counts, the directory tree to depth 2, detected entry points (`__main__`
+guards, `main` functions, route decorators, console-script entries) and the
+manifest files found.
+
+```
+.  5 source files  121 lines
+
+languages
+  python    5 files  121 lines
+
+tree (depth 2)
+  src/  4 files  109 lines
+    api/  2 files  82 lines
+
+entry points
+  src/api/routes.py#health  @app.get("/health")
+  src/cli.py#L12            __main__ guard
+  src/cli.py#main           console script `fixture`
+```
+
+### `find` — kind-aware search
+
+```
+agentlens find create_user
+```
+
+```
+src/api/routes.py
+  L14     call        create_user  in #create
+
+src/api/users.py
+  L23     definition  create_user  in #UserService.create_user
+
+2 matches in 2 files
+```
+
+Comments and string bodies are excluded by default — that is most of the value
+over grep. Structural context beats line context, so there is no `-A`/`-B`:
+`--context symbol` names the enclosing symbol, `--context none` gives the
+address alone.
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--kind <k>` | any | `definition`, `call`, `reference`, `any` |
+| `--exact` | off | Whole-symbol match rather than regex |
+| `--include-comments` | off | Search comment bodies too |
+| `--include-strings` | off | Search string bodies too |
+| `--context <c>` | symbol | `symbol` or `none` |
+
+### `literals` — extract constants
+
+```
+agentlens literals --kind string
+```
+
+```
+"connection refused: <>"  string  x2
+  src/core/config.py#describe  L10
+  src/core/config.py#banner    L14
+```
+
+Interpolation is normalised to `<>` so a log line can be matched back to the
+source that emitted it. Docstrings are excluded by default.
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--kind <k>` | all | `string`, `number`, `regex`, `all` |
+| `--match <pat>` | — | Filter by value |
+| `--min-len <n>` | 2 | Skip trivial strings |
+| `--in <address>` | — | Scope to one symbol |
+| `--no-group` | grouped | List every occurrence instead of grouping by value |
+| `--no-skeleton` | skeleton on | Keep interpolation verbatim |
+| `--include-docstrings` | off | Include docstrings |
 
 ## Global flags
 

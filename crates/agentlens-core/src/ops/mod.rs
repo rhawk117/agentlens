@@ -1,3 +1,5 @@
+pub mod find;
+pub mod literals;
 pub mod map;
 pub mod slice;
 

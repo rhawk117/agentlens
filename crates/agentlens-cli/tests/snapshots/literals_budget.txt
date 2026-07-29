@@ -1,0 +1,9 @@
+$ agentlens literals --budget 40
+exit: 0
+--- stdout ---
+25 literals, 21 distinct
+  7 numbers
+  1 regex
+  17 strings
+raise --budget for the values
+--- stderr ---

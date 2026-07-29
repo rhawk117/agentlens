@@ -1,0 +1,88 @@
+$ agentlens literals src/core/config.py --json
+exit: 0
+--- stdout ---
+{
+  "budget": 4000,
+  "command": "literals",
+  "degraded": false,
+  "detail": "full",
+  "found": true,
+  "grouped": true,
+  "groups": [
+    {
+      "count": 1,
+      "kind": "number",
+      "sites": [
+        {
+          "address": "src/core/config.py#RETRY_LIMIT",
+          "line": 4
+        }
+      ],
+      "value": "3"
+    },
+    {
+      "count": 1,
+      "kind": "number",
+      "sites": [
+        {
+          "address": "src/core/config.py#TIMEOUT_SECONDS",
+          "line": 3
+        }
+      ],
+      "value": "30"
+    },
+    {
+      "count": 1,
+      "kind": "regex",
+      "sites": [
+        {
+          "address": "src/core/config.py#SLUG_PATTERN",
+          "line": 6
+        }
+      ],
+      "value": "^[a-z0-9-]+$"
+    },
+    {
+      "count": 1,
+      "kind": "string",
+      "sites": [
+        {
+          "address": "src/core/config.py#describe",
+          "line": 10
+        }
+      ],
+      "value": "connection refused: <>:<>"
+    },
+    {
+      "count": 1,
+      "kind": "string",
+      "sites": [
+        {
+          "address": "src/core/config.py#banner",
+          "line": 14
+        }
+      ],
+      "value": "connection refused: nowhere"
+    },
+    {
+      "count": 1,
+      "kind": "string",
+      "sites": [
+        {
+          "address": "src/core/config.py#DSN",
+          "line": 5
+        }
+      ],
+      "value": "postgres://localhost:5432/app"
+    }
+  ],
+  "literals": null,
+  "skeleton": true,
+  "summary": {
+    "distinct": 6,
+    "literals": 6
+  },
+  "tokens": 126,
+  "truncated": false
+}
+--- stderr ---

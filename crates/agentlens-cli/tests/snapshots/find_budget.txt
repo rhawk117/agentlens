@@ -1,0 +1,12 @@
+$ agentlens find user --budget 40
+exit: 0
+--- stdout ---
+`user`: 17 matches in 4 files
+  src/api/routes.py  4 matches
+  src/api/users.py  4 matches
+  src/cli.py  2 matches
+  tests/test_users.py  7 matches
+raise --budget for the locations
+
+17 matches in 4 files
+--- stderr ---

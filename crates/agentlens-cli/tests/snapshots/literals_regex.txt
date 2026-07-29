@@ -1,0 +1,8 @@
+$ agentlens literals --kind regex
+exit: 0
+--- stdout ---
+"^[a-z0-9-]+$"  regex   x1
+  src/core/config.py#SLUG_PATTERN  L6
+
+1 literal, 1 distinct
+--- stderr ---
