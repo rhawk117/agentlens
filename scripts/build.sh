@@ -10,15 +10,18 @@ cd "${REPO_ROOT}"
 
 require_cmd cargo
 
-profile_args=()
+# Seeded with the fixed flags rather than collecting only the optional ones:
+# expanding an empty array under `set -u` is an error in bash 3.2, which is what
+# macOS ships.
+build_args=(--workspace --all-targets --locked)
 for arg in "$@"; do
     case "${arg}" in
-        --release) profile_args+=(--release) ;;
+        --release) build_args+=(--release) ;;
         *) log_error "Unknown argument: ${arg}"; exit 2 ;;
     esac
 done
 
-log_step "build: cargo build ${profile_args[*]-}"
-cargo build --workspace --all-targets --locked "${profile_args[@]}"
+log_step "build: cargo build $*"
+cargo build "${build_args[@]}"
 log_step_end
 log_success "build succeeded"

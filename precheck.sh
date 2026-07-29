@@ -37,17 +37,22 @@ log_success "toolchain: $(rustc --version)"
 log_step_end
 
 log_step "precheck: cargo tooling"
-declare -A tools=(
-    [cargo-nextest]="test runner"
-    [cargo-deny]="supply-chain audit"
-    [cargo-machete]="unused dependency detection"
-    [cargo-llvm-cov]="coverage"
+# "name|what it is for". Not an associative array: this script runs before the
+# contributor has installed anything, and macOS still ships bash 3.2, which has
+# neither `declare -A` nor a defined iteration order.
+tools=(
+    "cargo-nextest|test runner"
+    "cargo-deny|supply-chain audit"
+    "cargo-machete|unused dependency detection"
+    "cargo-llvm-cov|coverage"
 )
-for tool in "${!tools[@]}"; do
+for entry in "${tools[@]}"; do
+    tool="${entry%%|*}"
+    purpose="${entry#*|}"
     if command -v "${tool}" >/dev/null 2>&1; then
-        log_success "${tool} (${tools[${tool}]})"
+        log_success "${tool} (${purpose})"
     else
-        log_warn "${tool} missing (${tools[${tool}]})"
+        log_warn "${tool} missing (${purpose})"
         missing+=("${tool}")
     fi
 done

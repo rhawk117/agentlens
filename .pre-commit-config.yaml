@@ -13,6 +13,9 @@ repos:
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
+        # -x follows `source` from disk. Without it the result depends on which
+        # files the commit happens to touch, since every script sources log.sh.
+        args: [-x]
 
   - repo: local
     hooks:

@@ -1,0 +1,4 @@
+# Check everything out with LF on every platform. Two things here break under
+# Windows' CRLF conversion: the shell scripts in scripts/, and the byte-exact
+# comparison between tests/fixtures and tests/snapshots.
+* text=auto eol=lf
