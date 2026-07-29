@@ -31,12 +31,33 @@ impl fmt::Display for Error {
             Self::UnsupportedLanguage(path) => {
                 write!(f, "unsupported language for `{}`", path.display())
             }
-            Self::Io(path, err) => write!(f, "cannot read `{}`: {err}", path.display()),
+            Self::Io(path, err) => {
+                write!(
+                    f,
+                    "cannot read `{}`: {}",
+                    path.display(),
+                    stable_reason(err)
+                )
+            }
             Self::NotUtf8(path) => write!(f, "`{}` is not valid utf-8", path.display()),
             Self::Parse(path) => write!(f, "cannot parse `{}`", path.display()),
             Self::BadRegex(pattern) => write!(f, "bad pattern `{pattern}`"),
             Self::BadKind(kind) => write!(f, "unknown kind `{kind}`"),
         }
+    }
+}
+
+// The OS error string differs per platform ("No such file or directory" on
+// Unix, "The system cannot find the file specified." on Windows). Snapshot
+// output must be byte-identical across the CI matrix, so map the kind to
+// stable text instead of rendering the raw error.
+fn stable_reason(err: &std::io::Error) -> &'static str {
+    use std::io::ErrorKind;
+    match err.kind() {
+        ErrorKind::NotFound => "not found",
+        ErrorKind::PermissionDenied => "permission denied",
+        ErrorKind::IsADirectory => "is a directory",
+        _ => "read failed",
     }
 }
 
