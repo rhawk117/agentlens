@@ -1,0 +1,9 @@
+$ agentlens slice src/api/users.py#UserService.Cursor.next
+exit: 0
+--- stdout ---
+src/api/users.py#UserService.Cursor.next  L38-L39  2 lines
+        def next(self) -> int:
+            return 1
+
+1 match, 2 lines
+--- stderr ---

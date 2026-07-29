@@ -1,0 +1,54 @@
+[workspace]
+members = ["crates/agentlens-core", "crates/agentlens-cli"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/agentlens/agentlens"
+
+[workspace.dependencies]
+agentlens-core = { path = "crates/agentlens-core", version = "0.1.0" }
+tree-sitter = "0.26"
+tree-sitter-python = "0.25"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+regex = "1"
+walkdir = "2"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+unused_must_use = "deny"
+unreachable_pub = "warn"
+unused_qualifications = "warn"
+trivial_casts = "warn"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+cargo = { level = "warn", priority = -1 }
+
+# Correctness guards: these turn "may panic at runtime" into a build failure.
+# Exempted inside #[cfg(test)] via clippy.toml.
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+indexing_slicing = "deny"
+
+# Style lints deliberately off: high volume, no correctness value.
+must_use_candidate = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+uninlined_format_args = "allow"
+missing_const_for_fn = "allow"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+overflow-checks = true

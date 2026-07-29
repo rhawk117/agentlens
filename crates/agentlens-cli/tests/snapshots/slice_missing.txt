@@ -1,0 +1,19 @@
+$ agentlens slice src/api/users.py#UserService.nope
+exit: 1
+--- stdout ---
+no symbol `UserService.nope` in src/api/users.py
+available:
+  src/api/users.py#MAX_RETRIES
+  src/api/users.py#DEFAULT_ROLE
+  src/api/users.py#User
+  src/api/users.py#User.__init__
+  src/api/users.py#UserService
+  src/api/users.py#UserService.RETRY_BACKOFF
+  src/api/users.py#UserService.create_user
+  src/api/users.py#UserService.delete_user
+  src/api/users.py#UserService._log
+  src/api/users.py#UserService.Cursor
+  src/api/users.py#UserService.Cursor.next
+  src/api/users.py#normalise  (4 definitions)
+  src/api/users.py#only_when_typing
+--- stderr ---

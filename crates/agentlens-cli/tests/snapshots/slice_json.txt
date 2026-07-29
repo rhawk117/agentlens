@@ -1,0 +1,30 @@
+$ agentlens slice src/api/users.py#UserService.delete_user --json
+exit: 0
+--- stdout ---
+{
+  "address": "src/api/users.py#UserService.delete_user",
+  "budget": 4000,
+  "command": "slice",
+  "degraded": false,
+  "detail": "full",
+  "found": true,
+  "matches": [
+    {
+      "address": "src/api/users.py#UserService.delete_user",
+      "end_line": 32,
+      "kind": "function",
+      "lines": 3,
+      "name": "UserService.delete_user",
+      "path": "src/api/users.py",
+      "signature": "def delete_user(self, uid: int) -> None:",
+      "start_line": 30,
+      "text": "    def delete_user(self, uid: int) -> None:\n        self._log(\"deleting user %d\", uid)\n        self._store.pop(uid, None)"
+    }
+  ],
+  "summary": {
+    "lines": 3,
+    "matches": 1
+  },
+  "tokens": 57
+}
+--- stderr ---

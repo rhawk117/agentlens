@@ -1,0 +1,12 @@
+$ agentlens slice src/api/users.py#normalise --budget 4
+exit: 0
+--- stdout ---
+4 matching definitions at src/api/users.py#normalise, 10 lines
+  src/api/users.py#normalise  L42-L43  2 lines
+  src/api/users.py#normalise  L46-L47  2 lines
+  src/api/users.py#normalise  L50-L51  2 lines
+  src/api/users.py#normalise  L54-L57  4 lines
+raise --budget to see the bodies
+
+4 matches, 10 lines
+--- stderr ---

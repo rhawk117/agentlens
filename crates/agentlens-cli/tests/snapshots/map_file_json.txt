@@ -1,0 +1,87 @@
+$ agentlens map src/core/config.py --json
+exit: 0
+--- stdout ---
+{
+  "budget": 4000,
+  "command": "map",
+  "degraded": false,
+  "detail": "full",
+  "found": true,
+  "kind": "file",
+  "language": "python",
+  "summary": {
+    "lines": 14,
+    "symbols": 6
+  },
+  "symbols": [
+    {
+      "address": "src/core/config.py#TIMEOUT_SECONDS",
+      "depth": 1,
+      "end_line": 3,
+      "hidden_children": 0,
+      "kind": "variable",
+      "lines": 1,
+      "name": "TIMEOUT_SECONDS",
+      "signature": "TIMEOUT_SECONDS = 30",
+      "start_line": 3
+    },
+    {
+      "address": "src/core/config.py#RETRY_LIMIT",
+      "depth": 1,
+      "end_line": 4,
+      "hidden_children": 0,
+      "kind": "variable",
+      "lines": 1,
+      "name": "RETRY_LIMIT",
+      "signature": "RETRY_LIMIT = 3",
+      "start_line": 4
+    },
+    {
+      "address": "src/core/config.py#DSN",
+      "depth": 1,
+      "end_line": 5,
+      "hidden_children": 0,
+      "kind": "variable",
+      "lines": 1,
+      "name": "DSN",
+      "signature": "DSN = \"postgres://localhost:5432/app\"",
+      "start_line": 5
+    },
+    {
+      "address": "src/core/config.py#SLUG_PATTERN",
+      "depth": 1,
+      "end_line": 6,
+      "hidden_children": 0,
+      "kind": "variable",
+      "lines": 1,
+      "name": "SLUG_PATTERN",
+      "signature": "SLUG_PATTERN = re.compile(r\"^[a-z0-9-]+$\")",
+      "start_line": 6
+    },
+    {
+      "address": "src/core/config.py#describe",
+      "depth": 1,
+      "end_line": 10,
+      "hidden_children": 0,
+      "kind": "function",
+      "lines": 2,
+      "name": "describe",
+      "signature": "def describe(host: str, port: int) -> str:",
+      "start_line": 9
+    },
+    {
+      "address": "src/core/config.py#banner",
+      "depth": 1,
+      "end_line": 14,
+      "hidden_children": 0,
+      "kind": "function",
+      "lines": 2,
+      "name": "banner",
+      "signature": "def banner() -> str:",
+      "start_line": 13
+    }
+  ],
+  "target": "src/core/config.py",
+  "tokens": 101
+}
+--- stderr ---

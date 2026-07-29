@@ -1,0 +1,25 @@
+[package]
+name = "agentlens-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "agentlens command line interface"
+homepage = "https://github.com/agentlens/agentlens"
+documentation = "https://docs.rs/agentlens-cli"
+readme = "../../README.md"
+keywords = ["cli", "code", "symbols", "static-analysis"]
+categories = ["command-line-utilities"]
+
+[[bin]]
+name = "agentlens"
+path = "src/main.rs"
+
+[dependencies]
+agentlens-core.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true
