@@ -17,6 +17,11 @@ target
 # Coverage output
 lcov.info
 
+# Frozen benchmark transcripts: 108 runs, ~6 MB of prompts, answers and
+# per-call records. Read during planning and calibration, deliberately not
+# tracked. Fixtures derived from it are committed; the corpus itself is not.
+.eval/
+
 # Staged phase snapshot and loop scratchpad. Never committed: the migration
 # copies source OUT of here, and the zip itself must not land in a phase PR.
 .agent-lens-phase/
