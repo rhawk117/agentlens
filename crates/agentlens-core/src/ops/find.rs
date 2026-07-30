@@ -581,6 +581,15 @@ mod tests {
         dir
     }
 
+    // Addresses embed the absolute path of the scratch repo, and an OS temp
+    // directory is `/tmp` on Linux but `/var/folders/xy/...` on macOS. Cost the
+    // rendering against a repo-relative path so this measures the tool's output
+    // rather than the runner's temp layout.
+    fn tokens_at_repo_root(text: &str, dir: &Path) -> usize {
+        let prefix = dir.to_string_lossy().replace('\\', "/");
+        estimate_tokens(&text.replace(&prefix, "repo"))
+    }
+
     #[test]
     fn find_reference_budget() {
         let dir = busy_repo("budget");
@@ -590,7 +599,7 @@ mod tests {
             &FindOptions::default(),
         )
         .expect("finds");
-        let tokens = report.json["tokens"].as_u64().expect("tokens");
+        let tokens = tokens_at_repo_root(&report.text, &dir);
         assert!(
             report.text.contains("widget.py#Widget"),
             "the definition is the answer and must be listed:\n{}",
@@ -602,6 +611,33 @@ mod tests {
             report.text
         );
         assert!(tokens < 400, "find on a busy class cost {tokens} tokens");
+    }
+
+    #[test]
+    fn collapsing_at_least_halves_the_cost() {
+        let dir = busy_repo("halves");
+        let default = run(
+            "Widget",
+            std::slice::from_ref(&dir),
+            &FindOptions::default(),
+        )
+        .expect("finds");
+        let expanded = run(
+            "Widget",
+            std::slice::from_ref(&dir),
+            &FindOptions {
+                expand: true,
+                budget: 100_000,
+                ..FindOptions::default()
+            },
+        )
+        .expect("finds");
+        let collapsed = tokens_at_repo_root(&default.text, &dir);
+        let listed = tokens_at_repo_root(&expanded.text, &dir);
+        assert!(
+            collapsed * 2 < listed,
+            "collapsing saved too little: {collapsed} vs {listed}"
+        );
     }
 
     #[test]
