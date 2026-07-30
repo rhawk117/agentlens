@@ -1,6 +1,7 @@
 $ doclens slice package.json
-exit: 2
+exit: 1
 --- stdout ---
 --- stderr ---
 doclens: no `#` in `package.json`
 an address names a file and something in it, like `file#Name`
+run `doclens map .` to see the documents here

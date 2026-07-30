@@ -1,0 +1,18 @@
+$ agentlens callers nowhere#X --json
+exit: 1
+--- stdout ---
+{
+  "address": "nowhere#X",
+  "available": [],
+  "callers": [],
+  "command": "callers",
+  "found": false,
+  "index": {
+    "files": 5,
+    "from_cache": true,
+    "reparsed": 0
+  },
+  "schema_version": 1,
+  "tool_version": "0.1.0"
+}
+--- stderr ---

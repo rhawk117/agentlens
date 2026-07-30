@@ -6,7 +6,9 @@ mod help;
 use agentlens_core::address::Coercion;
 use agentlens_core::budget::DEFAULT_BUDGET;
 use agentlens_core::error::Error;
-use agentlens_core::ops::{callers, dead, find, literals, map, packet, slice};
+use agentlens_core::ops::{
+    callers, dead, envelope, error_envelope, find, literals, map, packet, slice,
+};
 use agentlens_core::{Address, KindFilter, Report};
 use clap::{Parser, Subcommand};
 
@@ -152,6 +154,32 @@ impl From<Report> for Outcome {
     }
 }
 
+const TOOL_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+impl Command {
+    fn name(&self) -> &'static str {
+        match self {
+            Self::Slice { .. } => "slice",
+            Self::Map { .. } => "map",
+            Self::Find { .. } => "find",
+            Self::Literals { .. } => "literals",
+            Self::Callers { .. } => "callers",
+            Self::Packet { .. } => "packet",
+            Self::Dead => "dead",
+            Self::Help { .. } => "help",
+        }
+    }
+}
+
+impl Cli {
+    // The advertise-the-next-call footer is prose for a human reading a
+    // terminal. Under --json the same addresses are already in the envelope,
+    // so it is pure cost.
+    fn quiet(&self) -> bool {
+        self.quiet || self.json
+    }
+}
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
     let _ = cli.no_color;
@@ -173,11 +201,25 @@ fn main() -> ExitCode {
             }
         }
         Err(err) => {
-            eprintln!("agentlens: {err}");
-            if err.is_address() {
-                eprintln!("run `agentlens help addresses` for the grammar");
+            let exit = err.exit_code();
+            let suggestion = err.is_address().then_some("agentlens help addresses");
+            if cli.json {
+                let body = error_envelope(
+                    cli.command.name(),
+                    err.kind(),
+                    &err.to_string(),
+                    suggestion,
+                    exit,
+                    TOOL_VERSION,
+                );
+                println!("{}", render(&body));
+            } else {
+                eprintln!("agentlens: {err}");
+                if let Some(hint) = suggestion {
+                    eprintln!("run `{hint}` for the grammar");
+                }
             }
-            ExitCode::from(err.exit_code())
+            ExitCode::from(exit)
         }
     }
 }
@@ -205,7 +247,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 signature_only: *signature_only,
                 no_decorators: *no_decorators,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
             };
             let report = slice::run(&parsed, &options)?;
             Ok(Outcome { report, coercion })
@@ -224,7 +266,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 depth: (*depth).max(1),
                 kind,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
                 root,
             };
             let report = map::run(&path, &options)?;
@@ -254,7 +296,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 include_strings: *include_strings,
                 context,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
             };
             Ok(find::run(pattern, paths, &options)?.into())
         }
@@ -288,7 +330,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 skeleton: !*no_skeleton,
                 include_docstrings: *include_docstrings,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
             };
             Ok(literals::run(&targets, &options)?.into())
         }
@@ -299,7 +341,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 include_tests: !*no_tests,
                 cache: !cli.no_cache,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
             };
             let report = callers::run(&parsed, &options)?;
             Ok(Outcome { report, coercion })
@@ -311,7 +353,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 include_tests: !*no_tests,
                 cache: !cli.no_cache,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
             };
             let report = packet::run(&parsed, &options)?;
             Ok(Outcome { report, coercion })
@@ -321,7 +363,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 root: cli.root.clone(),
                 cache: !cli.no_cache,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
             };
             Ok(dead::run(&options)?.into())
         }
@@ -362,10 +404,13 @@ fn help_report(topic: &str) -> Result<Report, Error> {
 
 fn emit(report: &Report, json: bool) {
     if json {
-        let rendered = serde_json::to_string_pretty(&report.json)
-            .unwrap_or_else(|_| "{\"error\":\"serialisation failed\"}".to_string());
-        println!("{rendered}");
+        println!("{}", render(&envelope(report, TOOL_VERSION)));
     } else {
         print!("{}", report.text);
     }
+}
+
+fn render(value: &serde_json::Value) -> String {
+    serde_json::to_string_pretty(value)
+        .unwrap_or_else(|_| "{\"error\":\"serialisation failed\"}".to_string())
 }

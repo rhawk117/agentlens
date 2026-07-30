@@ -68,7 +68,7 @@ pub struct Candidate {
 /// Propagates index construction failures, which in turn propagate
 /// [`Error::Io`], [`Error::NotUtf8`], and [`Error::Parse`].
 pub fn run(options: &DeadOptions) -> Result<Report> {
-    let (index, _) = Index::build(&options.root, options.cache)?;
+    let (index, stats) = Index::build(&options.root, options.cache)?;
 
     let mut called: BTreeSet<&str> = BTreeSet::new();
     let mut referenced: BTreeSet<&str> = BTreeSet::new();
@@ -158,7 +158,7 @@ pub fn run(options: &DeadOptions) -> Result<Report> {
         },
         "candidates": candidates,
     });
-    Ok(Report::new(text, json, found))
+    Ok(Report::new(text, json, found).indexed(stats))
 }
 
 fn render(candidates: &[Candidate], detail: Detail, options: &DeadOptions) -> String {

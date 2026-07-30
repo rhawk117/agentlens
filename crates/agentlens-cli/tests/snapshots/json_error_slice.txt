@@ -1,0 +1,16 @@
+$ agentlens slice nowhere#X --json
+exit: 1
+--- stdout ---
+{
+  "command": "slice",
+  "error": {
+    "kind": "unsupported_language",
+    "message": "unsupported language for `nowhere`",
+    "suggestion": null
+  },
+  "exit": 1,
+  "found": false,
+  "schema_version": 1,
+  "tool_version": "0.1.0"
+}
+--- stderr ---

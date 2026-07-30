@@ -1,0 +1,16 @@
+$ agentlens map nowhere --json
+exit: 1
+--- stdout ---
+{
+  "command": "map",
+  "error": {
+    "kind": "io",
+    "message": "cannot read `nowhere`: not found",
+    "suggestion": null
+  },
+  "exit": 1,
+  "found": false,
+  "schema_version": 1,
+  "tool_version": "0.1.0"
+}
+--- stderr ---

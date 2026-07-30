@@ -9,6 +9,7 @@ exit: 0
   "found": true,
   "kind": "file",
   "language": "python",
+  "schema_version": 1,
   "summary": {
     "lines": 14,
     "symbols": 6
@@ -82,6 +83,7 @@ exit: 0
     }
   ],
   "target": "src/core/config.py",
-  "tokens": 102
+  "tokens": 89,
+  "tool_version": "0.1.0"
 }
 --- stderr ---

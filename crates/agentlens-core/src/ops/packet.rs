@@ -54,7 +54,7 @@ pub struct Related {
 // own output vocabulary.
 #[allow(clippy::similar_names)]
 pub fn run(address: &Address, options: &PacketOptions) -> Result<Report> {
-    let (index, _) = Index::build(&options.root, options.cache)?;
+    let (index, stats) = Index::build(&options.root, options.cache)?;
     let key = slash_path(&address.path);
     let Selector::Symbol(parts) = &address.selector else {
         return Ok(not_a_symbol(address));
@@ -62,7 +62,7 @@ pub fn run(address: &Address, options: &PacketOptions) -> Result<Report> {
     let dotted = parts.join(".");
     let targets = index.lookup(&key, &dotted);
     let Some(target) = targets.first().copied() else {
-        return Ok(missing(&index, address, &key, &dotted));
+        return Ok(missing(&index, address, &key, &dotted).indexed(stats));
     };
 
     let file = SourceFile::load(&address.path)?;
@@ -114,7 +114,7 @@ pub fn run(address: &Address, options: &PacketOptions) -> Result<Report> {
         "callees": callee_lines,
         "types": type_lines,
     });
-    Ok(Report::new(text, json, true))
+    Ok(Report::new(text, json, true).indexed(stats))
 }
 
 fn caller_signature(index: &Index, caller: &Caller) -> Option<Related> {

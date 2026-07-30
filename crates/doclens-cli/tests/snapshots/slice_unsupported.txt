@@ -1,5 +1,5 @@
 $ doclens slice notes.txt#a
-exit: 2
+exit: 1
 --- stdout ---
 --- stderr ---
 doclens: unsupported format for `notes.txt`: doclens reads json, yaml and markdown

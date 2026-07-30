@@ -21,10 +21,12 @@ exit: 0
       "text": "    def delete_user(self, uid: int) -> None:\n        self._log(\"deleting user %d\", uid)\n        self._store.pop(uid, None)"
     }
   ],
+  "schema_version": 1,
   "summary": {
     "lines": 3,
     "matches": 1
   },
-  "tokens": 57
+  "tokens": 52,
+  "tool_version": "0.1.0"
 }
 --- stderr ---

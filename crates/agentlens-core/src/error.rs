@@ -75,6 +75,26 @@ impl fmt::Display for Error {
 }
 
 impl Error {
+    /// A stable machine-readable name for this error.
+    ///
+    /// Consumers branch on this rather than on the rendered message, which is
+    /// free to change wording.
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Self::AddressMissingHash(_) => "address_missing_hash",
+            Self::AddressEmptyPath(_) => "address_empty_path",
+            Self::AddressUnresolved(_) => "address_unresolved",
+            Self::BadLineSpan(_) => "bad_line_span",
+            Self::UnsupportedLanguage(_) => "unsupported_language",
+            Self::UnsupportedFormat(_) => "unsupported_format",
+            Self::Io(..) => "io",
+            Self::NotUtf8(_) => "not_utf8",
+            Self::Parse(_) => "parse",
+            Self::BadRegex(_) => "bad_regex",
+            Self::BadKind { .. } => "bad_value",
+        }
+    }
+
     /// Whether this error is about the shape of an address.
     ///
     /// Each binary has its own address grammar and its own help topic, so the

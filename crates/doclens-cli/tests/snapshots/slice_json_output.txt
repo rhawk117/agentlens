@@ -21,9 +21,11 @@ exit: 0
       "text": "    image: postgres:16\n    volumes:\n      - pgdata:/var/lib/postgresql/data"
     }
   ],
+  "schema_version": 1,
   "summary": {
     "matches": 1
   },
-  "tokens": 35
+  "tokens": 32,
+  "tool_version": "0.1.0"
 }
 --- stderr ---

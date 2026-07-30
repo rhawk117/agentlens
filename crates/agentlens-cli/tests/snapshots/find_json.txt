@@ -44,11 +44,13 @@ exit: 0
   ],
   "found": true,
   "pattern": "delete_user",
+  "schema_version": 1,
   "summary": {
     "files": 2,
     "matches": 3
   },
-  "tokens": 63,
+  "tokens": 57,
+  "tool_version": "0.1.0",
   "truncated": false
 }
 --- stderr ---
