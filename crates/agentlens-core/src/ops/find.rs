@@ -165,8 +165,18 @@ pub fn run(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Result<Re
     let found = !groups.is_empty();
     let hit_count: usize = groups.iter().map(|group| group.hits.len()).sum();
 
+    let suggestion =
+        (!found && names_a_symbol(pattern, paths)).then(|| format!("agentlens sym {pattern}"));
     let (text, detail, degraded) = fit(options.budget, |detail| {
-        render(pattern, &groups, hit_count, capped, detail, options)
+        render(
+            pattern,
+            &groups,
+            hit_count,
+            capped,
+            detail,
+            options,
+            suggestion.as_deref(),
+        )
     });
     let json = json!({
         "command": "find",
@@ -177,6 +187,7 @@ pub fn run(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Result<Re
         "budget": options.budget,
         "tokens": estimate_tokens(&text),
         "truncated": capped,
+        "suggestion": suggestion,
         "summary": {
             "matches": hit_count,
             "files": groups.len(),
@@ -184,6 +195,25 @@ pub fn run(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Result<Re
         "files": groups,
     });
     Ok(Report::new(text, json, found))
+}
+
+/// Whether `pattern` is the plain name of a symbol somewhere under `paths`.
+///
+/// `find` scans occurrences, and a module-level constant is not one, so
+/// `--kind definition` misses names that plainly exist. This runs only on the
+/// miss path, where the extra parse pass costs nothing the caller was going to
+/// use anyway, and it gates the suggestion on the symbol really being there.
+fn names_a_symbol(pattern: &str, paths: &[PathBuf]) -> bool {
+    if pattern.is_empty() || !pattern.chars().all(|ch| ch.is_alphanumeric() || ch == '_') {
+        return false;
+    }
+    collect_targets(paths).into_iter().any(|path| {
+        SourceFile::load(&path).is_ok_and(|file| {
+            symbols::extract(&file)
+                .iter()
+                .any(|symbol| symbol.name == pattern)
+        })
+    })
 }
 
 pub fn collect_targets(paths: &[PathBuf]) -> Vec<PathBuf> {
@@ -356,11 +386,16 @@ fn render(
     capped: bool,
     detail: Detail,
     options: &FindOptions,
+    suggestion: Option<&str>,
 ) -> String {
     let mut out = Lines::new();
     if groups.is_empty() {
         out.push(format!("no match for `{pattern}`"));
-        if !options.include_comments || !options.include_strings {
+        if let Some(invocation) = suggestion {
+            out.push(format!(
+                "`{pattern}` is a symbol but not an occurrence `find` scans: try `{invocation}`"
+            ));
+        } else if !options.include_comments || !options.include_strings {
             out.push(
                 "comments and string bodies are excluded: add --include-comments or --include-strings"
                     .to_string(),
@@ -555,6 +590,57 @@ mod tests {
 
     fn parse(text: &str) -> SourceFile {
         SourceFile::from_text(Path::new("t.py"), Lang::Python, text.to_string()).expect("parses")
+    }
+
+    fn constant_repo(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("agentlens-find-{name}"));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("mkdir");
+        std::fs::write(
+            dir.join("settings.py"),
+            "MIDDLEWARE = [\n    \"a.B\",\n]\n\n\ndef unrelated():\n    return 1\n",
+        )
+        .expect("write");
+        dir
+    }
+
+    /// A module constant is a real symbol that `--kind definition` cannot
+    /// see, so the miss must point at the command that can find it. Sending
+    /// the caller to --include-comments here is the exact failure the
+    /// address work exists to remove: a suggestion that cannot succeed.
+    #[test]
+    fn a_miss_on_a_real_symbol_points_at_sym() {
+        let dir = constant_repo("sym-hint");
+        let options = FindOptions {
+            kind: OccurrenceFilter::Only(Occurrence::Definition),
+            ..FindOptions::default()
+        };
+        let report = run("MIDDLEWARE", std::slice::from_ref(&dir), &options).expect("runs");
+        assert!(!report.found);
+        assert!(
+            report.text.contains("agentlens sym MIDDLEWARE"),
+            "miss should name the command that resolves it, got:\n{}",
+            report.text
+        );
+        assert!(
+            !report.text.contains("--include-comments"),
+            "the comments hint cannot help here, got:\n{}",
+            report.text
+        );
+    }
+
+    #[test]
+    fn a_miss_on_nothing_at_all_keeps_the_comments_hint() {
+        let dir = constant_repo("no-sym-hint");
+        let report = run(
+            "NoSuchNameAnywhere",
+            std::slice::from_ref(&dir),
+            &FindOptions::default(),
+        )
+        .expect("runs");
+        assert!(!report.found);
+        assert!(report.text.contains("--include-comments"));
+        assert!(!report.text.contains("agentlens sym"));
     }
 
     fn busy_repo(name: &str) -> PathBuf {

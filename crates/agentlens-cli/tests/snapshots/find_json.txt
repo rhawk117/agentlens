@@ -45,6 +45,7 @@ exit: 0
   "found": true,
   "pattern": "delete_user",
   "schema_version": 1,
+  "suggestion": null,
   "summary": {
     "files": 2,
     "matches": 3

@@ -1,0 +1,6 @@
+$ agentlens find MIDDLEWARE --kind definition --no-cache
+exit: 1
+--- stdout ---
+no match for `MIDDLEWARE`
+`MIDDLEWARE` is a symbol but not an occurrence `find` scans: try `agentlens sym MIDDLEWARE`
+--- stderr ---
