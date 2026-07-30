@@ -83,7 +83,7 @@ exit: 0
     "distinct": 6,
     "literals": 6
   },
-  "tokens": 120,
+  "tokens": 114,
   "tool_version": "0.1.0",
   "truncated": false
 }

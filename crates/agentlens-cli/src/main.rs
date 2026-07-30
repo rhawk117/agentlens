@@ -27,7 +27,13 @@ struct Cli {
     #[command(subcommand)]
     command: Command,
 
-    #[arg(long, global = true, value_name = "n", default_value_t = DEFAULT_BUDGET)]
+    #[arg(
+        long,
+        global = true,
+        value_name = "n",
+        default_value_t = DEFAULT_BUDGET,
+        help = "token target, not a hard cap; output is estimated, so ~7% of calls run over"
+    )]
     budget: usize,
 
     #[arg(long, global = true, help = "machine-readable output")]
