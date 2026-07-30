@@ -1,0 +1,5 @@
+$ agentlens sym normalise --no-cache
+exit: 0
+--- stdout ---
+src/api/users.py#normalise  def normalise(value: int) -> int:  (4 definitions)
+--- stderr ---

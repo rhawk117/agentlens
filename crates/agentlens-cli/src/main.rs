@@ -7,7 +7,7 @@ use agentlens_core::address::Coercion;
 use agentlens_core::budget::DEFAULT_BUDGET;
 use agentlens_core::error::Error;
 use agentlens_core::ops::{
-    callers, dead, envelope, error_envelope, find, literals, map, packet, slice,
+    callers, dead, envelope, error_envelope, find, literals, map, packet, slice, sym,
 };
 use agentlens_core::{Address, KindFilter, Report};
 use clap::{Parser, Subcommand};
@@ -131,6 +131,11 @@ enum Command {
         #[arg(long, help = "skip call sites in test files")]
         no_tests: bool,
     },
+    #[command(about = "one symbol by name: address, kind and value")]
+    Sym {
+        #[arg(value_name = "name")]
+        name: String,
+    },
     #[command(about = "dead-code candidates")]
     Dead,
     #[command(about = "address grammar and other topics")]
@@ -165,6 +170,7 @@ impl Command {
             Self::Literals { .. } => "literals",
             Self::Callers { .. } => "callers",
             Self::Packet { .. } => "packet",
+            Self::Sym { .. } => "sym",
             Self::Dead => "dead",
             Self::Help { .. } => "help",
         }
@@ -224,11 +230,45 @@ fn main() -> ExitCode {
     }
 }
 
-fn address_of(parts: &[String]) -> Result<(Address, Option<Coercion>), Error> {
+enum Target {
+    Address(Box<Address>, Option<Coercion>),
+    Unresolved(Box<Report>),
+}
+
+// An address the caller could not spell may still be a symbol name the index
+// knows. Try that before giving up, but only for a single bare argument:
+// trailing positionals mean they were reaching for a line range, not a name.
+fn address_of(parts: &[String], cli: &Cli) -> Result<Target, Error> {
     let Some((head, tail)) = parts.split_first() else {
         return Err(Error::AddressUnresolved(String::new()));
     };
-    Address::parse_lenient(head, tail)
+    match Address::parse_lenient(head, tail) {
+        Ok((address, coercion)) => Ok(Target::Address(Box::new(address), coercion)),
+        // Only a missing `#` can plausibly be a bare symbol name. A malformed
+        // line span is a malformed line span, and saying so beats searching
+        // the index for a symbol called `f.py#L20-L10`.
+        Err(Error::AddressMissingHash(name)) if tail.is_empty() => resolve_by_name(&name, cli),
+        Err(err) => Err(err),
+    }
+}
+
+fn resolve_by_name(name: &str, cli: &Cli) -> Result<Target, Error> {
+    let options = sym::SymOptions {
+        root: cli.root.clone(),
+        cache: !cli.no_cache,
+        budget: cli.budget,
+        quiet: cli.quiet(),
+    };
+    match sym::lookup(name, &options)? {
+        sym::Lookup::Unique(address) => {
+            let coercion = Coercion {
+                read_as: address.to_string(),
+                raw: name.to_string(),
+            };
+            Ok(Target::Address(Box::new(address), Some(coercion)))
+        }
+        sym::Lookup::Report(report) => Ok(Target::Unresolved(report)),
+    }
 }
 
 // One match arm per command, each building that command's options. Splitting
@@ -242,7 +282,11 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
             signature_only,
             no_decorators,
         } => {
-            let (parsed, coercion) = address_of(address)?;
+            let target = address_of(address, cli)?;
+            let (parsed, coercion) = match target {
+                Target::Address(parsed, coercion) => (parsed, coercion),
+                Target::Unresolved(report) => return Ok((*report).into()),
+            };
             let options = slice::SliceOptions {
                 signature_only: *signature_only,
                 no_decorators: *no_decorators,
@@ -335,7 +379,11 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
             Ok(literals::run(&targets, &options)?.into())
         }
         Command::Callers { address, no_tests } => {
-            let (parsed, coercion) = address_of(address)?;
+            let target = address_of(address, cli)?;
+            let (parsed, coercion) = match target {
+                Target::Address(parsed, coercion) => (parsed, coercion),
+                Target::Unresolved(report) => return Ok((*report).into()),
+            };
             let options = callers::CallersOptions {
                 root: cli.root.clone(),
                 include_tests: !*no_tests,
@@ -347,7 +395,11 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
             Ok(Outcome { report, coercion })
         }
         Command::Packet { address, no_tests } => {
-            let (parsed, coercion) = address_of(address)?;
+            let target = address_of(address, cli)?;
+            let (parsed, coercion) = match target {
+                Target::Address(parsed, coercion) => (parsed, coercion),
+                Target::Unresolved(report) => return Ok((*report).into()),
+            };
             let options = packet::PacketOptions {
                 root: cli.root.clone(),
                 include_tests: !*no_tests,
@@ -357,6 +409,15 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
             };
             let report = packet::run(&parsed, &options)?;
             Ok(Outcome { report, coercion })
+        }
+        Command::Sym { name } => {
+            let options = sym::SymOptions {
+                root: cli.root.clone(),
+                cache: !cli.no_cache,
+                budget: cli.budget,
+                quiet: cli.quiet(),
+            };
+            Ok(sym::run(name, &options)?.into())
         }
         Command::Dead => {
             let options = dead::DeadOptions {

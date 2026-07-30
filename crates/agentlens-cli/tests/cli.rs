@@ -290,8 +290,14 @@ const CASES: &[Case] = &[
         "json_error_literals",
         &["literals", "--kind", "nonsense", "--json"],
     ),
-    case("json_error_callers", &["callers", "nowhere#X", "--json"]),
-    case("json_error_packet", &["packet", "nowhere#X", "--json"]),
+    case(
+        "json_error_callers",
+        &["callers", "nowhere#X", "--json", "--no-cache"],
+    ),
+    case(
+        "json_error_packet",
+        &["packet", "nowhere#X", "--json", "--no-cache"],
+    ),
     case("json_error_help", &["help", "nonsense", "--json"]),
     // --no-cache pins from_cache to false. Without it the snapshot depends on
     // whether another test wrote .agentlens-cache first, which is a race.
@@ -304,7 +310,34 @@ const CASES: &[Case] = &[
             "--no-cache",
         ],
     ),
-    case("json_error_with_suggestion", &["slice", "nohash", "--json"]),
+    case(
+        "json_error_with_suggestion",
+        &["slice", "src/api/users.py#L20-L10", "--json"],
+    ),
+    case(
+        "json_bare_name_absent",
+        &["slice", "nohash", "--json", "--no-cache"],
+    ),
+    case("sym_constant", &["sym", "MAX_RETRIES", "--no-cache"]),
+    case("sym_method", &["sym", "create_user", "--no-cache"]),
+    case(
+        "sym_overloads_share_one_address",
+        &["sym", "normalise", "--no-cache"],
+    ),
+    case("sym_absent", &["sym", "NoSuchThing", "--no-cache"]),
+    case(
+        "sym_dotted",
+        &["sym", "UserService.create_user", "--no-cache"],
+    ),
+    case(
+        "bare_name_resolves_for_slice",
+        &["slice", "UserService", "--no-cache"],
+    ),
+    case(
+        "bare_name_resolves_for_packet",
+        &["packet", "UserService", "--no-cache"],
+    ),
+    case("bare_name_absent", &["slice", "NoSuchThing", "--no-cache"]),
 ];
 
 #[test]

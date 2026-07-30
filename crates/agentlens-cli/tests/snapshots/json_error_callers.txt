@@ -1,4 +1,4 @@
-$ agentlens callers nowhere#X --json
+$ agentlens callers nowhere#X --json --no-cache
 exit: 1
 --- stdout ---
 {
@@ -9,8 +9,8 @@ exit: 1
   "found": false,
   "index": {
     "files": 5,
-    "from_cache": true,
-    "reparsed": 0
+    "from_cache": false,
+    "reparsed": 5
   },
   "schema_version": 1,
   "tool_version": "0.1.0"
