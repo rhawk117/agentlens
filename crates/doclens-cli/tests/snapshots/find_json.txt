@@ -17,9 +17,11 @@ exit: 0
     }
   ],
   "pattern": "8443",
+  "schema_version": 1,
   "summary": {
     "matches": 1
   },
-  "tokens": 24
+  "tokens": 22,
+  "tool_version": "0.1.0"
 }
 --- stderr ---

@@ -283,7 +283,87 @@ const CASES: &[Case] = &[
     case("error_unknown_kind", &["map", ".", "--kind", "nonsense"]),
     case("error_unknown_help_topic", &["help", "nonsense"]),
     case("help_addresses", &["help", "addresses"]),
+    case("json_error_slice", &["slice", "nowhere#X", "--json"]),
+    case("json_error_map", &["map", "nowhere", "--json"]),
+    case("json_error_find", &["find", "[unclosed", "--json"]),
+    case(
+        "json_error_literals",
+        &["literals", "--kind", "nonsense", "--json"],
+    ),
+    case("json_error_callers", &["callers", "nowhere#X", "--json"]),
+    case("json_error_packet", &["packet", "nowhere#X", "--json"]),
+    case("json_error_help", &["help", "nonsense", "--json"]),
+    // --no-cache pins from_cache to false. Without it the snapshot depends on
+    // whether another test wrote .agentlens-cache first, which is a race.
+    case(
+        "json_provenance_callers",
+        &[
+            "callers",
+            "src/api/users.py#UserService.create_user",
+            "--json",
+            "--no-cache",
+        ],
+    ),
+    case("json_error_with_suggestion", &["slice", "nohash", "--json"]),
 ];
+
+#[test]
+fn every_json_case_emits_parseable_json_on_stdout() {
+    for item in CASES {
+        if !item.args.contains(&"--json") {
+            continue;
+        }
+        let rendered = run(item.args);
+        let stdout = rendered
+            .split_once("--- stdout ---")
+            .and_then(|(_, rest)| rest.split_once("--- stderr ---"))
+            .map(|(body, _)| body)
+            .expect("rendered run has both streams");
+        let value: serde_json::Value = serde_json::from_str(stdout.trim())
+            .unwrap_or_else(|err| panic!("{} did not emit json: {err}\n{stdout}", item.name));
+        assert_eq!(
+            value["schema_version"], 1,
+            "{} lacks schema_version",
+            item.name
+        );
+        assert!(
+            value["tool_version"].is_string(),
+            "{} lacks tool_version",
+            item.name
+        );
+    }
+}
+
+#[test]
+fn index_provenance_travels_with_index_backed_commands() {
+    let rendered = run(&[
+        "callers",
+        "src/api/users.py#UserService.create_user",
+        "--json",
+    ]);
+    let stdout = rendered
+        .split_once("--- stdout ---")
+        .and_then(|(_, rest)| rest.split_once("--- stderr ---"))
+        .map(|(body, _)| body)
+        .expect("rendered run has both streams");
+    let value: serde_json::Value = serde_json::from_str(stdout.trim()).expect("json");
+    assert!(value["index"]["files"].is_u64(), "no index.files");
+    assert!(
+        value["index"]["from_cache"].is_boolean(),
+        "no index.from_cache"
+    );
+    // slice builds no index, so it must not claim one.
+    let plain = run(&["slice", "src/api/users.py#User", "--json"]);
+    assert!(!plain.contains("\"index\""));
+}
+
+#[test]
+fn the_next_call_footer_is_dropped_under_json() {
+    let text = run(&["map", "src/api/users.py"]);
+    assert!(text.contains("for a body"));
+    let json = run(&["map", "src/api/users.py", "--json"]);
+    assert!(!json.contains("for a body"));
+}
 
 #[test]
 fn snapshots_match() {

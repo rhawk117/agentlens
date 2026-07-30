@@ -40,12 +40,14 @@ exit: 0
   "manifests": [
     "pyproject.toml"
   ],
+  "schema_version": 1,
   "summary": {
     "entry_points": 5,
     "files": 5,
     "lines": 121
   },
   "target": ".",
-  "tokens": 129
+  "tokens": 119,
+  "tool_version": "0.1.0"
 }
 --- stderr ---

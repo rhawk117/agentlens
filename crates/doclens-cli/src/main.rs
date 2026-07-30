@@ -4,7 +4,8 @@ use std::process::ExitCode;
 use agentlens_core::Report;
 use agentlens_core::budget::DEFAULT_BUDGET;
 use agentlens_core::doc::DocAddress;
-use agentlens_core::ops::doc;
+use agentlens_core::error::Error;
+use agentlens_core::ops::{doc, envelope, error_envelope};
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
@@ -57,9 +58,27 @@ enum Command {
         exact: bool,
         #[arg(long, help = "match keys only")]
         keys: bool,
-        #[arg(long, help = "match values only")]
+        #[arg(long, conflicts_with = "keys", help = "match values only")]
         values: bool,
     },
+}
+
+const TOOL_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+impl Command {
+    fn name(&self) -> &'static str {
+        match self {
+            Self::Slice { .. } => "slice",
+            Self::Map { .. } => "map",
+            Self::Find { .. } => "find",
+        }
+    }
+}
+
+impl Cli {
+    fn quiet(&self) -> bool {
+        self.quiet || self.json
+    }
 }
 
 fn main() -> ExitCode {
@@ -74,33 +93,50 @@ fn main() -> ExitCode {
                 ExitCode::from(1)
             }
         }
-        Err(message) => {
-            eprintln!("doclens: {message}");
-            ExitCode::from(2)
+        Err(err) => {
+            let exit = err.exit_code();
+            let suggestion = err.is_address().then_some("doclens map .");
+            if cli.json {
+                let body = error_envelope(
+                    cli.command.name(),
+                    err.kind(),
+                    &err.to_string(),
+                    suggestion,
+                    exit,
+                    TOOL_VERSION,
+                );
+                println!("{}", render(&body));
+            } else {
+                eprintln!("doclens: {err}");
+                if let Some(hint) = suggestion {
+                    eprintln!("run `{hint}` to see the documents here");
+                }
+            }
+            ExitCode::from(exit)
         }
     }
 }
 
-fn dispatch(cli: &Cli) -> Result<Report, String> {
+fn dispatch(cli: &Cli) -> Result<Report, Error> {
     match &cli.command {
         Command::Slice { address, with_key } => {
-            let parsed = DocAddress::parse(address).map_err(|err| err.to_string())?;
+            let parsed = DocAddress::parse(address)?;
             let options = doc::DocOptions {
                 with_key: *with_key,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
                 ..doc::DocOptions::default()
             };
-            doc::slice(&parsed, &options).map_err(|err| err.to_string())
+            doc::slice(&parsed, &options)
         }
         Command::Map { path, depth } => {
             let options = doc::DocOptions {
                 depth: (*depth).max(1),
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
                 ..doc::DocOptions::default()
             };
-            doc::map(path, &options).map_err(|err| err.to_string())
+            doc::map(path, &options)
         }
         Command::Find {
             pattern,
@@ -109,28 +145,28 @@ fn dispatch(cli: &Cli) -> Result<Report, String> {
             keys,
             values,
         } => {
-            if *keys && *values {
-                return Err("--keys and --values are mutually exclusive".to_string());
-            }
             let options = doc::DocOptions {
                 exact: *exact,
                 keys_only: *keys,
                 values_only: *values,
                 budget: cli.budget,
-                quiet: cli.quiet,
+                quiet: cli.quiet(),
                 ..doc::DocOptions::default()
             };
-            doc::find(pattern, paths, &options).map_err(|err| err.to_string())
+            doc::find(pattern, paths, &options)
         }
     }
 }
 
 fn emit(report: &Report, json: bool) {
     if json {
-        let rendered = serde_json::to_string_pretty(&report.json)
-            .unwrap_or_else(|_| "{\"error\":\"serialisation failed\"}".to_string());
-        println!("{rendered}");
+        println!("{}", render(&envelope(report, TOOL_VERSION)));
     } else {
         print!("{}", report.text);
     }
+}
+
+fn render(value: &serde_json::Value) -> String {
+    serde_json::to_string_pretty(value)
+        .unwrap_or_else(|_| "{\"error\":\"serialisation failed\"}".to_string())
 }

@@ -10,6 +10,12 @@ exit: 0
   "degraded": false,
   "detail": "full",
   "found": true,
+  "index": {
+    "files": 5,
+    "from_cache": false,
+    "reparsed": 5
+  },
+  "schema_version": 1,
   "target": {
     "address": "src/core/config.py#describe",
     "body": "def describe(host: str, port: int) -> str:\n    return f\"connection refused: {host}:{port}\"",
@@ -17,7 +23,8 @@ exit: 0
     "signature": "def describe(host: str, port: int) -> str:",
     "start_line": 9
   },
-  "tokens": 60,
+  "tokens": 52,
+  "tool_version": "0.1.0",
   "types": []
 }
 --- stderr ---

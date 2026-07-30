@@ -77,12 +77,14 @@ exit: 0
     }
   ],
   "literals": null,
+  "schema_version": 1,
   "skeleton": true,
   "summary": {
     "distinct": 6,
     "literals": 6
   },
-  "tokens": 126,
+  "tokens": 120,
+  "tool_version": "0.1.0",
   "truncated": false
 }
 --- stderr ---

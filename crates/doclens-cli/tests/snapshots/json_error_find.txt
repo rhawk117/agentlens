@@ -1,0 +1,16 @@
+$ doclens find [unclosed --json
+exit: 2
+--- stdout ---
+{
+  "command": "find",
+  "error": {
+    "kind": "bad_regex",
+    "message": "bad pattern `[unclosed`",
+    "suggestion": null
+  },
+  "exit": 2,
+  "found": false,
+  "schema_version": 1,
+  "tool_version": "0.1.0"
+}
+--- stderr ---

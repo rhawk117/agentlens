@@ -73,7 +73,7 @@ pub struct Caller {
 /// Propagates index construction failures, which in turn propagate
 /// [`Error::Io`], [`Error::NotUtf8`], and [`Error::Parse`].
 pub fn run(address: &Address, options: &CallersOptions) -> Result<Report> {
-    let (index, _) = Index::build(&options.root, options.cache)?;
+    let (index, stats) = Index::build(&options.root, options.cache)?;
     let key = slash_path(&address.path);
     let Selector::Symbol(parts) = &address.selector else {
         return Ok(bad_target(
@@ -84,7 +84,7 @@ pub fn run(address: &Address, options: &CallersOptions) -> Result<Report> {
     let dotted = parts.join(".");
     let targets = index.lookup(&key, &dotted);
     if targets.is_empty() {
-        return Ok(missing_target(&index, address, &key, &dotted));
+        return Ok(missing_target(&index, address, &key, &dotted).indexed(stats));
     }
 
     let name = parts.last().cloned().unwrap_or_default();
@@ -120,7 +120,7 @@ pub fn run(address: &Address, options: &CallersOptions) -> Result<Report> {
         },
         "callers": callers,
     });
-    Ok(Report::new(text, json, found))
+    Ok(Report::new(text, json, found).indexed(stats))
 }
 
 pub fn collect(index: &Index, key: &str, dotted: &str, include_tests: bool) -> Vec<Caller> {

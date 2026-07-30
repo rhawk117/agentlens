@@ -56,7 +56,41 @@ const CASES: &[Case] = &[
     case("find_values", &["find", "vitest", "--values"]),
     case("find_miss", &["find", "zzz_nothing"]),
     case("find_json", &["find", "8443", "--json"]),
+    case("json_error_slice", &["slice", "nowhere.json#a", "--json"]),
+    case(
+        "json_error_slice_bad_format",
+        &["slice", "README.txt#a", "--json"],
+    ),
+    case("json_error_map", &["map", "nowhere.json", "--json"]),
+    case("json_error_find", &["find", "[unclosed", "--json"]),
 ];
+
+#[test]
+fn every_json_case_emits_parseable_json_on_stdout() {
+    for item in CASES {
+        if !item.args.contains(&"--json") {
+            continue;
+        }
+        let rendered = run(item.args);
+        let stdout = rendered
+            .split_once("--- stdout ---")
+            .and_then(|(_, rest)| rest.split_once("--- stderr ---"))
+            .map(|(body, _)| body)
+            .expect("rendered run has both streams");
+        let value: serde_json::Value = serde_json::from_str(stdout.trim())
+            .unwrap_or_else(|err| panic!("{} did not emit json: {err}\n{stdout}", item.name));
+        assert_eq!(
+            value["schema_version"], 1,
+            "{} lacks schema_version",
+            item.name
+        );
+        assert!(
+            value["tool_version"].is_string(),
+            "{} lacks tool_version",
+            item.name
+        );
+    }
+}
 
 #[test]
 fn snapshots_match() {
@@ -81,7 +115,10 @@ fn output_is_byte_identical_across_runs() {
 fn exit_codes_branch_without_parsing() {
     assert!(run(&["slice", "compose.yaml#version"]).contains("exit: 0"));
     assert!(run(&["slice", "compose.yaml#nope"]).contains("exit: 1"));
-    assert!(run(&["slice", "compose.yaml"]).contains("exit: 2"));
+    // A malformed address is a miss, not a tool fault. doclens now routes
+    // through the same Error::exit_code as agentlens.
+    assert!(run(&["slice", "compose.yaml"]).contains("exit: 1"));
+    assert!(run(&["slice", "README.txt#a"]).contains("exit: 1"));
 }
 
 #[test]

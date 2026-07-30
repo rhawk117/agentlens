@@ -130,10 +130,12 @@ exit: 0
   ],
   "format": "json",
   "found": true,
+  "schema_version": 1,
   "summary": {
     "entries": 12
   },
   "target": "package.json",
-  "tokens": 139
+  "tokens": 130,
+  "tool_version": "0.1.0"
 }
 --- stderr ---

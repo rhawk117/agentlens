@@ -1,0 +1,16 @@
+$ agentlens slice nohash --json
+exit: 1
+--- stdout ---
+{
+  "command": "slice",
+  "error": {
+    "kind": "address_missing_hash",
+    "message": "no `#` in `nohash`\nan address names a file and something in it, like `file#Name`",
+    "suggestion": "agentlens help addresses"
+  },
+  "exit": 1,
+  "found": false,
+  "schema_version": 1,
+  "tool_version": "0.1.0"
+}
+--- stderr ---

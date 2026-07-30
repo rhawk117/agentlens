@@ -72,11 +72,18 @@ exit: 0
   "degraded": false,
   "detail": "full",
   "found": true,
+  "index": {
+    "files": 5,
+    "from_cache": false,
+    "reparsed": 5
+  },
+  "schema_version": 1,
   "summary": {
     "candidates": 7,
     "files_scanned": 5,
     "lines": 17
   },
-  "tokens": 202
+  "tokens": 189,
+  "tool_version": "0.1.0"
 }
 --- stderr ---

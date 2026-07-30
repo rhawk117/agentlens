@@ -1,0 +1,16 @@
+$ agentlens help nonsense --json
+exit: 2
+--- stdout ---
+{
+  "command": "help",
+  "error": {
+    "kind": "bad_value",
+    "message": "unknown value `nonsense`: use addresses",
+    "suggestion": null
+  },
+  "exit": 2,
+  "found": false,
+  "schema_version": 1,
+  "tool_version": "0.1.0"
+}
+--- stderr ---
