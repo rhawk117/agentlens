@@ -1,15 +1,16 @@
-$ agentlens find create_user --context none
+$ agentlens find create_user --expand
 exit: 0
 --- stdout ---
 definitions  2
   src/api/users.py#UserService.create_user  L23
-  tests/test_users.py#test_create_user      L4
+  tests/test_users.py#test_create_user      L4  test_create_user
 
 calls  2
   src/api/routes.py#create                  L14
   src/cli.py#main                           L8
 
-in tests  1 in 1 file  (--expand to list)
+in tests  1
+  tests/test_users.py#test_create_user      L6
 
 5 matches in 4 files
 --- stderr ---

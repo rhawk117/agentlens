@@ -1,0 +1,12 @@
+$ agentlens find user src/api --kind reference
+exit: 0
+--- stdout ---
+references  5
+  src/api/routes.py#L1                      L1  users
+  src/api/routes.py#create                  L14
+  src/api/routes.py#create                  L15
+  src/api/users.py#UserService.create_user  L26
+  src/api/users.py#UserService.create_user  L28
+
+5 matches in 2 files
+--- stderr ---

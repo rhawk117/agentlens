@@ -1,9 +1,9 @@
 $ agentlens find refused --include-strings
 exit: 0
 --- stdout ---
-src/core/config.py
-  L10     string      connection refused:          in #describe
-  L14     string      connection refused: nowhere  in #banner
+strings  2
+  src/core/config.py#describe  L10  connection refused:
+  src/core/config.py#banner    L14  connection refused: nowhere
 
 2 matches in 1 file
 --- stderr ---

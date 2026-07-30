@@ -1,17 +1,14 @@
 $ agentlens find user src/api
 exit: 0
 --- stdout ---
-src/api/routes.py
-  L1      reference   users        at module level
-  L14     call        create_user  in #create
-  L14     reference   user         in #create
-  L15     reference   user         in #create
+definitions  2
+  src/api/users.py#UserService.create_user  L23  create_user
+  src/api/users.py#UserService.delete_user  L30  delete_user
 
-src/api/users.py
-  L23     definition  create_user  in #UserService.create_user
-  L26     reference   user         in #UserService.create_user
-  L28     reference   user         in #UserService.create_user
-  L30     definition  delete_user  in #UserService.delete_user
+calls  1
+  src/api/routes.py#create                  L14  create_user
+
+references  5 in 2 files  (--expand to list)
 
 8 matches in 2 files
 --- stderr ---

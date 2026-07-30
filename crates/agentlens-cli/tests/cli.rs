@@ -113,6 +113,11 @@ const CASES: &[Case] = &[
     ),
     case("find_strings", &["find", "refused", "--include-strings"]),
     case("find_miss", &["find", "zzz_no_such_symbol"]),
+    case("find_expand", &["find", "create_user", "--expand"]),
+    case(
+        "find_kind_reference_is_never_collapsed",
+        &["find", "user", "src/api", "--kind", "reference"],
+    ),
     case("find_json", &["find", "delete_user", "--json"]),
     case("find_budget", &["find", "user", "--budget", "40"]),
     case("literals_file", &["literals", "src/core/config.py"]),
