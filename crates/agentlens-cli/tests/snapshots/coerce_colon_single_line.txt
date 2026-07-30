@@ -1,0 +1,9 @@
+$ agentlens slice src/api/users.py:21
+exit: 0
+--- stdout ---
+src/api/users.py#L21  L21  1 line
+    @transaction.atomic
+
+1 match, 1 line
+--- stderr ---
+note: read `src/api/users.py:21` as `src/api/users.py#L21-L21`

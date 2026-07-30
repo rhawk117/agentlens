@@ -222,6 +222,67 @@ const CASES: &[Case] = &[
     case("dead_repo", &["dead", "--no-cache"]),
     case("dead_json", &["dead", "--json", "--no-cache"]),
     case("dead_budget", &["dead", "--budget", "40", "--no-cache"]),
+    case(
+        "coerce_bare_file_to_outline",
+        &["slice", "src/api/users.py"],
+    ),
+    case(
+        "coerce_positional_line_range",
+        &["slice", "src/api/users.py", "1", "20"],
+    ),
+    case(
+        "coerce_positional_single_line",
+        &["slice", "src/api/users.py", "21"],
+    ),
+    case(
+        "coerce_positional_symbol",
+        &["slice", "src/api/users.py", "UserService"],
+    ),
+    case(
+        "coerce_colon_line_range",
+        &["slice", "src/api/users.py:1-20"],
+    ),
+    case(
+        "coerce_colon_single_line",
+        &["slice", "src/api/users.py:21"],
+    ),
+    case(
+        "coerce_colon_range_then_symbol",
+        &["slice", "src/api/users.py:1-20#UserService"],
+    ),
+    case(
+        "coerce_colon_range_then_outline",
+        &["slice", "src/api/users.py:1-20#"],
+    ),
+    case(
+        "coerce_double_colon_symbol",
+        &["slice", "src/api/users.py::UserService"],
+    ),
+    case(
+        "coerce_symbol_beats_placeholder",
+        &["slice", "src/api/users.py::UserService#Symbol"],
+    ),
+    case(
+        "coerce_is_silenced_by_quiet",
+        &["slice", "src/api/users.py:1-20", "--quiet"],
+    ),
+    case(
+        "map_rooted_at_a_symbol",
+        &["map", "src/api/users.py#UserService"],
+    ),
+    case("error_no_hash_and_no_file", &["slice", "nowhere"]),
+    case(
+        "error_unresolved_extra_arguments",
+        &["slice", "nowhere", "1", "20"],
+    ),
+    case(
+        "error_bad_line_span",
+        &["slice", "src/api/users.py#L20-L10"],
+    ),
+    case("error_missing_symbol", &["slice", "src/api/users.py#Nope"]),
+    case("error_unknown_kind", &["map", ".", "--kind", "nonsense"]),
+    case("error_unknown_help_topic", &["help", "nonsense"]),
+    case("help_addresses", &["help", "addresses"]),
 ];
 
 #[test]
@@ -244,7 +305,34 @@ fn output_is_byte_identical_across_runs() {
 fn exit_codes_branch_without_parsing() {
     assert!(run(&["slice", "src/api/users.py#UserService.create_user"]).contains("exit: 0"));
     assert!(run(&["slice", "src/api/users.py#UserService.nope"]).contains("exit: 1"));
-    assert!(run(&["slice", "src/api/users.py"]).contains("exit: 2"));
+    // A bare file used to be a tool fault. It is an outline now, and a
+    // mistyped address is a miss rather than a fault.
+    assert!(run(&["slice", "src/api/users.py"]).contains("exit: 0"));
+    assert!(run(&["slice", "nowhere"]).contains("exit: 1"));
+}
+
+#[test]
+fn the_coercion_note_stays_off_stdout() {
+    let plain = run(&["slice", "src/api/users.py:1-20"]);
+    let (stdout, stderr) = plain
+        .split_once("--- stderr ---")
+        .expect("rendered run has both streams");
+    assert!(!stdout.contains("note:"), "note leaked onto stdout");
+    assert!(stderr.contains("note: read `src/api/users.py:1-20`"));
+}
+
+#[test]
+fn json_stdout_is_identical_with_and_without_coercion() {
+    let coerced = run(&["slice", "src/api/users.py:1-20", "--json"]);
+    let canonical = run(&["slice", "src/api/users.py#L1-L20", "--json"]);
+    let body = |rendered: &str| {
+        rendered
+            .split_once("--- stdout ---")
+            .and_then(|(_, rest)| rest.split_once("--- stderr ---"))
+            .map(|(stdout, _)| stdout.to_string())
+            .expect("rendered run has both streams")
+    };
+    assert_eq!(body(&coerced), body(&canonical));
 }
 
 #[test]

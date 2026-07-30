@@ -1,0 +1,14 @@
+$ agentlens map src/api/users.py#UserService
+exit: 0
+--- stdout ---
+src/api/users.py#UserService  63 lines  7 symbols
+  class UserService:                                         L15-L39
+    RETRY_BACKOFF = 2                                        L18
+    def create_user(self, email: str, name: str) -> User:    L21-L28
+    def delete_user(self, uid: int) -> None:                 L30-L32
+    def _log(self, template: str, *args: object) -> None:    L34-L35
+    class Cursor:                                            L37-L39
+      def next(self) -> int:                                 L38-L39
+
+slice src/api/users.py#UserService for a body
+--- stderr ---

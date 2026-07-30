@@ -1,0 +1,18 @@
+==========
+Middleware
+==========
+
+Middleware is a framework of hooks into request and response processing.
+
+Writing your own middleware
+===========================
+
+A middleware factory takes a ``get_response`` callable and returns a
+middleware, which is itself a callable taking a request and returning a
+response.
+
+Middleware order
+================
+
+The order in ``MIDDLEWARE`` matters, because a response passes back up
+through the same list in reverse.

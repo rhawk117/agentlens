@@ -12,5 +12,5 @@ src/api/users.py  63 lines  9 symbols
   def normalise(value):                    L54-L57
   def only_when_typing() -> None:          L62-L63
 
-slice src/api/users.py#<Symbol> for a body
+slice src/api/users.py#MAX_RETRIES for a body
 --- stderr ---

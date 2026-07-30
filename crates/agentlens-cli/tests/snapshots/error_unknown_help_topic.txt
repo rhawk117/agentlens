@@ -1,0 +1,5 @@
+$ agentlens help nonsense
+exit: 2
+--- stdout ---
+--- stderr ---
+agentlens: unknown value `nonsense`: use addresses

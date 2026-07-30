@@ -2,4 +2,5 @@ $ doclens slice package.json
 exit: 2
 --- stdout ---
 --- stderr ---
-doclens: address `package.json` has no `#`: use `package.json#Symbol`, or `package.json#` for the outline
+doclens: no `#` in `package.json`
+an address names a file and something in it, like `file#Name`

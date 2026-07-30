@@ -23,6 +23,8 @@ pub struct MapOptions {
     pub kind: KindFilter,
     pub budget: usize,
     pub quiet: bool,
+    /// Dotted symbol to root the outline at, from a `file.py#Class` target.
+    pub root: Option<String>,
 }
 
 impl Default for MapOptions {
@@ -32,6 +34,7 @@ impl Default for MapOptions {
             kind: KindFilter::All,
             budget: DEFAULT_BUDGET,
             quiet: false,
+            root: None,
         }
     }
 }
@@ -81,6 +84,31 @@ pub fn file_outline(file: &SourceFile, options: &MapOptions) -> Vec<OutlineEntry
     out
 }
 
+// A rooted outline shows `--depth` levels *below* the named symbol, so build
+// deep enough to reach them before filtering. Building at the requested depth
+// and then filtering would silently return nothing for any nested target.
+fn rooted_outline(file: &SourceFile, root: &str, options: &MapOptions) -> Vec<OutlineEntry> {
+    let deep = MapOptions {
+        depth: root.split('.').count() + options.depth,
+        ..options.clone()
+    };
+    let prefix = format!("{root}.");
+    let mut base = None;
+    let mut out = Vec::new();
+    for entry in file_outline(file, &deep) {
+        let dotted = entry.address.split_once('#').map_or("", |(_, rest)| rest);
+        if dotted != root && !dotted.starts_with(&prefix) {
+            continue;
+        }
+        let start = *base.get_or_insert(entry.depth);
+        out.push(OutlineEntry {
+            depth: entry.depth - start + 1,
+            ..entry
+        });
+    }
+    out
+}
+
 fn push_entries(
     file: &SourceFile,
     symbols: &[Symbol],
@@ -119,8 +147,14 @@ fn signature_line(file: &SourceFile, symbol: &Symbol) -> String {
 
 fn map_file(path: &Path, options: &MapOptions) -> Result<Report> {
     let file = SourceFile::load(path)?;
-    let entries = file_outline(&file, options);
-    let display = slash_path(path);
+    let entries = match &options.root {
+        Some(root) => rooted_outline(&file, root, options),
+        None => file_outline(&file, options),
+    };
+    let display = match &options.root {
+        Some(root) => format!("{}#{root}", slash_path(path)),
+        None => slash_path(path),
+    };
     let found = !entries.is_empty();
 
     let (text, detail, degraded) = fit(options.budget, |detail| {
@@ -194,9 +228,13 @@ fn render_file(
         }
     }
 
-    if !options.quiet {
+    // Name a symbol that is actually in this outline. A placeholder like
+    // `#<Symbol>` is both a shell redirection error and a guaranteed miss.
+    if !options.quiet
+        && let Some(first) = entries.first()
+    {
         out.blank();
-        out.push(format!("slice {display}#<Symbol> for a body"));
+        out.push(format!("slice {} for a body", first.address));
     }
     out.finish()
 }
@@ -301,6 +339,9 @@ fn map_directory(root: &Path, options: &MapOptions) -> Result<Report> {
 
     let display = slash_path(root);
     let found = !files.is_empty();
+    let example = files
+        .first()
+        .map(|path| slash_path(&walk::relative(root, path)));
     let languages: Vec<(&'static str, usize, usize)> = by_lang
         .iter()
         .map(|(name, (count, lines))| (*name, *count, *lines))
@@ -315,6 +356,7 @@ fn map_directory(root: &Path, options: &MapOptions) -> Result<Report> {
             &tree,
             &entry_points,
             &manifests,
+            example.as_deref(),
             detail,
             options,
         )
@@ -353,6 +395,7 @@ fn render_directory(
     tree: &DirNode,
     entry_points: &[EntryPoint],
     manifests: &[String],
+    example: Option<&str>,
     detail: Detail,
     options: &MapOptions,
 ) -> String {
@@ -435,9 +478,11 @@ fn render_directory(
         out.push("budget reached: tree and manifests omitted, raise --budget".to_string());
     }
 
-    if !options.quiet {
+    if !options.quiet
+        && let Some(example) = example
+    {
         out.blank();
-        out.push(format!("map {display}/<file> for a file outline"));
+        out.push(format!("map {example} for a file outline"));
     }
     out.finish()
 }

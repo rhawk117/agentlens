@@ -1,0 +1,5 @@
+$ agentlens map . --kind nonsense
+exit: 2
+--- stdout ---
+--- stderr ---
+agentlens: unknown value `nonsense`: use class, function or all

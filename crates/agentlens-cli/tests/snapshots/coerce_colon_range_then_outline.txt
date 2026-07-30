@@ -1,4 +1,4 @@
-$ agentlens slice src/api/users.py
+$ agentlens slice src/api/users.py:1-20#
 exit: 0
 --- stdout ---
 src/api/users.py  63 lines  15 symbols
@@ -20,4 +20,4 @@ src/api/users.py  63 lines  15 symbols
 
 slice src/api/users.py#MAX_RETRIES for a body
 --- stderr ---
-note: read `src/api/users.py` as `src/api/users.py#`
+note: read `src/api/users.py:1-20#` as `src/api/users.py#`
