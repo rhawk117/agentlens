@@ -92,6 +92,8 @@ enum Command {
         include_strings: bool,
         #[arg(long, default_value = "symbol", value_name = "c")]
         context: String,
+        #[arg(long, help = "list references and test hits instead of counting them")]
+        expand: bool,
     },
     #[command(about = "extract string, number and regex literals")]
     Literals {
@@ -332,6 +334,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
             include_comments,
             include_strings,
             context,
+            expand,
         } => {
             let kind = find::OccurrenceFilter::parse(kind).ok_or_else(|| Error::BadKind {
                 value: kind.clone(),
@@ -349,6 +352,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 context,
                 budget: cli.budget,
                 quiet: cli.quiet(),
+                expand: *expand,
             };
             Ok(find::run(pattern, paths, &options)?.into())
         }

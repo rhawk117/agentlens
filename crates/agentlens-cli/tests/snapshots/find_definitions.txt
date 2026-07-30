@@ -1,11 +1,11 @@
 $ agentlens find normalise --kind definition
 exit: 0
 --- stdout ---
-src/api/users.py
-  L43     definition  normalise  in #normalise
-  L47     definition  normalise  in #normalise
-  L51     definition  normalise  in #normalise
-  L54     definition  normalise  in #normalise
+definitions  4
+  src/api/users.py#normalise  L43
+  src/api/users.py#normalise  L47
+  src/api/users.py#normalise  L51
+  src/api/users.py#normalise  L54
 
 4 matches in 1 file
 --- stderr ---

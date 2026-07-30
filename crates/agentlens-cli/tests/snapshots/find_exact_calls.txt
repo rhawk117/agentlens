@@ -1,14 +1,11 @@
 $ agentlens find create_user --exact --kind call
 exit: 0
 --- stdout ---
-src/api/routes.py
-  L14     call        create_user  in #create
+calls  2
+  src/api/routes.py#create              L14
+  src/cli.py#main                       L8
 
-src/cli.py
-  L8      call        create_user  in #main
-
-tests/test_users.py
-  L6      call        create_user  in #test_create_user
+in tests  1 in 1 file  (--expand to list)
 
 3 matches in 3 files
 --- stderr ---

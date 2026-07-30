@@ -7,12 +7,17 @@ use tree_sitter::Node;
 
 use crate::budget::{DEFAULT_BUDGET, Detail, estimate_tokens, fit};
 use crate::error::Result;
+use crate::index;
 use crate::matcher::Matcher;
 use crate::ops::Report;
 use crate::render::{Lines, pad, plural, slash_path, truncation_note};
 use crate::source::{SourceFile, visit_nodes};
 use crate::symbols::{self, Symbol};
 use crate::walk;
+
+/// Rows shown per block before the rest become a count. A caller asking
+/// "where is this used" wants the definition and a sample, not 200 rows.
+const MAX_LISTED_PER_BLOCK: usize = 20;
 
 const HARD_CAP: usize = 5000;
 
@@ -91,6 +96,8 @@ pub struct FindOptions {
     pub context: Context,
     pub budget: usize,
     pub quiet: bool,
+    /// List references and test hits instead of collapsing them to counts.
+    pub expand: bool,
 }
 
 impl Default for FindOptions {
@@ -103,6 +110,7 @@ impl Default for FindOptions {
             context: Context::Symbol,
             budget: DEFAULT_BUDGET,
             quiet: false,
+            expand: false,
         }
     }
 }
@@ -398,22 +406,7 @@ fn render(
             }
             out.push("budget reached: per-file counts only, raise --budget for lines".to_string());
         }
-        Detail::Full => {
-            let width = groups
-                .iter()
-                .flat_map(|group| group.hits.iter())
-                .map(|hit| hit.text.chars().count())
-                .max()
-                .unwrap_or(0)
-                .min(48);
-            for group in groups {
-                out.blank();
-                out.push(group.path.clone());
-                for hit in &group.hits {
-                    out.push(hit_row(hit, width, options.context));
-                }
-            }
-        }
+        Detail::Full => render_ranked(&mut out, pattern, groups, options),
     }
 
     if capped
@@ -433,23 +426,128 @@ fn render(
     out.finish()
 }
 
-fn hit_row(hit: &Hit, width: usize, context: Context) -> String {
-    let head = format!(
-        "  {}  {}",
-        pad(&format!("L{}", hit.line), 6),
-        pad(hit.occurrence.as_str(), 12)
-    );
-    match context {
-        Context::None => format!("{head}{}", hit.text).trim_end().to_string(),
-        Context::Symbol => match &hit.enclosing {
-            Some(dotted) => format!("{head}{}  in #{dotted}", pad(&hit.text, width)),
-            None => format!("{head}{}  at module level", pad(&hit.text, width)),
-        },
+/// Definitions first, then calls, with references and test hits collapsed.
+///
+/// A caller asking about a symbol almost always wants where it is defined.
+/// Interleaving that with every reference put the answer in the middle of
+/// 1,217 tokens of noise.
+fn render_ranked(out: &mut Lines, pattern: &str, groups: &[FileGroup], options: &FindOptions) {
+    let all: Vec<&Hit> = groups.iter().flat_map(|group| group.hits.iter()).collect();
+    let is_test = |hit: &&Hit| index::is_test_path(&hit.path);
+    let of_kind = |kind: Occurrence| {
+        let matching: Vec<&Hit> = all
+            .iter()
+            .copied()
+            .filter(|hit| hit.occurrence == kind)
+            .collect();
+        matching
+    };
+
+    let definitions = of_kind(Occurrence::Definition);
+    let calls: Vec<&Hit> = of_kind(Occurrence::Call)
+        .into_iter()
+        .filter(|hit| !is_test(hit))
+        .collect();
+    let references: Vec<&Hit> = of_kind(Occurrence::Reference)
+        .into_iter()
+        .filter(|hit| !is_test(hit))
+        .collect();
+    let in_tests: Vec<&Hit> = all
+        .iter()
+        .copied()
+        .filter(|hit| is_test(hit) && hit.occurrence != Occurrence::Definition)
+        .collect();
+    let comments = of_kind(Occurrence::Comment);
+    let strings = of_kind(Occurrence::String);
+
+    let width = all
+        .iter()
+        .map(|hit| hit.address.chars().count())
+        .max()
+        .unwrap_or(0)
+        .min(52);
+
+    let show = Shown {
+        width,
+        pattern,
+        context: options.context,
+        expand: options.expand,
+    };
+    // Collapsing the very kind the caller filtered for would answer the
+    // question with a count. --kind reference must still yield locations.
+    let asked_for = |kind: Occurrence| options.kind == OccurrenceFilter::Only(kind);
+    let list_references = options.expand || asked_for(Occurrence::Reference);
+
+    listed(out, "definitions", &definitions, show);
+    listed(out, "calls", &calls, show);
+    if list_references {
+        listed(out, "references", &references, show);
+    } else {
+        collapsed(out, "references", &references);
     }
+    if options.expand {
+        listed(out, "in tests", &in_tests, show);
+    } else {
+        collapsed(out, "in tests", &in_tests);
+    }
+    listed(out, "comments", &comments, show);
+    listed(out, "strings", &strings, show);
+}
+
+#[derive(Clone, Copy)]
+struct Shown<'a> {
+    width: usize,
+    pattern: &'a str,
+    context: Context,
+    expand: bool,
+}
+
+fn listed(out: &mut Lines, label: &str, hits: &[&Hit], show: Shown<'_>) {
+    if hits.is_empty() {
+        return;
+    }
+    let cap = if show.expand {
+        hits.len()
+    } else {
+        MAX_LISTED_PER_BLOCK
+    };
+    out.blank();
+    out.push(format!("{label}  {}", hits.len()));
+    for hit in hits.iter().take(cap) {
+        out.push(ranked_row(hit, show));
+    }
+    if let Some(note) = truncation_note(cap.min(hits.len()), hits.len(), "use --expand to list") {
+        out.push(format!("  {note}"));
+    }
+}
+
+fn collapsed(out: &mut Lines, label: &str, hits: &[&Hit]) {
+    if hits.is_empty() {
+        return;
+    }
+    let files: BTreeSet<&str> = hits.iter().map(|hit| hit.path.as_str()).collect();
+    out.blank();
+    out.push(format!(
+        "{label}  {} in {}  (--expand to list)",
+        hits.len(),
+        plural(files.len(), "file", "files")
+    ));
+}
+
+fn ranked_row(hit: &Hit, show: Shown<'_>) -> String {
+    let head = format!("  {}  L{}", pad(&hit.address, show.width), hit.line);
+    // The matched text is the pattern itself for a plain name search, so
+    // repeating it on every row buys nothing. A regex can match something
+    // else, and then it is the only way to see what was hit.
+    if show.context == Context::None || hit.text == show.pattern {
+        return head.trim_end().to_string();
+    }
+    format!("{head}  {}", hit.text).trim_end().to_string()
 }
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Write as _;
     use std::path::Path;
 
     use super::*;
@@ -457,6 +555,84 @@ mod tests {
 
     fn parse(text: &str) -> SourceFile {
         SourceFile::from_text(Path::new("t.py"), Lang::Python, text.to_string()).expect("parses")
+    }
+
+    fn busy_repo(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("agentlens-find-{name}"));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("tests")).expect("mkdir");
+        std::fs::write(
+            dir.join("widget.py"),
+            "class Widget:\n    def go(self):\n        return 1\n",
+        )
+        .expect("write");
+        for file in 0..6 {
+            let mut body = String::from("from widget import Widget\n\n");
+            for use_site in 0..6 {
+                writeln!(body, "def use{use_site}():\n    return Widget()\n").expect("write");
+            }
+            std::fs::write(dir.join(format!("mod{file}.py")), body).expect("write");
+        }
+        let mut tests = String::from("from widget import Widget\n\n");
+        for case in 0..8 {
+            writeln!(tests, "def test_{case}():\n    assert Widget()\n").expect("write");
+        }
+        std::fs::write(dir.join("tests/test_widget.py"), tests).expect("write");
+        dir
+    }
+
+    #[test]
+    fn find_reference_budget() {
+        let dir = busy_repo("budget");
+        let report = run(
+            "Widget",
+            std::slice::from_ref(&dir),
+            &FindOptions::default(),
+        )
+        .expect("finds");
+        let tokens = report.json["tokens"].as_u64().expect("tokens");
+        assert!(
+            report.text.contains("widget.py#Widget"),
+            "the definition is the answer and must be listed:\n{}",
+            report.text
+        );
+        assert!(
+            report.text.starts_with("definitions"),
+            "definitions must come first:\n{}",
+            report.text
+        );
+        assert!(tokens < 400, "find on a busy class cost {tokens} tokens");
+    }
+
+    #[test]
+    fn collapsed_blocks_state_their_true_total() {
+        let dir = busy_repo("total");
+        let report = run(
+            "Widget",
+            std::slice::from_ref(&dir),
+            &FindOptions::default(),
+        )
+        .expect("finds");
+        let expanded = run(
+            "Widget",
+            &[dir],
+            &FindOptions {
+                expand: true,
+                budget: 100_000,
+                ..FindOptions::default()
+            },
+        )
+        .expect("finds");
+        let listed = expanded
+            .text
+            .lines()
+            .filter(|line| line.contains("test_widget.py"))
+            .count();
+        assert!(
+            report.text.contains(&format!("in tests  {listed} ")),
+            "collapsed count disagrees with the {listed} rows --expand lists:\n{}",
+            report.text
+        );
     }
 
     #[test]
