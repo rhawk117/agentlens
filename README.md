@@ -91,9 +91,18 @@ are supplementary output, never the address.
 file.py#Symbol
 file.py#Class.method
 file.py#Class.Inner.method
+file.py#__module__       imports and module-level code
 file.py#                 outline of the file
 file.py#L10-L20          literal line span, escape hatch
 ```
+
+Module-level constants are symbols too, so `settings.py#MIDDLEWARE` addresses a
+value as readily as a function.
+
+Near-miss forms are accepted and rewritten, with a `note:` on stderr naming what
+was read — `file.py` alone, `file.py 10 20`, `file.py:10-20`, `file.py::Symbol`.
+Rewriting happens only when the file exists, so nothing is guessed. These are a
+courtesy, not the idiom; write the canonical form.
 
 ## Commands
 
@@ -121,7 +130,7 @@ source order, each with its own header.
 |---|---|---|
 | `--signature-only` | off | Signature lines only, no body |
 | `--no-decorators` | off | Exclude decorators from the span |
-| `--budget <n>` | 4000 | Token ceiling; degrades rather than truncating |
+| `--budget <n>` | 4000 | Token target; degrades rather than truncating |
 | `--json` | off | Machine-readable |
 
 ### `map` — what's in here
@@ -187,6 +196,28 @@ address alone.
 | `--include-comments` | off | Search comment bodies too |
 | `--include-strings` | off | Search string bodies too |
 | `--context <c>` | symbol | `symbol` or `none` |
+| `--expand` | off | List references and test hits instead of counting them |
+
+Definitions rank first in their own block; references and test hits collapse to
+counts unless `--expand` is passed. `find` scans occurrences, so it does not
+match module-level constants — a miss on a name that is a real symbol says so
+and points at `sym`.
+
+### `sym` — one symbol by name
+
+```
+agentlens sym MAX_RETRIES
+```
+
+```
+src/api/users.py#MAX_RETRIES  MAX_RETRIES = 3
+```
+
+Address, kind, and for a constant its value. Resolves against the symbol index,
+so unlike `find` it matches module-level constants. Accepts `file.py#Symbol` as
+well as a bare name. A name with several definitions lists them all and exits
+**0** — that is the answer, not a failure — degrading through the usual ladder
+so the true total is always stated. Exit **1** means no such symbol.
 
 ### `literals` — extract constants
 
@@ -273,14 +304,16 @@ skips reading and writing it; `--root <path>` sets the repo root.
 
 | Flag | Meaning |
 |---|---|
-| `--budget <n>` | Token ceiling, all commands |
+| `--budget <n>` | Token target, all commands. Estimated, so ~7% of calls run over |
 | `--json` | Machine-readable output |
 | `--no-color` | Accepted; agentlens never emits ANSI |
 | `--quiet` | Suppress the summary line |
 | `--no-cache` | Ignore and do not write `.agentlens-cache` |
 | `--root <path>` | Repo root for index-backed commands |
 
-Exit codes: **0** found, **1** not found, **2** error. An agent can branch
+Exit codes: **0** found, **1** not found or not applicable, **2** genuine tool
+fault. A mistyped address and an unsupported format are both **1**; **2** is
+reserved for faults a caller cannot fix by rephrasing. An agent can branch
 without parsing output.
 
 ## Output contracts

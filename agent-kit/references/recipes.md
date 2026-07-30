@@ -13,7 +13,7 @@ is `map`-ing your way toward a symbol whose name you were already given.
 The question names the thing. Two commands:
 
 ```
-agentlens find backoff --kind definition
+agentlens sym backoff
 # -> http/client.py#Client._backoff
 
 agentlens packet http/client.py#Client._backoff
@@ -96,14 +96,65 @@ agentlens slice src/http/client.py#Client.request --signature-only
 
 ## Find where something is defined
 
+When you have the exact name, `sym` is the one call:
+
+```
+agentlens sym Client
+agentlens sym MAX_RETRIES
+```
+
+It answers from the symbol index, so it resolves module-level constants as well
+as functions and classes, and returns the address, the kind and the value.
+
+A long value is previewed rather than printed in full, with the `slice` address
+appended. `sym MAX_RETRIES` is one call; a 200-item list is two:
+
+```
+agentlens sym MIDDLEWARE
+agentlens slice django/conf/global_settings.py#MIDDLEWARE
+```
+
+That is deliberate — `sym` exists to be cheap, and pouring a whole literal into
+it would defeat the point. Read the output before assuming the second call is
+needed.
+
+Use `find` when the name is partial or you want a pattern:
+
 ```
 agentlens find Client --kind definition
-agentlens find "^_backoff$" --kind definition --exact
+agentlens find "_backoff$" --kind definition
+agentlens find _backoff --kind definition --exact
 ```
+
+The pattern is a regex **unless** `--exact` is passed. Passing both a regex and
+`--exact` matches nothing, because `--exact` treats `^` and `$` as literal
+characters rather than anchors. Pick one.
 
 `--kind definition` is what separates this from grep: it excludes call sites,
 imports, and mentions in comments, so one command answers "where does this
-live" without a page of noise.
+live" without a page of noise. It does not match constants — that is what `sym`
+is for, and a miss will say so.
+
+## Read a file's imports and module-level setup
+
+```
+agentlens slice django/core/handlers/base.py#__module__
+```
+
+Everything above the first definition: the docstring, the imports, the
+module-level statements. Use this rather than `#L1-L40`, which needs you to
+already know where the first definition starts and breaks the moment anything
+above it moves.
+
+## Pull one symbol out of a large outline
+
+```
+agentlens map django/conf/global_settings.py --match MIDDLEWARE
+```
+
+Filters a file outline to matching symbol names and states how many entries it
+dropped. Large literal values are collapsed by default; add `--expand` only
+when you actually need them, and expect it to be expensive.
 
 ## Assess a change's blast radius
 
@@ -143,11 +194,15 @@ being entirely live.
 ```
 doclens slice compose.yaml#services.web.ports[1]
 doclens slice package.json#scripts.build
-doclens slice pyproject.toml#tool.ruff --with-key
+doclens slice .github/workflows/ci.yml#jobs.gate --with-key
 ```
 
 Byte spans, not re-serialised values, so comments and key order survive. Use
 `--with-key` when the surrounding key line is part of what you need to show.
+
+`doclens` reads **json, yaml and markdown only**. There is no TOML support, so
+`pyproject.toml` and `Cargo.toml` are not addressable — that is an exit `1`
+"unsupported format", not a broken address. Read those files directly.
 
 ## Read one section of a long markdown file
 
@@ -179,3 +234,8 @@ agentlens map src/ --depth 3 --budget 1500
 ```
 
 Pair with `--quiet` to drop the summary line when you only want the payload.
+
+`--budget` is a **target, not a hard cap**. The tool estimates its own output
+instead of tokenising it, so roughly 7% of calls run over, the worst by 28%.
+Under `--json`, `degraded` and `detail` tell you whether a rung was dropped;
+that is the signal to read, not the size of the output.
