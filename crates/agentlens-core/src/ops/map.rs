@@ -90,8 +90,29 @@ pub fn run(path: &Path, options: &MapOptions) -> Result<Report> {
 pub fn file_outline(file: &SourceFile, options: &MapOptions) -> Vec<OutlineEntry> {
     let symbols = symbols::extract(file);
     let mut out = Vec::new();
+    if options.kind == KindFilter::All
+        && let Some(region) = symbols::preamble(file, &symbols)
+    {
+        out.push(preamble_entry(file, region));
+    }
     push_entries(file, &symbols, 1, options, &mut out);
     out
+}
+
+/// List the preamble first, so `#__module__` is discoverable from an outline
+/// rather than something a caller has to already know.
+fn preamble_entry(file: &SourceFile, region: symbols::Preamble) -> OutlineEntry {
+    OutlineEntry {
+        address: format!("{}#{}", slash_path(&file.path), symbols::MODULE_PREAMBLE),
+        name: symbols::MODULE_PREAMBLE.to_string(),
+        kind: "module".to_string(),
+        signature: symbols::MODULE_PREAMBLE.to_string(),
+        start_line: region.start_line,
+        end_line: region.end_line,
+        lines: region.end_line - region.start_line + 1,
+        depth: 1,
+        hidden_children: 0,
+    }
 }
 
 // A rooted outline shows `--depth` levels *below* the named symbol, so build
@@ -310,8 +331,13 @@ fn render_file(
 
     // Name a symbol that is actually in this outline. A placeholder like
     // `#<Symbol>` is both a shell redirection error and a guaranteed miss.
+    // Advertise a real definition, not the preamble: `#__module__` is imports,
+    // which is the least useful thing to hold up as an example body.
     if !options.quiet
-        && let Some(first) = entries.first()
+        && let Some(first) = entries
+            .iter()
+            .find(|entry| entry.kind != "module")
+            .or_else(|| entries.first())
     {
         out.blank();
         let collapsed = entries

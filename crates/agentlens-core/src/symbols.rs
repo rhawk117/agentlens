@@ -478,3 +478,42 @@ mod tests {
         );
     }
 }
+
+/// The name that addresses a file's module preamble: `file.py#__module__`.
+///
+/// Spelled with dunders rather than `<module>` because angle brackets are
+/// shell redirection, and an address a caller cannot paste is the defect this
+/// exists to remove.
+pub const MODULE_PREAMBLE: &str = "__module__";
+
+/// Imports, the module docstring, and module-level statements above the first
+/// definition.
+#[derive(Debug, Clone, Copy)]
+pub struct Preamble {
+    pub start_line: usize,
+    pub end_line: usize,
+    pub span_start: usize,
+    pub span_end: usize,
+}
+
+/// Locate the region above a file's first definition.
+///
+/// Returns `None` when that region is empty or only whitespace, which is a
+/// legitimate not-found rather than an error: a file whose first line is a
+/// definition has no preamble.
+pub fn preamble(file: &SourceFile, symbols: &[Symbol]) -> Option<Preamble> {
+    let limit = symbols
+        .first()
+        .map_or(file.text.len(), |symbol| symbol.def_start);
+    let head = file.slice(0, limit);
+    let span_end = head.trim_end().len();
+    if span_end == 0 {
+        return None;
+    }
+    Some(Preamble {
+        start_line: 1,
+        end_line: file.line_of(span_end.saturating_sub(1)),
+        span_start: 0,
+        span_end,
+    })
+}

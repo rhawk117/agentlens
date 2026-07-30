@@ -1,7 +1,8 @@
 $ agentlens map src/api/users.py
 exit: 0
 --- stdout ---
-src/api/users.py  63 lines  15 symbols
+src/api/users.py  63 lines  16 symbols
+  __module__                                                 L1-L3
   MAX_RETRIES = 3                                            L5
   DEFAULT_ROLE = "member"                                    L6
   class User:                                                L9-L12

@@ -12,10 +12,21 @@ exit: 0
   "schema_version": 1,
   "summary": {
     "lines": 14,
-    "symbols": 6,
-    "symbols_total": 6
+    "symbols": 7,
+    "symbols_total": 7
   },
   "symbols": [
+    {
+      "address": "src/core/config.py#__module__",
+      "depth": 1,
+      "end_line": 1,
+      "hidden_children": 0,
+      "kind": "module",
+      "lines": 1,
+      "name": "__module__",
+      "signature": "__module__",
+      "start_line": 1
+    },
     {
       "address": "src/core/config.py#TIMEOUT_SECONDS",
       "depth": 1,
@@ -84,7 +95,7 @@ exit: 0
     }
   ],
   "target": "src/core/config.py",
-  "tokens": 89,
+  "tokens": 102,
   "tool_version": "0.1.0"
 }
 --- stderr ---

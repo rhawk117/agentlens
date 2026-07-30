@@ -1,0 +1,8 @@
+$ agentlens slice src/core/config.py#__module__
+exit: 0
+--- stdout ---
+src/core/config.py#__module__  L1  1 line
+import re
+
+1 match, 1 line
+--- stderr ---

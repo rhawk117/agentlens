@@ -2,6 +2,6 @@ $ agentlens map django/conf/global_settings.py --match zzz_nothing --no-cache
 exit: 1
 --- stdout ---
 django/conf/global_settings.py  26 lines  0 symbols
-  matching `zzz_nothing`: 0 of 13 symbols
+  matching `zzz_nothing`: 0 of 14 symbols
   no definitions
 --- stderr ---

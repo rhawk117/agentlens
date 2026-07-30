@@ -67,10 +67,17 @@ pub fn run(address: &Address, options: &SliceOptions) -> Result<Report> {
         Selector::Lines(start, end) => vec![line_match(&file, &path, *start, *end)],
         Selector::Symbol(parts) => {
             let symbols = symbols::extract(&file);
-            symbols::resolve(&symbols, parts)
-                .into_iter()
-                .map(|symbol| symbol_match(&file, &path, symbol, options))
-                .collect()
+            if parts == std::slice::from_ref(&symbols::MODULE_PREAMBLE.to_string()) {
+                symbols::preamble(&file, &symbols)
+                    .map(|region| preamble_match(&file, &path, region))
+                    .into_iter()
+                    .collect()
+            } else {
+                symbols::resolve(&symbols, parts)
+                    .into_iter()
+                    .map(|symbol| symbol_match(&file, &path, symbol, options))
+                    .collect()
+            }
         }
         Selector::Outline => Vec::new(),
     };
@@ -98,6 +105,21 @@ pub fn run(address: &Address, options: &SliceOptions) -> Result<Report> {
         "matches": matches,
     });
     Ok(Report::new(text, json, true))
+}
+
+fn preamble_match(file: &SourceFile, path: &str, region: symbols::Preamble) -> SliceMatch {
+    let text = file.slice(region.span_start, region.span_end).to_string();
+    SliceMatch {
+        address: format!("{path}#{}", symbols::MODULE_PREAMBLE),
+        path: path.to_string(),
+        kind: "module".to_string(),
+        name: symbols::MODULE_PREAMBLE.to_string(),
+        start_line: region.start_line,
+        end_line: region.end_line,
+        lines: region.end_line - region.start_line + 1,
+        signature: collapse_ws(file.line_text(region.start_line)),
+        text,
+    }
 }
 
 fn line_match(file: &SourceFile, path: &str, start: usize, end: usize) -> SliceMatch {
@@ -276,4 +298,64 @@ fn dedupe_with_counts(names: &[String]) -> Vec<(String, usize)> {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn scratch(name: &str, body: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir().join(format!("agentlens-preamble-{name}"));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("mkdir");
+        let path = dir.join("m.py");
+        std::fs::write(&path, body).expect("write");
+        path
+    }
+
+    fn module_address(path: &std::path::Path) -> Address {
+        Address {
+            path: path.to_path_buf(),
+            selector: Selector::Symbol(vec![symbols::MODULE_PREAMBLE.to_string()]),
+        }
+    }
+
+    #[test]
+    fn the_preamble_is_everything_above_the_first_definition() {
+        let path = scratch(
+            "imports",
+            "\"\"\"Docs.\"\"\"\n\nimport os\nimport sys\n\n\ndef go():\n    return os, sys\n",
+        );
+        let report = run(&module_address(&path), &SliceOptions::default()).expect("slices");
+        assert!(report.found);
+        assert!(report.text.contains("import os"));
+        assert!(report.text.contains("Docs."));
+        assert!(!report.text.contains("def go"), "leaked the definition");
+    }
+
+    #[test]
+    fn a_file_with_no_definitions_is_all_preamble() {
+        let path = scratch("nodefs", "\"\"\"Docs.\"\"\"\n\nimport os\n");
+        let report = run(&module_address(&path), &SliceOptions::default()).expect("slices");
+        assert!(report.found);
+        assert!(report.text.contains("import os"));
+    }
+
+    #[test]
+    fn an_empty_preamble_is_not_found_rather_than_an_error() {
+        let path = scratch("deffirst", "def go():\n    return 1\n");
+        let report = run(&module_address(&path), &SliceOptions::default()).expect("slices");
+        assert!(!report.found, "a file starting with a def has no preamble");
+    }
+
+    #[test]
+    fn the_preamble_carries_no_trailing_blank_lines() {
+        let path = scratch("trailing", "import os\n\n\n\ndef go():\n    return os\n");
+        let report = run(&module_address(&path), &SliceOptions::default()).expect("slices");
+        assert_eq!(
+            report.json["matches"][0]["end_line"], 1,
+            "trailing blank lines were kept:\n{}",
+            report.text
+        );
+    }
 }

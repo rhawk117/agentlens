@@ -80,6 +80,14 @@ const CASES: &[Case] = &[
         &["map", "src/api/users.py", "--kind", "class"],
     ),
     case("map_file_quiet", &["map", "src/api/users.py", "--quiet"]),
+    case(
+        "slice_module_preamble",
+        &["slice", "src/api/users.py#__module__"],
+    ),
+    case(
+        "slice_module_preamble_one_import",
+        &["slice", "src/core/config.py#__module__"],
+    ),
     case("map_file_json", &["map", "src/core/config.py", "--json"]),
     case("map_dir", &["map", "."]),
     case("map_dir_depth1", &["map", ".", "--depth", "1"]),

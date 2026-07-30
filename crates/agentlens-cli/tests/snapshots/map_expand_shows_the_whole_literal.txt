@@ -1,7 +1,8 @@
 $ agentlens map django/conf/global_settings.py --expand --budget 100000 --no-cache
 exit: 0
 --- stdout ---
-django/conf/global_settings.py  26 lines  13 symbols
+django/conf/global_settings.py  26 lines  14 symbols
+  __module__                                                                L1
   DEBUG = False                                                             L3
   MIDDLEWARE = [ "django.middleware.security.SecurityMiddleware", "django.contrib.sessions.middleware.SessionMiddleware", "django.middleware.common.CommonMiddleware", "django.middleware.csrf.CsrfViewMiddleware", "django.contrib.auth.middleware.AuthenticationMiddleware", "django.contrib.messages.middleware.MessageMiddleware", "django.middleware.clickjacking.XFrameOptionsMiddleware", ]  L5-L13
   SECURE_HSTS_SECONDS = 0                                                   L15
