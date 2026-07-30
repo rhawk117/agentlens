@@ -1,0 +1,6 @@
+$ agentlens sym NoSuchThing --no-cache
+exit: 1
+--- stdout ---
+no symbol named `NoSuchThing`
+`agentlens find NoSuchThing` searches the text too
+--- stderr ---

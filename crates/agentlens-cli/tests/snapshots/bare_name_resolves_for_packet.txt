@@ -1,0 +1,46 @@
+$ agentlens packet UserService --no-cache
+exit: 0
+--- stdout ---
+packet src/api/users.py#UserService
+
+target  L15-L39
+class UserService:
+    """Creates and removes users."""
+
+    RETRY_BACKOFF = 2
+
+    # This comment must never appear in the slice.
+    @transaction.atomic
+    @audit("user.create")
+    def create_user(self, email: str, name: str) -> User:
+        if not email:
+            raise ValueError("email is required")
+        user = User(email, name)
+        self._log("created user %s", email)
+        return user
+
+    def delete_user(self, uid: int) -> None:
+        self._log("deleting user %d", uid)
+        self._store.pop(uid, None)
+
+    def _log(self, template: str, *args: object) -> None:
+        print(template % args)
+
+    class Cursor:
+        def next(self) -> int:
+            return 1
+
+callers  3
+  src/cli.py#main                       def main(argv: list[str] | None = None) -> int:  (certain L7)
+  tests/test_users.py#test_create_user  def test_create_user():  (certain L5)
+  tests/test_users.py#test_delete_user  def test_delete_user():  (certain L11)
+
+callees  2
+  src/api/users.py#User              class User:  (certain)
+  src/api/users.py#UserService._log  def _log(self, template: str, *args: object) -> None:  (certain)
+
+types in the signature  none
+
+3 callers, 2 callees, 0 types
+--- stderr ---
+note: read `UserService` as `src/api/users.py#UserService`

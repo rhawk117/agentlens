@@ -1,0 +1,5 @@
+$ agentlens sym create_user --no-cache
+exit: 0
+--- stdout ---
+src/api/users.py#UserService.create_user  def create_user(self, email: str, name: str) -> User:
+--- stderr ---

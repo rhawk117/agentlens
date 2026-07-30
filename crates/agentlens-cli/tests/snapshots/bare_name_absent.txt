@@ -1,6 +1,6 @@
-$ agentlens slice nowhere
+$ agentlens slice NoSuchThing --no-cache
 exit: 1
 --- stdout ---
-no file and no symbol named `nowhere`
+no file and no symbol named `NoSuchThing`
 an address is `file.py#Name`; run `agentlens help addresses`
 --- stderr ---

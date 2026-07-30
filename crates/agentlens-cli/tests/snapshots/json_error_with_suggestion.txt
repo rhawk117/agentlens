@@ -1,11 +1,11 @@
-$ agentlens slice nohash --json
+$ agentlens slice src/api/users.py#L20-L10 --json
 exit: 1
 --- stdout ---
 {
   "command": "slice",
   "error": {
-    "kind": "address_missing_hash",
-    "message": "no `#` in `nohash`\nan address names a file and something in it, like `file#Name`",
+    "kind": "bad_line_span",
+    "message": "bad line span in `src/api/users.py#L20-L10`: a span is `L10-L20`, counting from 1",
     "suggestion": "agentlens help addresses"
   },
   "exit": 1,

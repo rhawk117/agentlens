@@ -1,0 +1,5 @@
+$ agentlens sym MAX_RETRIES --no-cache
+exit: 0
+--- stdout ---
+src/api/users.py#MAX_RETRIES  MAX_RETRIES = 3
+--- stderr ---

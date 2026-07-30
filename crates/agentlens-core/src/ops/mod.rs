@@ -6,6 +6,7 @@ pub mod literals;
 pub mod map;
 pub mod packet;
 pub mod slice;
+pub mod sym;
 
 use serde_json::{Value, json};
 

@@ -15,8 +15,10 @@ also accepted, rewritten for you
   file.py 10 20             -> file.py#L10-L20
   file.py:10-20             -> file.py#L10-L20
   file.py::Symbol           -> file.py#Symbol
+  Symbol                    -> the file that defines it
 
-  rewriting happens only when the file exists. nothing is guessed.
+  rewriting happens only when the file exists. a bare name is looked up
+  in the index; if it is ambiguous you get the candidate addresses.
 
 symbols are re-resolved every call, so an address survives edits that
 line numbers do not.
