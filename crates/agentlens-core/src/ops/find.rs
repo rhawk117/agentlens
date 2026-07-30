@@ -165,8 +165,10 @@ pub fn run(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Result<Re
     let found = !groups.is_empty();
     let hit_count: usize = groups.iter().map(|group| group.hits.len()).sum();
 
-    let suggestion =
-        (!found && names_a_symbol(pattern, paths)).then(|| format!("agentlens sym {pattern}"));
+    let miss = (!found)
+        .then(|| explain_miss(pattern, paths, options))
+        .flatten();
+    let suggestion = miss.as_ref().map(|miss| miss.invocation.clone());
     let (text, detail, degraded) = fit(options.budget, |detail| {
         render(
             pattern,
@@ -175,7 +177,7 @@ pub fn run(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Result<Re
             capped,
             detail,
             options,
-            suggestion.as_deref(),
+            miss.as_ref(),
         )
     });
     let json = json!({
@@ -195,6 +197,70 @@ pub fn run(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Result<Re
         "files": groups,
     });
     Ok(Report::new(text, json, found))
+}
+
+/// Why a search came back empty, and the invocation that would not.
+#[derive(Debug)]
+pub struct Miss {
+    line: String,
+    invocation: String,
+}
+
+/// Diagnose an empty result.
+///
+/// Two different failures look identical from `render`'s side, and telling the
+/// caller the wrong one sends them somewhere that cannot help. A `--kind`
+/// filter that excluded every hit is the filter's fault, not the name's, so it
+/// must not be blamed on the name.
+fn explain_miss(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> Option<Miss> {
+    let symbol = names_a_symbol(pattern, paths);
+    // Asking for a definition is the one filter `sym` can answer better than
+    // relaxing it would: a constant's assignment reads as a reference, so
+    // `--kind any` returns a count where `sym` returns the address and value.
+    if symbol && options.kind == OccurrenceFilter::Only(Occurrence::Definition) {
+        return Some(sym_miss(pattern));
+    }
+    if let OccurrenceFilter::Only(kind) = options.kind {
+        let unfiltered = count_any_kind(pattern, paths, options);
+        if unfiltered > 0 {
+            return Some(Miss {
+                line: format!(
+                    "`{pattern}` has {}, none of them a {}: try `--kind any`",
+                    plural(unfiltered, "occurrence", "occurrences"),
+                    kind.as_str()
+                ),
+                invocation: format!("agentlens find {pattern} --kind any"),
+            });
+        }
+    }
+    symbol.then(|| sym_miss(pattern))
+}
+
+fn sym_miss(pattern: &str) -> Miss {
+    Miss {
+        line: format!(
+            "`{pattern}` is a symbol but not an occurrence `find` scans: try `agentlens sym {pattern}`"
+        ),
+        invocation: format!("agentlens sym {pattern}"),
+    }
+}
+
+/// How many occurrences `pattern` has once the `--kind` filter is dropped.
+fn count_any_kind(pattern: &str, paths: &[PathBuf], options: &FindOptions) -> usize {
+    let Ok(matcher) = Matcher::new(pattern, options.exact) else {
+        return 0;
+    };
+    let relaxed = FindOptions {
+        kind: OccurrenceFilter::Any,
+        ..options.clone()
+    };
+    let mut total = 0usize;
+    let mut capped = false;
+    collect_targets(paths)
+        .into_iter()
+        .filter_map(|path| SourceFile::load(&path).ok())
+        .map(|file| scan(&file, &matcher, &relaxed, &mut total, &mut capped).len())
+        .sum()
 }
 
 /// Whether `pattern` is the plain name of a symbol somewhere under `paths`.
@@ -386,15 +452,13 @@ fn render(
     capped: bool,
     detail: Detail,
     options: &FindOptions,
-    suggestion: Option<&str>,
+    miss: Option<&Miss>,
 ) -> String {
     let mut out = Lines::new();
     if groups.is_empty() {
         out.push(format!("no match for `{pattern}`"));
-        if let Some(invocation) = suggestion {
-            out.push(format!(
-                "`{pattern}` is a symbol but not an occurrence `find` scans: try `{invocation}`"
-            ));
+        if let Some(miss) = miss {
+            out.push(miss.line.clone());
         } else if !options.include_comments || !options.include_strings {
             out.push(
                 "comments and string bodies are excluded: add --include-comments or --include-strings"
@@ -625,6 +689,31 @@ mod tests {
         assert!(
             !report.text.contains("--include-comments"),
             "the comments hint cannot help here, got:\n{}",
+            report.text
+        );
+    }
+
+    /// `unrelated` is defined but never called, so `--kind reference` finds
+    /// nothing while the name is plainly something `find` scans. Blaming the
+    /// name would send the caller to `sym`, which is not the problem: the
+    /// filter is.
+    #[test]
+    fn a_miss_caused_by_the_kind_filter_blames_the_filter() {
+        let dir = constant_repo("kind-filter");
+        let options = FindOptions {
+            kind: OccurrenceFilter::Only(Occurrence::Reference),
+            ..FindOptions::default()
+        };
+        let report = run("unrelated", std::slice::from_ref(&dir), &options).expect("runs");
+        assert!(!report.found);
+        assert!(
+            report.text.contains("--kind"),
+            "miss should blame the filter, got:\n{}",
+            report.text
+        );
+        assert!(
+            !report.text.contains("agentlens sym"),
+            "the name is not the problem, so sym is the wrong advice, got:\n{}",
             report.text
         );
     }
