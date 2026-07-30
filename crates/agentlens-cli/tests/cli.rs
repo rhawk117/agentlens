@@ -416,6 +416,10 @@ fn the_next_call_footer_is_dropped_under_json() {
 // already carries a settings-shaped file, so these cases run there.
 const SETTINGS_CASES: &[Case] = &[
     case(
+        "find_definition_of_a_constant_points_at_sym",
+        &["find", "MIDDLEWARE", "--kind", "definition", "--no-cache"],
+    ),
+    case(
         "map_collapses_a_large_literal",
         &["map", "django/conf/global_settings.py", "--no-cache"],
     ),
