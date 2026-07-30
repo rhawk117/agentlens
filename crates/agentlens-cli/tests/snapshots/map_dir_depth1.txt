@@ -20,5 +20,5 @@ entry points
 manifests
   pyproject.toml
 
-map ./<file> for a file outline
+map src/api/routes.py for a file outline
 --- stderr ---

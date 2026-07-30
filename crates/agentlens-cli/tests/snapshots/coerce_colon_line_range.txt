@@ -1,0 +1,28 @@
+$ agentlens slice src/api/users.py:1-20
+exit: 0
+--- stdout ---
+src/api/users.py#L1-L20  L1-L20  20 lines
+"""User service."""
+
+from typing import overload
+
+MAX_RETRIES = 3
+DEFAULT_ROLE = "member"
+
+
+class User:
+    def __init__(self, email: str, name: str) -> None:
+        self.email = email
+        self.name = name
+
+
+class UserService:
+    """Creates and removes users."""
+
+    RETRY_BACKOFF = 2
+
+    # This comment must never appear in the slice.
+
+1 match, 20 lines
+--- stderr ---
+note: read `src/api/users.py:1-20` as `src/api/users.py#L1-L20`

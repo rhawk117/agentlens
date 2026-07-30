@@ -1,0 +1,108 @@
+# 104 agentlens invocations that exited 2 during the Django 6.0.7 middleware
+# benchmark: 18 questions x 3 repetitions, 499 calls total. Extracted verbatim
+# from the frozen transcripts. Duplicates are kept -- the repetition count is
+# evidence of which failure shapes dominate. Format: tool<TAB>arg<TAB>arg...
+map	django.core.handlers
+slice	django/core/handlers/base.py:150-255
+slice	django/core/handlers/base.py:20-40#BaseHandler
+packet	post middleware pre url resolution hook
+slice	django/utils/deprecation.py	240	330
+packet	MiddlewareMixin
+slice	django/core/handlers/base.py	1	110
+slice	tests/auth_tests/test_checks.py	300	390
+slice	tests/auth_tests/test_checks.py:300-390
+slice	tests/auth_tests/test_checks.py:300-390#
+packet	SecurityMiddleware	setting
+map	docs/ref/settings.txt
+literals	SECURE_	--path	django	--path	tests/middleware	--path	tests/check_framework
+slice	tests/auth_tests/test_checks.py	300	390
+slice	tests/auth_tests/test_checks.py:300-390
+slice	tests/auth_tests/test_checks.py:300-390#
+slice	django/core/handlers/base.py	1	120
+literals	order	--path	docs/topics/http/middleware.txt
+map	docs/topics/http/middleware.txt
+slice	django/core/handlers/base.py	35	85
+slice	django/core/handlers/exception.py	1	80
+slice	django/core/handlers/base.py	90	210
+slice	django/core/handlers/base.py	1	180
+slice	django/core/handlers/exception.py	1	180
+slice	django/core/handlers/exception.py:#convert_exception_to_response
+slice	django/middleware/security.py	1	200
+slice	django/middleware/security.py
+map	django/middleware/security.py#
+slice	django/middleware/common.py	1	140
+slice	django/middleware/common.py:1-140
+slice	django/middleware/common.py:1-140#CommonMiddleware
+slice	django/middleware/gzip.py	1	160
+slice	django/middleware/gzip.py
+map	tests/middleware/tests.py#GZipMiddlewareTest
+packet	django/conf/global_settings.py	MIDDLEWARE
+packet	django/conf/global_settings.py::MIDDLEWARE
+slice	django/core/handlers/base.py	150	270
+slice	django/utils/deprecation.py:MiddlewareMixin
+map	django/utils/deprecation.py#MiddlewareMixin
+packet	old-style MiddlewareMixin subclasses adapted
+slice	django/core/handlers/base.py	1	120
+slice	tests/auth_tests/test_checks.py:1-20
+slice	django/middleware/security.py	1	140
+packet	SecurityMiddleware
+map	docs/ref/settings.txt
+slice	tests/auth_tests/test_checks.py	1	430
+slice	tests/auth_tests/test_checks.py:330-390
+slice	tests/auth_tests/test_checks.py:330-390#
+packet	middleware order request response where established
+slice	django/core/handlers/base.py	35	90
+slice	django/core/handlers/base.py:35-90
+slice	django/core/handlers/base.py	1	220
+slice	django/core/handlers/exception.py	1	70
+slice	django/core/handlers/base.py	1	120
+slice	django/core/handlers/base.py:1-120
+slice	django/core/handlers/exception.py:1-70
+slice	django/core/handlers/base.py	30	180
+slice	django/core/handlers/exception.py	1	150
+slice	django/core/handlers/exception.py:1-150
+slice	django/core/handlers/exception.py:24#convert_exception_to_response
+literals	--include-docstrings	--include-comments	process_exception
+slice	django/middleware/security.py	1	200
+slice	django/middleware/security.py
+slice	django/middleware/common.py	1	140
+slice	django/middleware/common.py:1-140
+slice	django/middleware/common.py:1-140#CommonMiddleware
+slice	django/middleware/gzip.py	1	120
+map	django/middleware/gzip.py#GZipMiddleware
+slice	django/conf/global_settings.py	MIDDLEWARE
+slice	django/conf/global_settings.py::MIDDLEWARE
+slice	django/conf/global_settings.py::MIDDLEWARE#Symbol
+slice	django/core/handlers/base.py	1	280
+slice	django/core/signals.py
+slice	django/utils/deprecation.py	250	340
+slice	django/core/handlers/base.py	1	105
+slice	django/core/handlers/base.py:26
+slice	django/core/handlers/base.py:26#BaseHandler.load_middleware
+slice	tests/auth_tests/test_checks.py	300	420
+slice	tests/auth_tests/test_checks.py:300-420
+slice	tests/auth_tests/test_checks.py:300-420#
+slice	django/middleware/security.py	1	160
+slice	django/middleware/security.py
+packet	SecurityMiddleware
+map	docs/ref/settings.txt
+slice	tests/auth_tests/test_checks.py	380	460
+slice	django/core/handlers/base.py	20	120
+slice	django/core/handlers/base.py	35	85
+slice	django/core/handlers/base.py	20	110
+slice	django/core/handlers/base.py	180	290
+slice	django/core/handlers/exception.py	1	70
+slice	django/core/handlers/exception.py:1-70
+slice	django/core/handlers/exception.py:24#convert_exception_to_response
+slice	django/core/handlers/base.py	70	180
+slice	django/core/handlers/base.py	35	175
+slice	django/core/handlers/base.py:#BaseHandler.load_middleware
+slice	django/core/handlers/exception.py	1	160
+slice	django/core/handlers/exception.py
+slice	django/middleware/security.py	1	180
+slice	django/middleware/common.py	1	160
+slice	django/middleware/common.py
+map	django/middleware/common.py#CommonMiddleware
+slice	django/middleware/gzip.py	1	120
+slice	django/middleware/gzip.py:1-35
+slice	django/middleware/gzip.py:1-35#

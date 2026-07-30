@@ -1,0 +1,7 @@
+$ agentlens slice nowhere
+exit: 1
+--- stdout ---
+--- stderr ---
+agentlens: no `#` in `nowhere`
+an address names a file and something in it, like `file#Name`
+run `agentlens help addresses` for the grammar

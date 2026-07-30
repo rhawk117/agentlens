@@ -6,5 +6,5 @@ src/api/users.py  63 lines  3 symbols
   class UserService:    L15-L39
     class Cursor:       L37-L39  +1 nested
 
-slice src/api/users.py#<Symbol> for a body
+slice src/api/users.py#User for a body
 --- stderr ---

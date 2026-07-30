@@ -1,0 +1,6 @@
+$ agentlens slice src/api/users.py#L20-L10
+exit: 1
+--- stdout ---
+--- stderr ---
+agentlens: bad line span in `src/api/users.py#L20-L10`: a span is `L10-L20`, counting from 1
+run `agentlens help addresses` for the grammar

@@ -1,5 +1,5 @@
 $ agentlens slice src/api/ghost.py#Thing
-exit: 2
+exit: 1
 --- stdout ---
 --- stderr ---
 agentlens: cannot read `src/api/ghost.py`: not found

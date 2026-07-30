@@ -1,0 +1,20 @@
+========
+Settings
+========
+
+A plain-text reference page. agentlens does not read ``.txt`` as source, and
+this fixture exists to pin that this is a miss rather than a tool fault.
+
+MIDDLEWARE
+----------
+
+Default::
+
+    []
+
+A list of middleware to use.
+
+SECURE_HSTS_SECONDS
+-------------------
+
+Default: ``0``

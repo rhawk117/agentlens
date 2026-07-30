@@ -1,0 +1,6 @@
+$ agentlens slice nowhere 1 20
+exit: 1
+--- stdout ---
+--- stderr ---
+agentlens: cannot read `nowhere 1 20` as an address: no file on disk matches its path
+run `agentlens help addresses` for the grammar
