@@ -1,0 +1,15 @@
+$ agentlens map django/conf/global_settings.py --match ^SECURE --no-cache
+exit: 0
+--- stdout ---
+django/conf/global_settings.py  26 lines  7 symbols
+  matching `^SECURE`: 7 of 13 symbols
+  SECURE_HSTS_SECONDS = 0                   L15
+  SECURE_HSTS_INCLUDE_SUBDOMAINS = False    L16
+  SECURE_HSTS_PRELOAD = False               L17
+  SECURE_CONTENT_TYPE_NOSNIFF = True        L18
+  SECURE_REDIRECT_EXEMPT = []               L19
+  SECURE_SSL_HOST = None                    L20
+  SECURE_SSL_REDIRECT = False               L21
+
+slice django/conf/global_settings.py#SECURE_HSTS_SECONDS for a body
+--- stderr ---

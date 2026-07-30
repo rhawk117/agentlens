@@ -1,0 +1,20 @@
+$ agentlens map django/conf/global_settings.py --expand --budget 100000 --no-cache
+exit: 0
+--- stdout ---
+django/conf/global_settings.py  26 lines  13 symbols
+  DEBUG = False                                                             L3
+  MIDDLEWARE = [ "django.middleware.security.SecurityMiddleware", "django.contrib.sessions.middleware.SessionMiddleware", "django.middleware.common.CommonMiddleware", "django.middleware.csrf.CsrfViewMiddleware", "django.contrib.auth.middleware.AuthenticationMiddleware", "django.contrib.messages.middleware.MessageMiddleware", "django.middleware.clickjacking.XFrameOptionsMiddleware", ]  L5-L13
+  SECURE_HSTS_SECONDS = 0                                                   L15
+  SECURE_HSTS_INCLUDE_SUBDOMAINS = False                                    L16
+  SECURE_HSTS_PRELOAD = False                                               L17
+  SECURE_CONTENT_TYPE_NOSNIFF = True                                        L18
+  SECURE_REDIRECT_EXEMPT = []                                               L19
+  SECURE_SSL_HOST = None                                                    L20
+  SECURE_SSL_REDIRECT = False                                               L21
+  APPEND_SLASH = True                                                       L23
+  PREPEND_WWW = False                                                       L24
+  DISALLOWED_USER_AGENTS = []                                               L25
+  USE_ETAGS = False                                                         L26
+
+slice django/conf/global_settings.py#DEBUG for a body
+--- stderr ---
