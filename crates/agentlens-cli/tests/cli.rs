@@ -483,6 +483,15 @@ fn exit_codes_branch_without_parsing() {
 }
 
 #[test]
+fn an_unsupported_language_is_a_miss_not_a_tool_fault() {
+    // `map docs/ref/settings.txt` exited 2 in the benchmark. "This tool does
+    // not read that format" is not-applicable, and agents branch on the code.
+    let shapes = support::workspace_root().join("tests/fixtures/django-shapes");
+    let rendered = support::run_in(&shapes, &["map", "docs/ref/settings.txt", "--no-cache"]);
+    assert!(rendered.contains("exit: 1"), "{rendered}");
+}
+
+#[test]
 fn the_coercion_note_stays_off_stdout() {
     let plain = run(&["slice", "src/api/users.py:1-20"]);
     let (stdout, stderr) = plain
