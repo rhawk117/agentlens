@@ -1,7 +1,8 @@
 $ agentlens map django/conf/global_settings.py --no-cache
 exit: 0
 --- stdout ---
-django/conf/global_settings.py  26 lines  13 symbols
+django/conf/global_settings.py  26 lines  14 symbols
+  __module__                                L1
   DEBUG = False                             L3
   MIDDLEWARE = [... 7 items]                L5-L13
   SECURE_HSTS_SECONDS = 0                   L15
