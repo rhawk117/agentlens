@@ -154,3 +154,103 @@ impl std::error::Error for Error {
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The contract, restated independently of [`Error::exit_code`].
+    ///
+    /// This match has no wildcard arm on purpose: a new variant does not
+    /// compile until somebody decides whether it is a miss or a fault.
+    fn expected(error: &Error) -> u8 {
+        match error {
+            Error::AddressMissingHash(_)
+            | Error::AddressEmptyPath(_)
+            | Error::AddressUnresolved(_)
+            | Error::BadLineSpan(_)
+            | Error::UnsupportedLanguage(_)
+            | Error::UnsupportedFormat(_) => 1,
+            Error::Io(_, err) if err.kind() == std::io::ErrorKind::NotFound => 1,
+            Error::Io(..)
+            | Error::NotUtf8(_)
+            | Error::Parse(_)
+            | Error::BadRegex(_)
+            | Error::BadKind { .. } => 2,
+        }
+    }
+
+    fn io(kind: std::io::ErrorKind) -> Error {
+        Error::Io(PathBuf::from("f.py"), std::io::Error::from(kind))
+    }
+
+    fn one_of_every_variant() -> Vec<Error> {
+        vec![
+            Error::AddressMissingHash("raw".to_string()),
+            Error::AddressEmptyPath("raw".to_string()),
+            Error::AddressUnresolved("raw".to_string()),
+            Error::BadLineSpan("raw".to_string()),
+            Error::UnsupportedLanguage(PathBuf::from("f.rb")),
+            Error::UnsupportedFormat(PathBuf::from("f.txt")),
+            io(std::io::ErrorKind::NotFound),
+            io(std::io::ErrorKind::PermissionDenied),
+            Error::NotUtf8(PathBuf::from("f.py")),
+            Error::Parse(PathBuf::from("f.py")),
+            Error::BadRegex("[".to_string()),
+            Error::BadKind {
+                value: "nope".to_string(),
+                allowed: "a or b",
+            },
+        ]
+    }
+
+    #[test]
+    fn exit_codes() {
+        for error in one_of_every_variant() {
+            assert_eq!(
+                error.exit_code(),
+                expected(&error),
+                "{} is classified inconsistently",
+                error.kind()
+            );
+        }
+    }
+
+    #[test]
+    fn every_variant_is_covered_by_the_exit_code_test() {
+        let kinds: std::collections::BTreeSet<&str> =
+            one_of_every_variant().iter().map(Error::kind).collect();
+        assert_eq!(
+            kinds,
+            [
+                "address_empty_path",
+                "address_missing_hash",
+                "address_unresolved",
+                "bad_line_span",
+                "bad_regex",
+                "bad_value",
+                "io",
+                "not_utf8",
+                "parse",
+                "unsupported_format",
+                "unsupported_language",
+            ]
+            .into_iter()
+            .collect(),
+            "a variant was added or renamed without updating the exit-code test"
+        );
+    }
+
+    #[test]
+    fn a_missing_file_is_a_miss_but_an_unreadable_one_is_a_fault() {
+        assert_eq!(io(std::io::ErrorKind::NotFound).exit_code(), 1);
+        assert_eq!(io(std::io::ErrorKind::PermissionDenied).exit_code(), 2);
+    }
+
+    #[test]
+    fn no_error_exits_zero() {
+        for error in one_of_every_variant() {
+            assert_ne!(error.exit_code(), 0, "{} claims success", error.kind());
+        }
+    }
+}
