@@ -12,7 +12,8 @@ exit: 0
   "schema_version": 1,
   "summary": {
     "lines": 14,
-    "symbols": 6
+    "symbols": 6,
+    "symbols_total": 6
   },
   "symbols": [
     {

@@ -398,10 +398,55 @@ fn the_next_call_footer_is_dropped_under_json() {
     assert!(!json.contains("for a body"));
 }
 
+// The shared fixture has no literal long enough to collapse, and adding one
+// would churn every map, dead and literals snapshot. The corpus fixture
+// already carries a settings-shaped file, so these cases run there.
+const SETTINGS_CASES: &[Case] = &[
+    case(
+        "map_collapses_a_large_literal",
+        &["map", "django/conf/global_settings.py", "--no-cache"],
+    ),
+    case(
+        "map_expand_shows_the_whole_literal",
+        &[
+            "map",
+            "django/conf/global_settings.py",
+            "--expand",
+            "--budget",
+            "100000",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "map_match_filters_the_outline",
+        &[
+            "map",
+            "django/conf/global_settings.py",
+            "--match",
+            "^SECURE",
+            "--no-cache",
+        ],
+    ),
+    case(
+        "map_match_that_matches_nothing",
+        &[
+            "map",
+            "django/conf/global_settings.py",
+            "--match",
+            "zzz_nothing",
+            "--no-cache",
+        ],
+    ),
+];
+
 #[test]
 fn snapshots_match() {
     for item in CASES {
         check_snapshot(item.name, &run(item.args));
+    }
+    let settings = support::workspace_root().join("tests/fixtures/django-shapes");
+    for item in SETTINGS_CASES {
+        check_snapshot(item.name, &support::run_in(&settings, item.args));
     }
 }
 

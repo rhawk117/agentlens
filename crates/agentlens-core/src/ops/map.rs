@@ -17,6 +17,10 @@ use crate::walk;
 const ROUTE_DECORATOR: &str = r"^@[\w.]+\.(route|get|post|put|patch|delete|head|options|websocket|command|task|on_event|middleware)\b";
 const MAIN_GUARD: &str = "__name__ ==";
 
+/// Width past which a module-level value is shown as a shape rather than
+/// inlined. One `LANGUAGES` literal cost 3,741 tokens in the benchmark.
+const MAX_VALUE_CHARS: usize = 72;
+
 #[derive(Debug, Clone)]
 pub struct MapOptions {
     pub depth: usize,
@@ -25,6 +29,10 @@ pub struct MapOptions {
     pub quiet: bool,
     /// Dotted symbol to root the outline at, from a `file.py#Class` target.
     pub root: Option<String>,
+    /// Show whole values instead of collapsing large ones to a shape.
+    pub expand: bool,
+    /// Keep only symbols whose name matches this regex.
+    pub match_pattern: Option<String>,
 }
 
 impl Default for MapOptions {
@@ -35,6 +43,8 @@ impl Default for MapOptions {
             budget: DEFAULT_BUDGET,
             quiet: false,
             root: None,
+            expand: false,
+            match_pattern: None,
         }
     }
 }
@@ -124,7 +134,7 @@ fn push_entries(
                 address: format!("{}#{}", slash_path(&file.path), symbol.dotted),
                 name: symbol.name.clone(),
                 kind: symbol.kind.as_str().to_string(),
-                signature: signature_line(file, symbol),
+                signature: signature_line(file, symbol, options.expand),
                 start_line: symbol.start_line,
                 end_line: symbol.end_line,
                 lines: symbol.line_count(),
@@ -138,19 +148,63 @@ fn push_entries(
     }
 }
 
-fn signature_line(file: &SourceFile, symbol: &Symbol) -> String {
+fn signature_line(file: &SourceFile, symbol: &Symbol, expand: bool) -> String {
     match symbol.kind {
-        SymbolKind::Variable => collapse_ws(file.slice(symbol.span_start, symbol.span_end)),
+        SymbolKind::Variable => value_line(file, symbol, expand),
         _ => symbols::signature(file, symbol, false),
     }
 }
 
+fn value_line(file: &SourceFile, symbol: &Symbol, expand: bool) -> String {
+    let value = collapse_ws(file.slice(symbol.span_start, symbol.span_end));
+    if expand || value.chars().count() <= MAX_VALUE_CHARS {
+        return value;
+    }
+    if let Some(shape) = literal_shape(file, symbol) {
+        return format!("{} = {shape}", symbol.name);
+    }
+    let head: String = value.chars().take(MAX_VALUE_CHARS).collect();
+    format!("{head}...")
+}
+
+/// Render a container literal as its shape: `[... 187 items]`.
+///
+/// The count comes from the parse tree rather than from counting commas, so
+/// nested literals and trailing commas cannot skew it.
+fn literal_shape(file: &SourceFile, symbol: &Symbol) -> Option<String> {
+    let mut node = file
+        .root()
+        .descendant_for_byte_range(symbol.span_start, symbol.span_end)?;
+    while node.kind() != "assignment" {
+        node = node.named_child(0)?;
+    }
+    let value = node.child_by_field_name("right")?;
+    let (open, close, noun) = match value.kind() {
+        "list" => ("[", "]", "item"),
+        "dictionary" => ("{", "}", "key"),
+        "set" => ("{", "}", "item"),
+        "tuple" => ("(", ")", "item"),
+        _ => return None,
+    };
+    let mut cursor = value.walk();
+    let count = value
+        .named_children(&mut cursor)
+        .filter(|child| child.kind() != "comment")
+        .count();
+    Some(format!(
+        "{open}... {}{close}",
+        plural(count, noun, &format!("{noun}s"))
+    ))
+}
+
 fn map_file(path: &Path, options: &MapOptions) -> Result<Report> {
     let file = SourceFile::load(path)?;
-    let entries = match &options.root {
+    let all = match &options.root {
         Some(root) => rooted_outline(&file, root, options),
         None => file_outline(&file, options),
     };
+    let total = all.len();
+    let entries = retain_matching(all, options.match_pattern.as_deref())?;
     let display = match &options.root {
         Some(root) => format!("{}#{root}", slash_path(path)),
         None => slash_path(path),
@@ -158,7 +212,7 @@ fn map_file(path: &Path, options: &MapOptions) -> Result<Report> {
     let found = !entries.is_empty();
 
     let (text, detail, degraded) = fit(options.budget, |detail| {
-        render_file(&display, &file, &entries, detail, options)
+        render_file(&display, &file, &entries, total, detail, options)
     });
     let json = json!({
         "command": "map",
@@ -173,16 +227,34 @@ fn map_file(path: &Path, options: &MapOptions) -> Result<Report> {
         "summary": {
             "lines": file.line_count(),
             "symbols": entries.len(),
+            "symbols_total": total,
         },
         "symbols": entries,
     });
     Ok(Report::new(text, json, found))
 }
 
+/// Keep only the entries whose symbol name matches `pattern`.
+///
+/// # Errors
+///
+/// Returns [`Error::BadRegex`] when `pattern` does not compile.
+fn retain_matching(entries: Vec<OutlineEntry>, pattern: Option<&str>) -> Result<Vec<OutlineEntry>> {
+    let Some(pattern) = pattern else {
+        return Ok(entries);
+    };
+    let matcher = Regex::new(pattern).map_err(|_| Error::BadRegex(pattern.to_string()))?;
+    Ok(entries
+        .into_iter()
+        .filter(|entry| matcher.is_match(&entry.name))
+        .collect())
+}
+
 fn render_file(
     display: &str,
     file: &SourceFile,
     entries: &[OutlineEntry],
+    total: usize,
     detail: Detail,
     options: &MapOptions,
 ) -> String {
@@ -192,6 +264,14 @@ fn render_file(
         plural(file.line_count(), "line", "lines"),
         plural(entries.len(), "symbol", "symbols")
     ));
+
+    if let Some(pattern) = &options.match_pattern {
+        out.push(format!(
+            "  matching `{pattern}`: {} of {}",
+            entries.len(),
+            plural(total, "symbol", "symbols")
+        ));
+    }
 
     if entries.is_empty() {
         out.push("  no definitions".to_string());
@@ -234,7 +314,18 @@ fn render_file(
         && let Some(first) = entries.first()
     {
         out.blank();
-        out.push(format!("slice {} for a body", first.address));
+        let collapsed = entries
+            .iter()
+            .find(|entry| entry.signature.contains("... "));
+        if collapsed.is_none_or(|entry| entry.address != first.address) {
+            out.push(format!("slice {} for a body", first.address));
+        }
+        if let Some(entry) = collapsed {
+            out.push(format!(
+                "slice {} for the whole value, or --expand for every one",
+                entry.address
+            ));
+        }
     }
     out.finish()
 }
@@ -566,4 +657,75 @@ fn console_scripts(root: &Path, manifest: &Path) -> Vec<EntryPoint> {
         });
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn settings_file(name: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir().join(format!("agentlens-map-{name}"));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("mkdir");
+        let mut body = String::from("LANGUAGES = [\n");
+        for index in 0..200 {
+            writeln!(body, "    (\"lang{index}\", \"Language {index}\"),").expect("write");
+        }
+        body.push_str("]\n\nSECURE_HSTS_SECONDS = 3600\nDEBUG = False\n");
+        let path = dir.join("settings.py");
+        std::fs::write(&path, body).expect("write");
+        path
+    }
+
+    #[test]
+    fn map_literal_budget() {
+        let path = settings_file("budget");
+        let report = run(&path, &MapOptions::default()).expect("maps");
+        let tokens = report.json["tokens"].as_u64().expect("tokens");
+        assert!(
+            report.text.contains("LANGUAGES = [... 200 items]"),
+            "literal was not collapsed to a shape:\n{}",
+            report.text
+        );
+        assert!(
+            report.text.contains("SECURE_HSTS_SECONDS = 3600"),
+            "collapsing hid the settings the caller wanted:\n{}",
+            report.text
+        );
+        assert!(tokens < 1200, "settings-style map cost {tokens} tokens");
+    }
+
+    #[test]
+    fn expand_opts_back_into_the_whole_value() {
+        let path = settings_file("expand");
+        let options = MapOptions {
+            expand: true,
+            budget: 100_000,
+            ..MapOptions::default()
+        };
+        let report = run(&path, &options).expect("maps");
+        assert!(report.text.contains("lang199"), "--expand still collapsed");
+    }
+
+    #[test]
+    fn match_filters_and_states_what_it_dropped() {
+        let path = settings_file("match");
+        let options = MapOptions {
+            match_pattern: Some("^SECURE".to_string()),
+            ..MapOptions::default()
+        };
+        let report = run(&path, &options).expect("maps");
+        assert!(report.text.contains("1 of 3 symbols"), "{}", report.text);
+        assert!(!report.text.contains("LANGUAGES"));
+    }
+
+    #[test]
+    fn a_bad_match_pattern_is_a_regex_error() {
+        let path = settings_file("badre");
+        let options = MapOptions {
+            match_pattern: Some("[unclosed".to_string()),
+            ..MapOptions::default()
+        };
+        assert!(matches!(run(&path, &options), Err(Error::BadRegex(_))));
+    }
 }

@@ -71,6 +71,10 @@ enum Command {
         depth: usize,
         #[arg(long, default_value = "all", value_name = "k")]
         kind: String,
+        #[arg(long, help = "show whole values instead of collapsing large ones")]
+        expand: bool,
+        #[arg(long = "match", value_name = "pat")]
+        match_pattern: Option<String>,
     },
     #[command(about = "kind-aware search: definition, call, reference")]
     Find {
@@ -300,6 +304,8 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
             target,
             depth,
             kind,
+            expand,
+            match_pattern,
         } => {
             let kind = KindFilter::parse(kind).ok_or_else(|| Error::BadKind {
                 value: kind.clone(),
@@ -312,6 +318,8 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
                 budget: cli.budget,
                 quiet: cli.quiet(),
                 root,
+                expand: *expand,
+                match_pattern: match_pattern.clone(),
             };
             let report = map::run(&path, &options)?;
             Ok(Outcome { report, coercion })
