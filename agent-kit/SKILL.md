@@ -39,10 +39,10 @@ Paths are resolved against your current directory. If the project you were asked
 about is somewhere else, `cd` there first.
 
 `--root` will not do this for you. It tells the index-backed commands
-(`callers`, `packet`, `dead`) where the repo root is; `find`, `map` and `slice`
-ignore it. From the wrong directory, `find` prints `no match` and exits **0** —
-identical to the symbol genuinely not existing. A `no match` on a symbol you were
-told about means check your directory before you conclude anything.
+(`sym`, `callers`, `packet`, `dead`) where the repo root is; `find`, `map` and
+`slice` ignore it. From the wrong directory, `find` prints `no match` and exits
+**1** — identical to the symbol genuinely not existing. A `no match` on a symbol
+you were told about means check your directory before you conclude anything.
 
 ## Start from what you already know
 
@@ -51,16 +51,24 @@ technique — getting it wrong is what turns a two-command answer into eight.
 
 | You already know | First command | Then |
 |---|---|---|
-| A symbol name | `agentlens find <name> --kind definition` | `agentlens packet <address>` |
+| A symbol name, want its address or value | `agentlens sym <name>` | `agentlens packet <address>` |
+| A symbol name, want where it is used | `agentlens find <name>` | `packet` the definition |
 | A file and a symbol | `agentlens packet <file>#<Sym>` | done |
 | A file, not the symbol | `agentlens map <file>` | `packet` the one you want |
 | Neither | `agentlens map <dir> --depth 2` | narrow, then as above |
 
 **A named symbol never needs `map`.** If the question says "the backoff
-function", you have a name: `find` resolves it to an address in one call.
+function", you have a name: `sym` resolves it to an address in one call.
 Opening files to look for it is the habit this tool exists to replace, and
 `map`-ing several files to locate one symbol costs more than the grep it
 replaced.
+
+`sym` and `find` are not interchangeable. `sym` answers "what and where is
+this name" from the symbol index, including module-level constants. `find`
+scans occurrences, so it answers "where is this used" — and it does not match
+constants at all, because an assignment is not an occurrence it indexes.
+Fetching one constant with `find` is the mistake that cost 2,510 tokens against
+grep's 5 in the benchmark.
 
 `map` is for orientation — when you cannot name what you are looking for. It is
 not a lookup step.
@@ -106,9 +114,13 @@ tool calls and a file's worth of context to produce what one command returns.
 ## Addresses, briefly
 
 ```
-file.py#Symbol            file.py#Class.method       file.py#L10-L20
+file.py#Symbol            file.py#Class.method       file.py#__module__
 config.yaml#services.web  package.json#scripts.build  README.md#Install/Usage
 ```
+
+`file.py#__module__` is the imports and module-level code above the first
+definition. Reach for it, not `#L1-L40`, whenever the question is about
+imports or module setup — it survives edits, and a line span does not.
 
 Symbolic and re-resolved every call, so an address survives edits above it.
 Full grammar, quoting rules, and the markdown heading form: `references/addressing.md`
@@ -127,6 +139,14 @@ before recommending a deletion.
 Every command takes `--budget <n>` (default 4000), which degrades output rather
 than truncating it, and `--json` for machine-readable results.
 
+`--budget` is a **target, not a hard cap**. The tool estimates its own output
+rather than tokenising it, so a call can exceed the number: on measured output
+about 7% run over, the worst by 28%. Do not rely on it as a ceiling. When you
+need to know whether output was cut, read `degraded` and `detail` in the
+`--json` envelope rather than inferring it from size. They are present on any
+envelope that rendered text; a miss or a fault carries neither, so treat their
+absence as "nothing was degraded" rather than as an unknown.
+
 Full flag surface: `references/commands.md`
 Worked task-to-command patterns: `references/recipes.md`
 
@@ -134,7 +154,10 @@ Worked task-to-command patterns: `references/recipes.md`
 
 | Mistake | Instead |
 |---|---|
-| `map`-ing several files to find a symbol you can name | `find <name> --kind definition` |
+| `map`-ing several files to find a symbol you can name | `sym <name>` |
+| `find <CONSTANT> --kind definition` for a constant | `sym <CONSTANT>` — `find` cannot match it |
+| `slice file.py#L1-L40` for imports | `slice file.py#__module__` |
+| Re-running `map` to find one name in a big outline | `map <file> --match <pat>` |
 | `callers X` right after `packet X` | Read the callers out of the packet |
 | `slice X` right after `packet X` | The body is already in the packet |
 | One command per question | Map the whole batch first; `packet` covers two |

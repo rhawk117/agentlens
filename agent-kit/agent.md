@@ -24,24 +24,32 @@ Before concluding it is missing, check with `which agentlens`. A failure from
 used instead, rather than silently falling back to grep.
 
 Paths resolve against your current directory, so `cd` to the repository before
-your first command. `--root` will not do it for you: it only tells `callers`,
-`packet` and `dead` where the repo root is, and `find`, `map` and `slice` ignore
-it. From the wrong directory `find` prints `no match` and exits **0**, which
-looks exactly like the symbol not existing.
+your first command. `--root` will not do it for you: it only tells `sym`,
+`callers`, `packet` and `dead` where the repo root is, and `find`, `map` and
+`slice` ignore it. From the wrong directory `find` prints `no match` and exits
+**1**, which looks exactly like the symbol not existing.
 
 Choose the first command by what the question already gives you.
 
 | The question gives you | First command | Then |
 |---|---|---|
-| A symbol name | `agentlens find <name> --kind definition` | `agentlens packet <address>` |
+| A symbol name | `agentlens sym <name>` | `agentlens packet <address>` |
+| A symbol name, want its usage | `agentlens find <name>` | `packet` the definition |
 | A file and a symbol | `agentlens packet <file>#<Sym>` | done |
 | A file, not the symbol | `agentlens map <file>` | `packet` the one you want |
 | Neither | `agentlens map <dir> --depth 2` | narrow, then as above |
 
 **A named symbol never needs `map`.** "Where is the backoff function" gives you
-a name; `find` resolves it in one call. Running `map` over several files to
+a name; `sym` resolves it in one call. Running `map` over several files to
 locate a symbol you can already name wastes most of your command budget before
 you have answered anything. `map` is for orientation only.
+
+`sym` resolves from the symbol index, so it finds module-level constants.
+`find` scans occurrences and will not match a constant — if a `find` misses on
+a name you were given, read the miss line, which names the command that works.
+
+For a file's imports or module-level setup, the address is
+`file.py#__module__`. Do not reach for `#L1-L40`.
 
 One `packet` call returns the symbol's full body, every direct caller with file,
 line and confidence tier, and the signatures of what it calls. It therefore
@@ -69,6 +77,10 @@ unused imports or constants — do not attribute those to it.
 A missing symbol exits `1` and prints what is actually there. Read that list and
 correct the address — do not spend a separate command rediscovering it.
 
+Exit `1` is "not found or not applicable", including a mistyped address and an
+unsupported format. Exit `2` is a genuine tool fault. Re-running a `2` with the
+same arguments will not help; a `1` may be worth one corrected retry.
+
 `agentlens` parses Python only. For other languages, say so rather than
 returning a wrong answer; `grep` is a legitimate fallback there, but note in the
 report that the finding came from a text search rather than symbol resolution.
@@ -95,7 +107,7 @@ Where is retry backoff computed?
 ANSWER: `http/client.py#Client._backoff` — exponential, capped at 30s.
 
 commands:
-  agentlens find _backoff --kind definition
+  agentlens sym _backoff
   agentlens slice http/client.py#Client._backoff
 
 evidence:
