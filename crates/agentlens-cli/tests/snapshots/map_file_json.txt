@@ -95,7 +95,7 @@ exit: 0
     }
   ],
   "target": "src/core/config.py",
-  "tokens": 102,
+  "tokens": 86,
   "tool_version": "0.1.0"
 }
 --- stderr ---

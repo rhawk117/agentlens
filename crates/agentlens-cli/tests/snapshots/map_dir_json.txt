@@ -47,7 +47,7 @@ exit: 0
     "lines": 121
   },
   "target": ".",
-  "tokens": 119,
+  "tokens": 115,
   "tool_version": "0.1.0"
 }
 --- stderr ---

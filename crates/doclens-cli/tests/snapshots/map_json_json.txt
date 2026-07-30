@@ -135,7 +135,7 @@ exit: 0
     "entries": 12
   },
   "target": "package.json",
-  "tokens": 130,
+  "tokens": 106,
   "tool_version": "0.1.0"
 }
 --- stderr ---
