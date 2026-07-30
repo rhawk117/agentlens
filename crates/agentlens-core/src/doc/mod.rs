@@ -149,7 +149,7 @@ fn parse_steps(selector: &str, format: DocFormat) -> Vec<Step> {
     }
     let mut steps = Vec::new();
     let mut current = String::new();
-    let mut chars = selector.chars().peekable();
+    let mut chars = selector.chars();
     while let Some(ch) = chars.next() {
         match ch {
             '.' => flush(&mut current, &mut steps),
