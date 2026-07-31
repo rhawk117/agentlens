@@ -135,17 +135,30 @@ def main() -> None:
         capture_output=True,
         text=True,
     ).stdout.strip()
-    tool_commit = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
     if django_commit != protocol["subject"]["commit"]:
         fail("Django commit drift")
-    if tool_commit != protocol["tool"]["commit"]:
-        fail("agentlens commit drift")
+    # Not `HEAD == protocol.tool.commit`. Grading, this validator and the
+    # results document are all committed after the binary is built, so that
+    # equality fails on every commit that follows the campaign -- including the
+    # one that publishes the numbers. What must hold is that the *tool* has not
+    # moved: the pinned commit is still in this history, and nothing under
+    # crates/ differs between it and HEAD. The binary hash below is the harder
+    # guarantee; this catches a source change that was never rebuilt.
+    pinned_tool_commit = protocol["tool"]["commit"]
+    ancestry = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", pinned_tool_commit, "HEAD"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+    )
+    if ancestry.returncode != 0:
+        fail(f"pinned agentlens commit {pinned_tool_commit} is not an ancestor of HEAD")
+    tool_diff = subprocess.run(
+        ["git", "diff", "--quiet", pinned_tool_commit, "HEAD", "--", "crates", "Cargo.lock"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+    )
+    if tool_diff.returncode != 0:
+        fail("agentlens source changed since the pinned commit; rebuild and re-pin")
     binary_sha256 = hashlib.sha256(AGENTLENS.read_bytes()).hexdigest()
     if binary_sha256 != protocol["tool"]["binary_sha256"]:
         fail("agentlens binary drift")

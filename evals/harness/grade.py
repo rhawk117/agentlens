@@ -253,7 +253,7 @@ def main() -> None:
         "--repetitions",
         type=int,
         default=REPETITIONS,
-        help="how many repetitions to grade (v0.1.0 ran 3, v0.2.0 runs 5)",
+        help="how many repetitions to grade (both campaigns ran 3)",
     )
     parser.add_argument(
         "--arms",

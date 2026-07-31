@@ -35,9 +35,11 @@
     "baseline": "Whole-file reads. The weaker of the two controls, kept for comparability with v0.1.0.",
     "linerange": "Precise line-range reads: rg to locate, sed -n 'START,ENDp' to read. The disciplined baseline a competent agent actually uses. Added because the v0.1.0 spec pre-registered it as owed once the cost ratio came in under 0.25."
   },
-  "repetitions": 5,
+  "repetitions_scheduled": 5,
+  "repetitions_executed": 3,
+  "repetitions_note": "Pre-registered at 5. Repetitions 4 and 5 were never executed: the campaign was cut to 3 on 2026-07-30 on the user instruction \"No more repitions this is way too expensive\", after repetition 3 completed and before any run was graded. A cost decision, not a result-driven one. schedule.json still carries all 5 so the pre-registration is not rewritten to match the outcome.",
   "task_count": 18,
-  "expected_runs": 270,
+  "expected_runs": 162,
   "call_cap_per_task": 25,
   "tool_result_token_cap_per_task": 60000,
   "tokenizer": "tiktoken:o200k_base",
