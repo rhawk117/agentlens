@@ -25,6 +25,23 @@ REFERENCE_ARM = "agentlens"
 HEDGES = ("might", "possibly", "i'm not sure", "i am not sure", "appears to", "may")
 
 
+# The three ways an answer cites lines beside a path.
+#
+# `L40-L50` and `:40-50` are agentlens's own output forms. An arm reading with
+# `sed -n '40,50p'` or `cat` never sees that notation and writes prose instead,
+# so a matcher that recognised only the first two would score the control arms
+# down for not sounding like the tool under test.
+#
+# The prose form requires the word "line"/"lines". Accepting a bare number next
+# to a path would read "Django 6.0.7" and "10 middleware" as citations.
+LINE_REFERENCE = re.compile(
+    r"\bL(?P<start_l>\d+)(?:\s*-\s*L?(?P<end_l>\d+))?\b"
+    r"|:(?P<start_colon>\d+)(?:-(?P<end_colon>\d+))?"
+    r"|\blines?\s+(?P<start_word>\d+)(?:\s*(?:-|–|—|to)\s*(?P<end_word>\d+))?\b",
+    flags=re.IGNORECASE,
+)
+
+
 def normalize(text: str) -> str:
     return " ".join(text.casefold().split())
 
@@ -66,13 +83,13 @@ def address_found(answer: str, gold: dict[str, Any]) -> bool:
         name = normalize(selector_name(gold["address"]))
         if name and re.search(rf"(?<![\w]){re.escape(name)}(?![\w])", window):
             return True
-        for line_match in re.finditer(
-            r"(?:\bL(\d+)(?:\s*-\s*L?(\d+))?\b|:(\d+)(?:-(\d+))?)",
-            window,
-            flags=re.IGNORECASE,
-        ):
-            start = int(line_match.group(1) or line_match.group(3))
-            end = int(line_match.group(2) or line_match.group(4) or start)
+        for line_match in LINE_REFERENCE.finditer(window):
+            first = line_match.group("start_l") or line_match.group("start_colon")
+            last = line_match.group("end_l") or line_match.group("end_colon")
+            if first is None:
+                first, last = line_match.group("start_word"), line_match.group("end_word")
+            start = int(first)
+            end = int(last or start)
             if start <= int(gold["end_line"]) and end >= int(gold["start_line"]):
                 return True
     return False
