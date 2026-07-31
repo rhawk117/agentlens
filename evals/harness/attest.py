@@ -4,14 +4,38 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-RUNS_ROOT = ROOT / "runs"
+from paths import ROOT, RUNS_ROOT
+
+# v0.1.0's attestations are frozen in attestations_v1.jsonl. A new campaign
+# writes its own file: appending would let the two runs' event counts and
+# sequence indexes interleave, and neither could then be validated.
 EVENTS = ROOT / "attestations.jsonl"
 BENCH_PY = ROOT / ".venv" / "bin" / "python"
 BENCH_TOOL = ROOT / "bench_tool.py"
-MODEL = "gpt-5.6-sol (inherited worker model)"
+# Pinned by dispatch configuration and recorded here. A subagent cannot produce
+# a runtime receipt proving which model answered, so this is an attestation,
+# not proof -- see the model-identity threat in the methodology.
+MODEL = "claude-haiku-4-5-20251001"
+
+# One entry per arm, so adding an arm cannot silently inherit another arm's
+# description. Each states what the arm can do and what it cannot, because a
+# worker that does not know line-range reads are unavailable wastes calls
+# discovering it, and that shows up as a cost difference the tool did not cause.
+ARM_INTERFACE = {
+    "agentlens": (
+        "Available research commands: slice, map, find, literals, callers, packet, and dead.\n"
+    ),
+    "baseline": (
+        "Available research commands: rg matches and cat whole-file reads. "
+        "Line-range and context reads are unavailable.\n"
+    ),
+    "linerange": (
+        "Available research commands: rg matches and sed line-range reads, "
+        "written exactly as `sed -n 'START,ENDp' FILE`. Whole-file reads are "
+        "unavailable: read only the line ranges you need.\n"
+    ),
+}
 
 
 def load_tasks() -> dict[str, dict[str, object]]:
@@ -50,16 +74,7 @@ def render_prompt(run_id: str) -> str:
         "repo-relative source address(es). For localization tasks, return only the "
         "repo-relative address(es) you would edit.\n\n"
     )
-    if arm == "agentlens":
-        interface = (
-            "Available research commands: slice, map, find, literals, callers, "
-            "packet, and dead.\n"
-        )
-    else:
-        interface = (
-            "Available research commands: rg matches and cat whole-file reads. "
-            "Line-range and context reads are unavailable.\n"
-        )
+    interface = ARM_INTERFACE[arm]
     command = (
         f"\nInvoke research as:\n{BENCH_PY} {BENCH_TOOL} {run_id} COMMAND ARGS...\n\n"
         "After composing the answer, submit exactly once as:\n"

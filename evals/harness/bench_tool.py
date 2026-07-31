@@ -11,26 +11,10 @@ from pathlib import Path
 
 import tiktoken
 
-ROOT = Path(__file__).resolve().parent
-REPO_ROOT = ROOT.parent.parent
-
-# Every path is overridable so the harness is not wedded to one machine's
-# layout. The subject corpus defaults *outside* the repository on purpose: a
-# checkout of Django inside the tree would be indexed by `agentlens dead`,
-# picked up by `rg`, and would pollute both arms' results.
-DJANGO_ROOT = Path(
-    os.environ.get("BENCH_DJANGO_ROOT", Path.home() / "dev" / "django-6.0.7")
-).resolve()
-AGENTLENS = Path(
-    os.environ.get("BENCH_AGENTLENS", REPO_ROOT / "target" / "release" / "agentlens")
-).resolve()
-# The run corpus stays in the gitignored .eval/runs; only the harness is tracked.
-RUNS_ROOT = Path(os.environ.get("BENCH_RUNS_ROOT", REPO_ROOT / ".eval" / "runs")).resolve()
+from paths import AGENTLENS, ARMS, DJANGO_ROOT, REPETITIONS, RUNS_ROOT
 
 CALL_CAP = 25
 TOKEN_CAP = 60_000
-REPETITIONS = 5
-ARMS = ("agentlens", "baseline", "linerange")
 AGENTLENS_TOOLS = {"slice", "map", "find", "literals", "callers", "packet", "dead"}
 BASELINE_TOOLS = {"rg", "cat"}
 # No `cat`: Arm C exists to price precise line-range reads. Given `cat` it would
@@ -80,6 +64,27 @@ SAFE_RG_VALUE_OPTIONS = {"--glob", "--regexp", "--type", "--type-not", "-e", "-g
 # `12p` or `12,80p` and nothing else. Anchored with fullmatch, so no trailing
 # `;w file` or `e cmd` can ride along after the print command.
 SED_PRINT_RANGE = re.compile(r"\d+(,\d+)?p")
+
+
+def subject_env() -> dict[str, str]:
+    """Build the environment every measured command runs under.
+
+    An allowlist, not os.environ with overrides. Anything inherited is a
+    variable whose value differs between machines and operators, and a tool
+    that reads one produces different output -- or, as RIPGREP_CONFIG_PATH did,
+    a warning that gets counted as result tokens against a control arm. The
+    benchmark's premise is that the arms differ only in the tools they hold.
+    """
+    return {
+        "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+        # Deterministic collation and byte handling: rg and sed both sort and
+        # match differently under a locale that is not C.
+        "LC_ALL": "C",
+        "LANG": "C",
+        "NO_COLOR": "1",
+        # Some tools probe TERM and emit escape sequences when it looks capable.
+        "TERM": "dumb",
+    }
 
 
 def die(message: str, code: int = 2) -> None:
@@ -274,7 +279,7 @@ def main() -> None:
         check=False,
         capture_output=True,
         text=True,
-        env={**os.environ, "NO_COLOR": "1"},
+        env=subject_env(),
     )
     full_result_text = completed.stdout + completed.stderr
     result_text, result_tokens, full_result_tokens, truncated = cap_result(

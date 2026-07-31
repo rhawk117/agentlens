@@ -11,10 +11,9 @@ from typing import Any
 
 from blake3 import blake3
 
-ROOT = Path(__file__).resolve().parent
-DJANGO_ROOT = ROOT.parent / "django-6.0.7"
+from paths import DJANGO_ROOT, ROOT, RUNS_ROOT
+
 TASKS = json.loads((ROOT / "tasks.json").read_text(encoding="utf-8"))["tasks"]
-RUNS_ROOT = ROOT / "runs"
 HEDGES = ("might", "possibly", "i'm not sure", "i am not sure", "appears to", "may")
 
 
@@ -113,9 +112,7 @@ def call_retrieves(record: dict[str, Any], arm: str, golds: list[dict[str, Any]]
         requested = {arg.replace("\\", "/") for arg in args}
         return any(gold["address"].split("#", 1)[0] in requested for gold in golds)
     normalized_output_lines = {
-        re.sub(r"^.*?(?::\d+)?:", "", line).strip()
-        for line in output.splitlines()
-        if line.strip()
+        re.sub(r"^.*?(?::\d+)?:", "", line).strip() for line in output.splitlines() if line.strip()
     }
     for gold in golds:
         if address_found(output, gold):
@@ -145,22 +142,14 @@ def grade_run(task: dict[str, Any], arm: str, run_dir: Path) -> dict[str, Any]:
         raise FileNotFoundError(f"missing answer: {answer_path}")
     answer = answer_path.read_text(encoding="utf-8")
     required_found = [
-        gold["address"]
-        for gold in task["required_addresses"]
-        if address_found(answer, gold)
+        gold["address"] for gold in task["required_addresses"] if address_found(answer, gold)
     ]
     supporting_found = [
-        gold["address"]
-        for gold in task["supporting_addresses"]
-        if address_found(answer, gold)
+        gold["address"] for gold in task["supporting_addresses"] if address_found(answer, gold)
     ]
     address_score = min(
         1.0,
-        (
-            len(required_found)
-            + 0.5 * len(supporting_found)
-        )
-        / len(task["required_addresses"]),
+        (len(required_found) + 0.5 * len(supporting_found)) / len(task["required_addresses"]),
     )
     normalized_answer = normalize(answer)
     facts_found = [
@@ -171,11 +160,7 @@ def grade_run(task: dict[str, Any], arm: str, run_dir: Path) -> dict[str, Any]:
             for candidate in fact["any_of"]
         )
     ]
-    fact_score = (
-        len(facts_found) / len(task["required_facts"])
-        if task["required_facts"]
-        else None
-    )
+    fact_score = len(facts_found) / len(task["required_facts"]) if task["required_facts"] else None
     penalty, forbidden_found = forbidden_penalty(answer, task["forbidden_claims"])
     raw = (
         address_score
@@ -233,10 +218,7 @@ def main() -> None:
     actual_blake3 = blake3(task_bytes).hexdigest()
     actual_sha256 = hashlib.sha256(task_bytes).hexdigest()
     if actual_blake3 != expected_blake3 or actual_sha256 != expected_sha256:
-        raise SystemExit(
-            f"gold hash mismatch: blake3={actual_blake3} sha256={actual_sha256}"
-        )
-    task_by_id = {task["id"]: task for task in TASKS}
+        raise SystemExit(f"gold hash mismatch: blake3={actual_blake3} sha256={actual_sha256}")
     runs: list[dict[str, Any]] = []
     for repetition in range(1, 4):
         for arm in ("agentlens", "baseline"):
@@ -255,9 +237,7 @@ def main() -> None:
             arm_runs = grouped[(arm, task["id"])]
             row[arm] = {
                 "score": quartiles([r["score"] for r in arm_runs]),
-                "tool_result_tokens": quartiles(
-                    [float(r["tool_result_tokens"]) for r in arm_runs]
-                ),
+                "tool_result_tokens": quartiles([float(r["tool_result_tokens"]) for r in arm_runs]),
                 "navigation": quartiles(
                     [
                         float(r["navigation"] if r["navigation"] is not None else 26)
@@ -271,9 +251,7 @@ def main() -> None:
     for arm in ("agentlens", "baseline"):
         for repetition in range(1, 4):
             arm_runs = [
-                run
-                for run in runs
-                if run["arm"] == arm and run["repetition"] == repetition
+                run for run in runs if run["arm"] == arm and run["repetition"] == repetition
             ]
             total_points = sum(run["score"] for run in arm_runs)
             total_tokens = sum(run["tool_result_tokens"] for run in arm_runs)
@@ -301,9 +279,7 @@ def main() -> None:
             "cost_tokens_per_point": quartiles(
                 [metric["cost_tokens_per_point"] for metric in metrics]
             ),
-            "navigation": quartiles(
-                [metric["navigation_median"] for metric in metrics]
-            ),
+            "navigation": quartiles([metric["navigation_median"] for metric in metrics]),
             "repetitions": metrics,
             "capped_runs": sum(metric["capped_runs"] for metric in metrics),
         }
@@ -351,14 +327,22 @@ def main() -> None:
         json.dumps(result, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(json.dumps({key: result[key] for key in (
-        "arms",
-        "cost_ratio",
-        "accuracy_delta",
-        "head_to_head",
-        "falsification",
-        "benchmark_failed",
-    )}, indent=2))
+    print(
+        json.dumps(
+            {
+                key: result[key]
+                for key in (
+                    "arms",
+                    "cost_ratio",
+                    "accuracy_delta",
+                    "head_to_head",
+                    "falsification",
+                    "benchmark_failed",
+                )
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

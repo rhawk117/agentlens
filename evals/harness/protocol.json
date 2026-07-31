@@ -8,37 +8,57 @@
   },
   "tool": {
     "repository": "rhawk117/agentlens",
-    "commit": "8033e6ccc00dcca316ab1e8ea83c5932296ec4a7",
-    "version": "0.1.0",
-    "binary_sha256": "81127fabf67018b9f83b17ffe1d3cdb7849f8258dd2d9f91767b08468127f69a"
+    "commit": "PENDING: set to the dev commit the release binary is built from, immediately before the run",
+    "version": "0.2.0",
+    "binary_sha256": "PENDING: recorded at build time, immediately before the run"
   },
   "arms": {
     "agentlens": ["slice", "map", "find", "literals", "callers", "packet", "dead"],
-    "baseline": ["rg", "cat"]
+    "baseline": ["rg", "cat"],
+    "linerange": ["rg", "sed"]
   },
-  "repetitions": 3,
+  "arm_notes": {
+    "baseline": "Whole-file reads. The weaker of the two controls, kept for comparability with v0.1.0.",
+    "linerange": "Precise line-range reads: rg to locate, sed -n 'START,ENDp' to read. The disciplined baseline a competent agent actually uses. Added because the v0.1.0 spec pre-registered it as owed once the cost ratio came in under 0.25."
+  },
+  "repetitions": 5,
   "task_count": 18,
-  "expected_runs": 108,
+  "expected_runs": 270,
   "call_cap_per_task": 25,
   "tool_result_token_cap_per_task": 60000,
   "tokenizer": "tiktoken:o200k_base",
+  "tokenizer_version": "0.8.0",
   "cache": {
     "agentlens": "warm",
     "baseline": "filesystem cache uncontrolled",
-    "cold_index_build": {
-      "elapsed_seconds": 0.631,
-      "tool_result_tokens": 483,
-      "cache_size_bytes_approx": 44040192
-    },
-    "warm_repeat": {
-      "elapsed_seconds": 0.295,
-      "byte_identical_output": true
+    "linerange": "filesystem cache uncontrolled",
+    "measured_at_version": "PENDING: re-measure against 0.2.0 before the run",
+    "v0_1_0_reference": {
+      "cold_index_build": {
+        "elapsed_seconds": 0.631,
+        "tool_result_tokens": 483,
+        "cache_size_bytes_approx": 44040192
+      },
+      "warm_repeat": {
+        "elapsed_seconds": 0.295,
+        "byte_identical_output": true
+      }
     }
   },
   "falsification": {
-    "maximum_cost_ratio": 0.5,
-    "maximum_accuracy_delta_below_baseline": 0.05,
-    "maximum_tasks_lost": 4
+    "note": "Pre-registered before the v0.2.0 run. agentlens fails if it misses any condition against either control.",
+    "vs_baseline": {
+      "maximum_cost_ratio": 0.5,
+      "maximum_accuracy_delta_below_arm": 0.05,
+      "maximum_tasks_lost": 4,
+      "rationale": "Unchanged from v0.1.0 so the two campaigns stay comparable."
+    },
+    "vs_linerange": {
+      "maximum_cost_ratio": 0.7,
+      "maximum_accuracy_delta_below_arm": 0.05,
+      "maximum_tasks_lost": 6,
+      "rationale": "Looser than the baseline threshold on purpose. Arm C pays for precise reads but still pays for the searches that locate the lines, so a modest rather than dramatic advantage is the honest prior. Demanding a 2x win against the disciplined control would be setting a bar we had no reason to expect."
+    }
   },
   "verification_corrections": [
     "Added the missing django/ prefix to draft source addresses.",

@@ -18,9 +18,7 @@ from attest import (
     parse_run_id,
     render_prompt,
 )
-
-AGENTLENS = ROOT.parent / "agentlens-repo" / "target" / "release" / "agentlens"
-DJANGO = ROOT.parent / "django-6.0.7"
+from paths import AGENTLENS, DJANGO_ROOT, EXPECTED_RUNS, REPO_ROOT
 
 
 def fail(message: str) -> None:
@@ -37,36 +35,32 @@ def result_fingerprint(record: dict) -> str:
             "stdout_lines": sorted(record["stdout"].splitlines()),
             "stderr_lines": sorted(record["stderr"].splitlines()),
         }
-        return hashlib.sha256(
-            json.dumps(semantic_result, sort_keys=True).encode()
-        ).hexdigest()
+        return hashlib.sha256(json.dumps(semantic_result, sort_keys=True).encode()).hexdigest()
     return record["full_result_sha256"]
 
 
 def main() -> None:
     expected = expected_runs()
-    events = [
-        json.loads(line)
-        for line in EVENTS.read_text(encoding="utf-8").splitlines()
-        if line
-    ]
+    events = [json.loads(line) for line in EVENTS.read_text(encoding="utf-8").splitlines() if line]
     starts = [event for event in events if event["event"] == "start"]
     completes = [event for event in events if event["event"] == "complete"]
-    if len(starts) != 108 or len(completes) != 108:
-        fail("attestation event counts are not exactly 108 starts and 108 completes")
+    if len(starts) != EXPECTED_RUNS or len(completes) != EXPECTED_RUNS:
+        fail(
+            f"attestation event counts are not exactly {EXPECTED_RUNS} starts "
+            f"and {EXPECTED_RUNS} completes"
+        )
     if [event["run_id"] for event in starts] != expected:
         fail("start attestation order does not match schedule")
-    if [event["sequence_index"] for event in starts] != list(range(1, 109)):
+    if [event["sequence_index"] for event in starts] != list(range(1, EXPECTED_RUNS + 1)):
         fail("start sequence indexes are invalid")
-    if len({event["run_id"] for event in completes}) != 108 or {
+    if len({event["run_id"] for event in completes}) != EXPECTED_RUNS or {
         event["run_id"] for event in completes
     } != set(expected):
         fail("completion attestations are incomplete")
-    if len({event["agent_name"] for event in starts}) != 108:
+    if len({event["agent_name"] for event in starts}) != EXPECTED_RUNS:
         fail("worker agent identities are not unique")
     if not all(
-        event["fresh_session"] is True and event["fork_turns"] == "none"
-        for event in starts
+        event["fresh_session"] is True and event["fork_turns"] == "none" for event in starts
     ):
         fail("fresh-session attestation failed")
     if not all(event["model"] == MODEL for event in starts):
@@ -74,9 +68,7 @@ def main() -> None:
     start_by_run = {event["run_id"]: event for event in starts}
     complete_by_run = {event["run_id"]: event for event in completes}
     tasks = load_tasks()
-    transcript_groups: dict[
-        tuple[str, str, str, str], set[str]
-    ] = defaultdict(set)
+    transcript_groups: dict[tuple[str, str, str, str], set[str]] = defaultdict(set)
     for run_id in expected:
         repetition, arm, task_id = parse_run_id(run_id)
         run_dir = RUNS_ROOT / f"repetition-{repetition}" / arm / task_id
@@ -86,14 +78,13 @@ def main() -> None:
         prompt = (run_dir / "prompt.txt").read_text(encoding="utf-8")
         if prompt != render_prompt(run_id):
             fail(f"{run_id}: prompt rendering drift")
-        if hashlib.sha256(prompt.encode()).hexdigest() != start_by_run[run_id][
-            "prompt_sha256"
-        ]:
+        if hashlib.sha256(prompt.encode()).hexdigest() != start_by_run[run_id]["prompt_sha256"]:
             fail(f"{run_id}: prompt hash mismatch")
         task_prompt = str(tasks[task_id]["prompt"])
-        if hashlib.sha256(task_prompt.encode()).hexdigest() != start_by_run[run_id][
-            "task_prompt_sha256"
-        ]:
+        if (
+            hashlib.sha256(task_prompt.encode()).hexdigest()
+            != start_by_run[run_id]["task_prompt_sha256"]
+        ):
             fail(f"{run_id}: task prompt hash mismatch")
         metadata = json.loads((run_dir / "metadata.json").read_text())
         if metadata != {
@@ -115,6 +106,9 @@ def main() -> None:
             for line in (run_dir / "transcript.jsonl").read_text().splitlines()
             if line
         ]
+        # Restated as literals rather than imported from bench_tool on purpose.
+        # Importing would mean a cap loosened in the harness validates itself,
+        # and the caps are part of the frozen v0.1.0 comparison.
         if len(records) > 25:
             fail(f"{run_id}: call cap exceeded")
         if sum(int(record["result_tokens"]) for record in records) > 60_000:
@@ -127,11 +121,7 @@ def main() -> None:
                 json.dumps(record["args"], sort_keys=True),
             )
             transcript_groups[key].add(result_fingerprint(record))
-    drift = {
-        key: sorted(hashes)
-        for key, hashes in transcript_groups.items()
-        if len(hashes) > 1
-    }
+    drift = {key: sorted(hashes) for key, hashes in transcript_groups.items() if len(hashes) > 1}
     if drift:
         fail(f"determinism drift for identical invocations: {drift}")
     task_bytes = (ROOT / "tasks.json").read_bytes()
@@ -140,14 +130,14 @@ def main() -> None:
     protocol = json.loads((ROOT / "protocol.json").read_text())
     django_commit = subprocess.run(
         ["git", "rev-parse", "HEAD"],
-        cwd=DJANGO,
+        cwd=DJANGO_ROOT,
         check=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
     tool_commit = subprocess.run(
         ["git", "rev-parse", "HEAD"],
-        cwd=ROOT.parent / "agentlens-repo",
+        cwd=REPO_ROOT,
         check=True,
         capture_output=True,
         text=True,
@@ -159,7 +149,10 @@ def main() -> None:
     binary_sha256 = hashlib.sha256(AGENTLENS.read_bytes()).hexdigest()
     if binary_sha256 != protocol["tool"]["binary_sha256"]:
         fail("agentlens binary drift")
-    print("protocol validated: 108 fresh runs, schedule/order, caps, hashes, and determinism")
+    print(
+        f"protocol validated: {EXPECTED_RUNS} fresh runs, "
+        "schedule/order, caps, hashes, and determinism"
+    )
 
 
 if __name__ == "__main__":

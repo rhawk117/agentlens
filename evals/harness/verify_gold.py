@@ -4,14 +4,12 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
-from pathlib import Path
 
 from blake3 import blake3
 
-ROOT = Path(__file__).resolve().parent
+from paths import AGENTLENS, DJANGO_ROOT, ROOT, TASK_COUNT
+
 TASKS_PATH = ROOT / "tasks.json"
-DJANGO_ROOT = ROOT.parent / "django-6.0.7"
-AGENTLENS = ROOT.parent / "agentlens-repo" / "target" / "release" / "agentlens"
 
 
 def fail(message: str) -> None:
@@ -36,8 +34,7 @@ def resolve(entry: dict[str, object]) -> None:
     if not matches:
         fail(f"{address}: resolved without a match")
     if not any(
-        int(match["start_line"]) <= expected_start
-        and int(match["end_line"]) >= expected_end
+        int(match["start_line"]) <= expected_start and int(match["end_line"]) >= expected_end
         for match in matches
     ):
         spans = [(match["start_line"], match["end_line"]) for match in matches]
@@ -57,11 +54,9 @@ def main() -> None:
     data = json.loads(TASKS_PATH.read_text())
     tasks = data["tasks"]
     ids = [task["id"] for task in tasks]
-    if len(tasks) != 18 or len(set(ids)) != 18:
-        fail(f"expected 18 unique tasks, got {len(tasks)} tasks and {len(set(ids))} IDs")
-    if ids != [f"M{i:02d}" for i in range(1, 13)] + [
-        f"L{i:02d}" for i in range(1, 7)
-    ]:
+    if len(tasks) != TASK_COUNT or len(set(ids)) != TASK_COUNT:
+        fail(f"expected {TASK_COUNT} unique tasks, got {len(tasks)} tasks and {len(set(ids))} IDs")
+    if ids != [f"M{i:02d}" for i in range(1, 13)] + [f"L{i:02d}" for i in range(1, 7)]:
         fail(f"unexpected task order: {ids}")
     for task in tasks:
         if task["type"] == "comprehension" and not task["required_facts"]:

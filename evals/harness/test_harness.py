@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import tempfile
 import unittest
@@ -182,6 +183,31 @@ class LineRangeValidationTests(unittest.TestCase):
         validate_linerange("rg", ["-n", "-g", "*.py", "pattern", "django"])
         with self.assertRaises(SystemExit):
             validate_linerange("rg", ["--pre=cat", "pattern", "."])
+
+
+class SubprocessEnvironmentTests(unittest.TestCase):
+    """The measured environment must not depend on who is running the benchmark.
+
+    Inheriting os.environ let RIPGREP_CONFIG_PATH reach `rg` during a smoke
+    test. On this machine the file was absent so rg only warned -- but the
+    warning was captured as tool output and billed as result tokens against a
+    control arm, and on a machine where that config exists it would silently
+    change how the controls search.
+    """
+
+    def test_ripgrep_config_does_not_leak(self) -> None:
+        with mock.patch.dict(os.environ, {"RIPGREP_CONFIG_PATH": "/tmp/attacker"}, clear=False):
+            self.assertNotIn("RIPGREP_CONFIG_PATH", bench_tool.subject_env())
+
+    def test_unrelated_host_variables_do_not_leak(self) -> None:
+        with mock.patch.dict(os.environ, {"AGENTLENS_LOG": "trace"}, clear=False):
+            self.assertNotIn("AGENTLENS_LOG", bench_tool.subject_env())
+
+    def test_path_and_determinism_settings_are_present(self) -> None:
+        env = bench_tool.subject_env()
+        self.assertIn("PATH", env)
+        self.assertEqual(env["NO_COLOR"], "1")
+        self.assertEqual(env["LC_ALL"], "C")
 
 
 class RunIdTests(unittest.TestCase):
