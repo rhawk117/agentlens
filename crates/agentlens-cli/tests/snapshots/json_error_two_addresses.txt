@@ -1,0 +1,16 @@
+$ agentlens slice src/api/users.py#UserService src/cli.py#main --json
+exit: 1
+--- stdout ---
+{
+  "command": "slice",
+  "error": {
+    "kind": "multiple_addresses",
+    "message": "this command takes one address, but got 2: `src/api/users.py#UserService`, `src/cli.py#main`\nrun each address in its own call",
+    "suggestion": null
+  },
+  "exit": 1,
+  "found": false,
+  "schema_version": 1,
+  "tool_version": "0.2.0"
+}
+--- stderr ---

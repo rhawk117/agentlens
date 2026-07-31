@@ -18,6 +18,8 @@ pub enum Error {
     AddressMissingHash(String),
     AddressEmptyPath(String),
     AddressUnresolved(String),
+    /// Several addresses where the command takes exactly one.
+    MultipleAddresses(Vec<String>),
     BadLineSpan(String),
     UnsupportedLanguage(PathBuf),
     UnsupportedFormat(PathBuf),
@@ -43,6 +45,13 @@ impl fmt::Display for Error {
             Self::AddressUnresolved(raw) => write!(
                 f,
                 "cannot read `{raw}` as an address: no file on disk matches its path"
+            ),
+            Self::MultipleAddresses(addresses) => write!(
+                f,
+                "this command takes one address, but got {}: {}\n\
+                 run each address in its own call",
+                addresses.len(),
+                quoted_list(addresses)
             ),
             Self::BadLineSpan(raw) => write!(
                 f,
@@ -84,6 +93,7 @@ impl Error {
             Self::AddressMissingHash(_) => "address_missing_hash",
             Self::AddressEmptyPath(_) => "address_empty_path",
             Self::AddressUnresolved(_) => "address_unresolved",
+            Self::MultipleAddresses(_) => "multiple_addresses",
             Self::BadLineSpan(_) => "bad_line_span",
             Self::UnsupportedLanguage(_) => "unsupported_language",
             Self::UnsupportedFormat(_) => "unsupported_format",
@@ -117,6 +127,7 @@ impl Error {
             Self::AddressMissingHash(_)
             | Self::AddressEmptyPath(_)
             | Self::AddressUnresolved(_)
+            | Self::MultipleAddresses(_)
             | Self::BadLineSpan(_)
             | Self::UnsupportedLanguage(_)
             | Self::UnsupportedFormat(_) => 1,
@@ -134,6 +145,14 @@ impl Error {
 // Unix, "The system cannot find the file specified." on Windows). Snapshot
 // output must be byte-identical across the CI matrix, so map the kind to
 // stable text instead of rendering the raw error.
+fn quoted_list(items: &[String]) -> String {
+    items
+        .iter()
+        .map(|item| format!("`{item}`"))
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
 fn stable_reason(err: &std::io::Error) -> &'static str {
     use std::io::ErrorKind;
     match err.kind() {
@@ -168,6 +187,7 @@ mod tests {
             Error::AddressMissingHash(_)
             | Error::AddressEmptyPath(_)
             | Error::AddressUnresolved(_)
+            | Error::MultipleAddresses(_)
             | Error::BadLineSpan(_)
             | Error::UnsupportedLanguage(_)
             | Error::UnsupportedFormat(_) => 1,
@@ -189,6 +209,7 @@ mod tests {
             Error::AddressMissingHash("raw".to_string()),
             Error::AddressEmptyPath("raw".to_string()),
             Error::AddressUnresolved("raw".to_string()),
+            Error::MultipleAddresses(vec!["a.py#A".to_string(), "b.py#B".to_string()]),
             Error::BadLineSpan("raw".to_string()),
             Error::UnsupportedLanguage(PathBuf::from("f.rb")),
             Error::UnsupportedFormat(PathBuf::from("f.txt")),
@@ -230,6 +251,7 @@ mod tests {
                 "bad_regex",
                 "bad_value",
                 "io",
+                "multiple_addresses",
                 "not_utf8",
                 "parse",
                 "unsupported_format",
