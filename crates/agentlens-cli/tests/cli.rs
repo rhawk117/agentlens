@@ -664,3 +664,89 @@ fn every_overload_is_returned_in_source_order() {
     let last = output.find("(4 of 4)").expect("last");
     assert!(first < last);
 }
+
+/// Isolate the message from the echoed command line, so asserting that a
+/// message names `class` cannot be satisfied by the word appearing in the
+/// arguments the harness prints back.
+fn stderr_of(rendered: &str) -> &str {
+    rendered
+        .split_once("--- stderr ---")
+        .map(|(_, tail)| tail)
+        .expect("rendered run has both streams")
+}
+
+/// One enumerated-value flag: how to invoke it, and every canonical value its
+/// parser accepts.
+struct ValueFlag {
+    /// The command up to and including the flag, without its value.
+    prefix: &'static [&'static str],
+    canonical: &'static [&'static str],
+}
+
+/// Aliases are deliberately absent: the message advertises canonical
+/// spellings only, and this table is the message's contract.
+const VALUE_FLAGS: &[ValueFlag] = &[
+    ValueFlag {
+        prefix: &["map", ".", "--kind"],
+        canonical: &["class", "function", "variable", "all"],
+    },
+    ValueFlag {
+        prefix: &["find", "user", "--kind"],
+        canonical: &["definition", "call", "reference", "any"],
+    },
+    ValueFlag {
+        prefix: &["find", "user", "--context"],
+        canonical: &["symbol", "none"],
+    },
+    ValueFlag {
+        prefix: &["literals", "--kind"],
+        canonical: &["string", "number", "regex", "all"],
+    },
+];
+
+/// The message must name every canonical value its parser accepts.
+///
+/// `map --kind variable` worked, but `variable` was absent from the error, so
+/// a caller who guessed wrong could never discover it. Table-driven because
+/// four near-identical tests drift one at a time.
+#[test]
+fn every_enumerated_flag_advertises_every_value_it_accepts() {
+    for flag in VALUE_FLAGS {
+        let mut args = flag.prefix.to_vec();
+        args.push("definitely-not-a-valid-value");
+        let rendered = run(&args);
+        assert!(
+            rendered.contains("exit: 2"),
+            "{:?} did not reject a bogus value:\n{rendered}",
+            flag.prefix
+        );
+        let message = stderr_of(&rendered);
+        for value in flag.canonical {
+            assert!(
+                message.contains(value),
+                "`{}` accepts `{value}` but its error does not name it:\n{message}",
+                flag.prefix.join(" ")
+            );
+        }
+    }
+}
+
+/// ...and must not advertise anything it rejects.
+///
+/// The pair closes the loop: the message can neither under- nor over-state
+/// the parser without one of these two tests failing.
+#[test]
+fn every_advertised_value_is_actually_accepted() {
+    for flag in VALUE_FLAGS {
+        for value in flag.canonical {
+            let mut args = flag.prefix.to_vec();
+            args.push(value);
+            let rendered = run(&args);
+            assert!(
+                !rendered.contains("exit: 2"),
+                "`{} {value}` is advertised but rejected:\n{rendered}",
+                flag.prefix.join(" ")
+            );
+        }
+    }
+}

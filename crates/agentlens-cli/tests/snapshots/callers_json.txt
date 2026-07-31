@@ -59,6 +59,6 @@ exit: 0
     "signature": "def create_user(self, email: str, name: str) -> User:"
   },
   "tokens": 97,
-  "tool_version": "0.1.0"
+  "tool_version": "0.2.0"
 }
 --- stderr ---

@@ -48,6 +48,6 @@ exit: 0
   },
   "target": ".",
   "tokens": 115,
-  "tool_version": "0.1.0"
+  "tool_version": "0.2.0"
 }
 --- stderr ---

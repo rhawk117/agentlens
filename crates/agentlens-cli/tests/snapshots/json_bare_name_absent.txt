@@ -16,7 +16,7 @@ exit: 1
   "schema_version": 1,
   "target": "nohash",
   "tokens": 26,
-  "tool_version": "0.1.0",
+  "tool_version": "0.2.0",
   "total": 0
 }
 --- stderr ---

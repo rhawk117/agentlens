@@ -29,6 +29,13 @@ pub enum KindFilter {
 }
 
 impl KindFilter {
+    /// The values [`Self::parse`] accepts, as an error message spells them.
+    ///
+    /// Canonical spellings only. The aliases `any`, `func`, `fn` and `var`
+    /// still parse; advertising them would double the message to disclose
+    /// nothing a caller cannot already do.
+    pub const ALLOWED: &'static str = "class, function, variable or all";
+
     pub fn parse(raw: &str) -> Option<Self> {
         match raw {
             "all" | "any" => Some(Self::All),

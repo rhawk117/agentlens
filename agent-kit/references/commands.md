@@ -1,6 +1,6 @@
 # Command reference
 
-Flag surface for both binaries, as of v0.1.0, checked against `--help`.
+Flag surface for both binaries, as of v0.2.0, checked against `--help`.
 
 If a flag here disagrees with the binary, the binary is right: run
 `agentlens <command> --help`, which is always current and costs less than a
