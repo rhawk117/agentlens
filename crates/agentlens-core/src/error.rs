@@ -141,10 +141,6 @@ impl Error {
     }
 }
 
-// The OS error string differs per platform ("No such file or directory" on
-// Unix, "The system cannot find the file specified." on Windows). Snapshot
-// output must be byte-identical across the CI matrix, so map the kind to
-// stable text instead of rendering the raw error.
 fn quoted_list(items: &[String]) -> String {
     items
         .iter()
@@ -153,6 +149,10 @@ fn quoted_list(items: &[String]) -> String {
         .join(", ")
 }
 
+// The OS error string differs per platform ("No such file or directory" on
+// Unix, "The system cannot find the file specified." on Windows). Snapshot
+// output must be byte-identical across the CI matrix, so map the kind to
+// stable text instead of rendering the raw error.
 fn stable_reason(err: &std::io::Error) -> &'static str {
     use std::io::ErrorKind;
     match err.kind() {
