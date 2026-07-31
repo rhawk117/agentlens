@@ -317,7 +317,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
         } => {
             let kind = KindFilter::parse(kind).ok_or_else(|| Error::BadKind {
                 value: kind.clone(),
-                allowed: "class, function or all",
+                allowed: KindFilter::ALLOWED,
             })?;
             let (path, root, coercion) = map_target(target)?;
             let options = map::MapOptions {
@@ -344,11 +344,11 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
         } => {
             let kind = find::OccurrenceFilter::parse(kind).ok_or_else(|| Error::BadKind {
                 value: kind.clone(),
-                allowed: "definition, call, reference or any",
+                allowed: find::OccurrenceFilter::ALLOWED,
             })?;
             let context = find::Context::parse(context).ok_or_else(|| Error::BadKind {
                 value: context.clone(),
-                allowed: "symbol or none",
+                allowed: find::Context::ALLOWED,
             })?;
             let options = find::FindOptions {
                 kind,
@@ -375,7 +375,7 @@ fn dispatch(cli: &Cli) -> Result<Outcome, Error> {
         } => {
             let kind = literals::LiteralFilter::parse(kind).ok_or_else(|| Error::BadKind {
                 value: kind.clone(),
-                allowed: "string, number, regex or all",
+                allowed: literals::LiteralFilter::ALLOWED,
             })?;
             let scope = match scope {
                 Some(raw) => Some(Address::parse(raw)?),

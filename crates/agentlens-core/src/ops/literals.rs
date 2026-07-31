@@ -46,6 +46,10 @@ pub enum LiteralFilter {
 }
 
 impl LiteralFilter {
+    /// The values [`Self::parse`] accepts. Canonical spellings only; `any`,
+    /// `str`, `num` and `re` still parse.
+    pub const ALLOWED: &'static str = "string, number, regex or all";
+
     pub fn parse(raw: &str) -> Option<Self> {
         match raw {
             "all" | "any" => Some(Self::All),

@@ -50,6 +50,12 @@ pub enum OccurrenceFilter {
 }
 
 impl OccurrenceFilter {
+    /// The values [`Self::parse`] accepts; canonical spellings only, as with
+    /// [`crate::symbols::KindFilter::ALLOWED`]. `Comment` and `String`
+    /// occurrences are not filterable here — they arrive via
+    /// `--include-comments` and `--include-strings`.
+    pub const ALLOWED: &'static str = "definition, call, reference or any";
+
     pub fn parse(raw: &str) -> Option<Self> {
         match raw {
             "any" | "all" => Some(Self::Any),
@@ -75,6 +81,9 @@ pub enum Context {
 }
 
 impl Context {
+    /// The values [`Self::parse`] accepts.
+    pub const ALLOWED: &'static str = "symbol or none";
+
     pub fn parse(raw: &str) -> Option<Self> {
         match raw {
             "symbol" => Some(Self::Symbol),
