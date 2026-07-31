@@ -289,6 +289,19 @@ const CASES: &[Case] = &[
         &["slice", "nowhere", "1", "20"],
     ),
     case(
+        "error_two_addresses",
+        &["slice", "src/api/users.py#UserService", "src/cli.py#main"],
+    ),
+    case(
+        "json_error_two_addresses",
+        &[
+            "slice",
+            "src/api/users.py#UserService",
+            "src/cli.py#main",
+            "--json",
+        ],
+    ),
+    case(
         "error_bad_line_span",
         &["slice", "src/api/users.py#L20-L10"],
     ),
