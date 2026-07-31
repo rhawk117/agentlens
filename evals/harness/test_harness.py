@@ -57,6 +57,29 @@ class AddressMatchingTests(unittest.TestCase):
             )
         )
 
+    def test_prose_line_reference_matches(self) -> None:
+        # `L40-L50` and `:40-50` are how agentlens prints an address. An arm
+        # reading with `sed -n '40,50p'` or `cat` has no reason to adopt that
+        # notation and writes what a person writes. Requiring the tool's own
+        # spelling would score the controls down for not sounding like the tool
+        # under test, which is the one thing address matching must never do.
+        for phrasing in (
+            "**django/core/handlers/base.py** (lines 40-50)",
+            "django/core/handlers/base.py, lines 40–50",
+            "django/core/handlers/base.py at line 40",
+            "See django/core/handlers/base.py lines 40 to 50.",
+        ):
+            with self.subTest(phrasing=phrasing):
+                self.assertTrue(address_found(phrasing, GOLD))
+
+    def test_prose_line_reference_outside_the_span_does_not_match(self) -> None:
+        self.assertFalse(address_found("django/core/handlers/base.py (lines 400-450)", GOLD))
+
+    def test_prose_line_word_is_required(self) -> None:
+        # A bare number beside a path is prose, not a citation -- "Django 6.0.7"
+        # and "10 middleware" would both otherwise resolve to a line number.
+        self.assertFalse(address_found("django/core/handlers/base.py defines 40 things", GOLD))
+
 
 class AssertionMatchingTests(unittest.TestCase):
     def test_negated_fact_is_not_asserted(self) -> None:
