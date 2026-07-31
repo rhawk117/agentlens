@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import re
@@ -11,9 +12,16 @@ from typing import Any
 
 from blake3 import blake3
 
-from paths import DJANGO_ROOT, ROOT, RUNS_ROOT
+from matching import fact_satisfied
+from paths import ARMS, DJANGO_ROOT, REPETITIONS, ROOT, RUNS_ROOT
 
 TASKS = json.loads((ROOT / "tasks.json").read_text(encoding="utf-8"))["tasks"]
+# Recorded in every results file. A score is only comparable to another score
+# graded by the same matcher, and v1 and v2 differ by more than 60 points of
+# recall -- quoting one against the other would be meaningless.
+MATCHER_VERSION = 2
+# The arm under test. Every other arm is a control it is compared against.
+REFERENCE_ARM = "agentlens"
 HEDGES = ("might", "possibly", "i'm not sure", "i am not sure", "appears to", "may")
 
 
@@ -111,6 +119,25 @@ def call_retrieves(record: dict[str, Any], arm: str, golds: list[dict[str, Any]]
             return False
         requested = {arg.replace("\\", "/") for arg in args}
         return any(gold["address"].split("#", 1)[0] in requested for gold in golds)
+    if tool == "sed":
+        # Arm C reads a span rather than a file, so retrieval means the span it
+        # asked for overlaps the gold span -- not merely that it named the file.
+        # Without this, every Arm C run would score as never having found
+        # anything and its navigation metric would be uniformly capped.
+        if int(record["exit_code"]) != 0 or not record["stdout"] or len(args) != 3:
+            return False
+        span = re.fullmatch(r"(\d+)(?:,(\d+))?p", args[1])
+        if not span:
+            return False
+        first = int(span.group(1))
+        last = int(span.group(2) or first)
+        requested_path = args[2].replace("\\", "/")
+        return any(
+            gold["address"].split("#", 1)[0] == requested_path
+            and first <= int(gold["end_line"])
+            and last >= int(gold["start_line"])
+            for gold in golds
+        )
     normalized_output_lines = {
         re.sub(r"^.*?(?::\d+)?:", "", line).strip() for line in output.splitlines() if line.strip()
     }
@@ -151,15 +178,7 @@ def grade_run(task: dict[str, Any], arm: str, run_dir: Path) -> dict[str, Any]:
         1.0,
         (len(required_found) + 0.5 * len(supporting_found)) / len(task["required_addresses"]),
     )
-    normalized_answer = normalize(answer)
-    facts_found = [
-        fact["id"]
-        for fact in task["required_facts"]
-        if any(
-            contains_asserted(normalized_answer, normalize(candidate))
-            for candidate in fact["any_of"]
-        )
-    ]
+    facts_found = [fact["id"] for fact in task["required_facts"] if fact_satisfied(answer, fact)]
     fact_score = len(facts_found) / len(task["required_facts"]) if task["required_facts"] else None
     penalty, forbidden_found = forbidden_penalty(answer, task["forbidden_claims"])
     raw = (
@@ -212,6 +231,26 @@ def quartiles(values: list[float]) -> dict[str, float]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Grade a benchmark campaign.")
+    parser.add_argument(
+        "--repetitions",
+        type=int,
+        default=REPETITIONS,
+        help="how many repetitions to grade (v0.1.0 ran 3, v0.2.0 runs 5)",
+    )
+    parser.add_argument(
+        "--arms",
+        nargs="+",
+        default=list(ARMS),
+        help="arms to grade; the v0.1.0 corpus has only agentlens and baseline",
+    )
+    parser.add_argument("--output", default="results.json")
+    options = parser.parse_args()
+    repetitions = range(1, options.repetitions + 1)
+    arms_to_grade = list(options.arms)
+    if REFERENCE_ARM not in arms_to_grade:
+        raise SystemExit(f"{REFERENCE_ARM} must be among the graded arms")
+
     task_bytes = (ROOT / "tasks.json").read_bytes()
     expected_blake3 = (ROOT / "gold.blake3").read_text().split()[0]
     expected_sha256 = (ROOT / "gold.sha256").read_text().split()[0]
@@ -220,8 +259,8 @@ def main() -> None:
     if actual_blake3 != expected_blake3 or actual_sha256 != expected_sha256:
         raise SystemExit(f"gold hash mismatch: blake3={actual_blake3} sha256={actual_sha256}")
     runs: list[dict[str, Any]] = []
-    for repetition in range(1, 4):
-        for arm in ("agentlens", "baseline"):
+    for repetition in repetitions:
+        for arm in arms_to_grade:
             for task in TASKS:
                 run_dir = RUNS_ROOT / f"repetition-{repetition}" / arm / task["id"]
                 graded = grade_run(task, arm, run_dir)
@@ -233,7 +272,7 @@ def main() -> None:
     per_task: list[dict[str, Any]] = []
     for task in TASKS:
         row: dict[str, Any] = {"task_id": task["id"]}
-        for arm in ("agentlens", "baseline"):
+        for arm in arms_to_grade:
             arm_runs = grouped[(arm, task["id"])]
             row[arm] = {
                 "score": quartiles([r["score"] for r in arm_runs]),
@@ -248,8 +287,8 @@ def main() -> None:
             }
         per_task.append(row)
     repetition_metrics: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for arm in ("agentlens", "baseline"):
-        for repetition in range(1, 4):
+    for arm in arms_to_grade:
+        for repetition in repetitions:
             arm_runs = [
                 run for run in runs if run["arm"] == arm and run["repetition"] == repetition
             ]
@@ -272,7 +311,7 @@ def main() -> None:
                 }
             )
     arms: dict[str, Any] = {}
-    for arm in ("agentlens", "baseline"):
+    for arm in arms_to_grade:
         metrics = repetition_metrics[arm]
         arms[arm] = {
             "accuracy": quartiles([metric["accuracy"] for metric in metrics]),
@@ -283,66 +322,87 @@ def main() -> None:
             "repetitions": metrics,
             "capped_runs": sum(metric["capped_runs"] for metric in metrics),
         }
-    head_to_head = {"agentlens_wins": 0, "baseline_wins": 0, "ties": 0}
-    for row in per_task:
-        left = row["agentlens"]["score"]["median"]
-        right = row["baseline"]["score"]["median"]
-        if left > right:
-            head_to_head["agentlens_wins"] += 1
-        elif left < right:
-            head_to_head["baseline_wins"] += 1
-        else:
-            head_to_head["ties"] += 1
-    cost_ratios = [
-        repetition_metrics["agentlens"][index]["cost_tokens_per_point"]
-        / repetition_metrics["baseline"][index]["cost_tokens_per_point"]
-        for index in range(3)
-    ]
-    accuracy_deltas = [
-        repetition_metrics["agentlens"][index]["accuracy"]
-        - repetition_metrics["baseline"][index]["accuracy"]
-        for index in range(3)
-    ]
-    cost_ratio = quartiles(cost_ratios)
-    accuracy_delta = quartiles(accuracy_deltas)
-    failures = {
-        "cost_ratio_at_least_0_5": cost_ratio["median"] >= 0.5,
-        "accuracy_more_than_0_05_below_baseline": accuracy_delta["median"] < -0.05,
-        "loses_more_than_4_tasks": head_to_head["baseline_wins"] > 4,
-    }
+    # agentlens is compared against each control separately. Pooling the
+    # controls would let a weak arm flatter the tool: the whole reason Arm C
+    # exists is that beating Arm B is a lower bar than beating a competent
+    # operator, and an average across the two would hide exactly that.
+    protocol = json.loads((ROOT / "protocol.json").read_text())
+    thresholds = protocol["falsification"]
+    comparisons: dict[str, Any] = {}
+    for control in [arm for arm in arms_to_grade if arm != REFERENCE_ARM]:
+        head_to_head = {"agentlens_wins": 0, "control_wins": 0, "ties": 0}
+        for row in per_task:
+            left = row[REFERENCE_ARM]["score"]["median"]
+            right = row[control]["score"]["median"]
+            if left > right:
+                head_to_head["agentlens_wins"] += 1
+            elif left < right:
+                head_to_head["control_wins"] += 1
+            else:
+                head_to_head["ties"] += 1
+        indices = range(len(repetitions))
+        cost_ratio = quartiles(
+            [
+                repetition_metrics[REFERENCE_ARM][index]["cost_tokens_per_point"]
+                / repetition_metrics[control][index]["cost_tokens_per_point"]
+                for index in indices
+            ]
+        )
+        accuracy_delta = quartiles(
+            [
+                repetition_metrics[REFERENCE_ARM][index]["accuracy"]
+                - repetition_metrics[control][index]["accuracy"]
+                for index in indices
+            ]
+        )
+        limits = thresholds.get(f"vs_{control}", {})
+        failures = {
+            "cost_ratio_too_high": cost_ratio["median"] >= limits["maximum_cost_ratio"],
+            "accuracy_below_control": (
+                accuracy_delta["median"] < -limits["maximum_accuracy_delta_below_arm"]
+            ),
+            "too_many_tasks_lost": (head_to_head["control_wins"] > limits["maximum_tasks_lost"]),
+        }
+        comparisons[control] = {
+            "cost_ratio": cost_ratio,
+            "accuracy_delta": accuracy_delta,
+            "head_to_head": head_to_head,
+            "thresholds": limits,
+            "falsification": failures,
+            "failed": any(failures.values()),
+        }
     result = {
-        "subject": json.loads((ROOT / "protocol.json").read_text())["subject"],
+        "subject": protocol["subject"],
+        "matcher_version": MATCHER_VERSION,
+        "repetitions_graded": list(repetitions),
+        "arms_graded": list(arms_to_grade),
         "gold_blake3": (ROOT / "gold.blake3").read_text().split()[0],
         "gold_sha256": (ROOT / "gold.sha256").read_text().split()[0],
         "arms": arms,
-        "cost_ratio": cost_ratio,
-        "accuracy_delta": accuracy_delta,
-        "head_to_head": head_to_head,
-        "falsification": failures,
-        "benchmark_failed": any(failures.values()),
+        "comparisons": comparisons,
+        "benchmark_failed": any(entry["failed"] for entry in comparisons.values()),
         "per_task": per_task,
         "runs": runs,
     }
-    (ROOT / "results.json").write_text(
+    (ROOT / options.output).write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(
-        json.dumps(
-            {
-                key: result[key]
-                for key in (
-                    "arms",
-                    "cost_ratio",
-                    "accuracy_delta",
-                    "head_to_head",
-                    "falsification",
-                    "benchmark_failed",
-                )
-            },
-            indent=2,
-        )
-    )
+    summary = {
+        "matcher_version": MATCHER_VERSION,
+        "arms": {arm: arms[arm]["accuracy"]["median"] for arm in arms_to_grade},
+        "comparisons": {
+            control: {
+                "cost_ratio": entry["cost_ratio"]["median"],
+                "accuracy_delta": entry["accuracy_delta"]["median"],
+                "head_to_head": entry["head_to_head"],
+                "failed": entry["failed"],
+            }
+            for control, entry in comparisons.items()
+        },
+        "benchmark_failed": result["benchmark_failed"],
+    }
+    print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

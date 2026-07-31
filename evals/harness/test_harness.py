@@ -10,6 +10,7 @@ from unittest import mock
 import bench_tool
 from bench_tool import cap_result, parse_run_id, validate_baseline, validate_linerange
 from grade import address_found, contains_asserted
+from matching import phrase_matches
 
 GOLD = {
     "address": "django/core/handlers/base.py#BaseHandler.load_middleware",
@@ -183,6 +184,87 @@ class LineRangeValidationTests(unittest.TestCase):
         validate_linerange("rg", ["-n", "-g", "*.py", "pattern", "django"])
         with self.assertRaises(SystemExit):
             validate_linerange("rg", ["--pre=cat", "pattern", "."])
+
+
+class FactMatcherTests(unittest.TestCase):
+    """Each case is a real v0.1.0 miss, or a false positive that must stay out."""
+
+    def test_identifier_assignment_matches_prose(self) -> None:
+        self.assertTrue(
+            phrase_matches(
+                "The defaults are `sync_capable=True` and `async_capable=False`.",
+                "sync_capable defaults to true",
+            )
+        )
+
+    def test_interposed_words_do_not_break_the_match(self) -> None:
+        self.assertTrue(
+            phrase_matches("Hooks run in reverse MIDDLEWARE order.", "run in reverse order")
+        )
+
+    def test_inflection_differences_match(self) -> None:
+        self.assertTrue(
+            phrase_matches(
+                "tells Django to omit that middleware and continue loading the rest",
+                "continues loading",
+            )
+        )
+
+    def test_comparative_synonyms_match(self) -> None:
+        self.assertTrue(
+            phrase_matches(
+                "skipped when the compressed content is not smaller than the original",
+                "compressed content is not shorter",
+            )
+        )
+
+    def test_paraphrase_without_shared_nouns_is_not_matched(self) -> None:
+        """A documented limit, asserted so it cannot regress silently.
+
+        Gold wants "compressed content is not shorter"; a v0.1.0 answer said
+        "the gzip result is not smaller than the original". Those are the same
+        claim, but they share no content noun, and the only way to join them is
+        to stop requiring the nouns -- which is precisely what would let
+        unrelated sentences satisfy arbitrary facts. The matcher accepts the
+        miss rather than buy recall with false positives.
+        """
+        self.assertFalse(
+            phrase_matches(
+                "skipped when the gzip result is not smaller than the original",
+                "compressed content is not shorter",
+            )
+        )
+
+    def test_negation_parity_blocks_a_reversed_claim(self) -> None:
+        # The whole point of tracking negation: an answer saying the opposite
+        # must not satisfy the fact just because it shares the same words.
+        self.assertFalse(
+            phrase_matches("GZipMiddleware does not skip compression here.", "skips compression")
+        )
+
+    def test_a_negated_fact_needs_the_negation(self) -> None:
+        self.assertFalse(
+            phrase_matches("the compressed content is shorter", "compressed content is not shorter")
+        )
+
+    def test_unrelated_answer_does_not_match(self) -> None:
+        self.assertFalse(
+            phrase_matches(
+                "CommonMiddleware appends a slash and redirects permanently.",
+                "sync_capable defaults to true",
+            )
+        )
+
+    def test_tokens_scattered_across_the_answer_do_not_match(self) -> None:
+        # Every required token is present, but spread far apart and about
+        # different things. A window that matched this would manufacture facts.
+        scattered = (
+            "The response is compressed by GZipMiddleware. " + "Filler sentence. " * 40
+        ) + "A shorter path is not taken by the resolver."
+        self.assertFalse(phrase_matches(scattered, "compressed content is not shorter"))
+
+    def test_empty_phrase_never_matches(self) -> None:
+        self.assertFalse(phrase_matches("anything at all", "  "))
 
 
 class SubprocessEnvironmentTests(unittest.TestCase):
