@@ -84,6 +84,6 @@ exit: 0
     "lines": 17
   },
   "tokens": 189,
-  "tool_version": "0.1.0"
+  "tool_version": "0.2.0"
 }
 --- stderr ---

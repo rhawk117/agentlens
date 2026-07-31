@@ -51,7 +51,7 @@ exit: 0
     "matches": 3
   },
   "tokens": 36,
-  "tool_version": "0.1.0",
+  "tool_version": "0.2.0",
   "truncated": false
 }
 --- stderr ---

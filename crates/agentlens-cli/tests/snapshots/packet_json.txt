@@ -24,7 +24,7 @@ exit: 0
     "start_line": 9
   },
   "tokens": 52,
-  "tool_version": "0.1.0",
+  "tool_version": "0.2.0",
   "types": []
 }
 --- stderr ---
