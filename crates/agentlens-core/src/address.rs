@@ -77,7 +77,7 @@ impl Address {
             return Ok((address, Some(coercion)));
         }
         if !extra.is_empty() {
-            return Err(Error::AddressUnresolved(joined(raw, extra)));
+            return Err(unresolved_or_multiple(raw, extra));
         }
         strict.map(|address| (address, None))
     }
@@ -121,6 +121,30 @@ fn joined(raw: &str, extra: &[String]) -> String {
         return raw.to_string();
     }
     format!("{raw} {}", extra.join(" "))
+}
+
+// `slice a.py#Foo b.py#Bar` is not one mistyped address, it is two. Blaming
+// the joined path sends the caller hunting for a file that was never meant to
+// exist; the variadic is here for coercion, not for batching.
+fn unresolved_or_multiple(raw: &str, extra: &[String]) -> Error {
+    if extra.iter().any(|arg| looks_like_an_address(arg)) {
+        let mut addresses = Vec::with_capacity(extra.len() + 1);
+        addresses.push(raw.to_string());
+        addresses.extend(extra.iter().cloned());
+        return Error::MultipleAddresses(addresses);
+    }
+    Error::AddressUnresolved(joined(raw, extra))
+}
+
+// Only ever consulted after `coerce` has already failed, so it cannot turn a
+// working rewrite into an error.
+//
+// `#` is the address grammar's own separator and no selector may carry one:
+// `bare_symbol` rejects it outright and the line rules parse integers. A path
+// that is on disk is the same story from the other side — a selector names
+// something inside a file, never a file.
+fn looks_like_an_address(text: &str) -> bool {
+    text.contains('#') || Path::new(text).is_file()
 }
 
 // Every rule below ends in an is_file() check, so a rewrite can only ever
@@ -343,6 +367,41 @@ mod tests {
     fn lenient(raw: &str, extra: &[&str]) -> (Address, Option<Coercion>) {
         let extra: Vec<String> = extra.iter().map(|part| (*part).to_string()).collect();
         Address::parse_lenient(raw, &extra).expect("coerces")
+    }
+
+    #[test]
+    fn two_addresses_are_reported_as_two_addresses() {
+        let error = Address::parse_lenient("a.py#Foo", &["b.py#Bar".to_string()])
+            .expect_err("one address per call");
+        let Error::MultipleAddresses(addresses) = &error else {
+            panic!("blamed the path instead of the arity: {error}");
+        };
+        assert_eq!(addresses, &["a.py#Foo".to_string(), "b.py#Bar".to_string()]);
+    }
+
+    #[test]
+    fn a_real_file_after_an_address_is_a_second_address() {
+        let scratch = Scratch::new("two-files");
+        let error = Address::parse_lenient("a.py#Foo", &[scratch.file()])
+            .expect_err("one address per call");
+        assert!(matches!(error, Error::MultipleAddresses(_)));
+    }
+
+    #[test]
+    fn selector_shaped_extras_still_report_an_unresolved_path() {
+        let error = Address::parse_lenient("absent.py", &["1".to_string(), "120".to_string()])
+            .expect_err("no file, no coercion");
+        assert!(
+            matches!(error, Error::AddressUnresolved(_)),
+            "a line range is not a second address"
+        );
+    }
+
+    #[test]
+    fn lenient_coerces_a_single_positional_line() {
+        let scratch = Scratch::new("positional-line");
+        let (address, _) = lenient(&scratch.file(), &["42"]);
+        assert_eq!(address.selector, Selector::Lines(42, 42));
     }
 
     #[test]

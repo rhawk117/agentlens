@@ -1,0 +1,6 @@
+$ agentlens slice src/api/users.py#UserService src/cli.py#main
+exit: 1
+--- stdout ---
+--- stderr ---
+agentlens: this command takes one address, but got 2: `src/api/users.py#UserService`, `src/cli.py#main`
+run each address in its own call
