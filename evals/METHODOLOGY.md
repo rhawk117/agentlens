@@ -1,6 +1,7 @@
 # agentlens benchmark — Django middleware (v2)
 
-**Status: current specification. Pre-registered before the v0.2.0 run.**
+**Status: current specification. Pre-registered before the v0.2.0 run, with one
+post-hoc deviation recorded in §6 (the campaign ran 3 repetitions, not 5).**
 
 This is the single source of truth for how the benchmark is run and scored.
 Two earlier documents describe the v0.1.0 campaign and are superseded:
@@ -238,8 +239,11 @@ Head-to-head  = per-task count of score_A greater than / less than / equal to co
 Cost divides by *points earned*, not tasks attempted. An arm that saves tokens
 by answering nothing gets no credit.
 
-Campaigns are compared as **per-repetition medians, never pooled**. v0.1.0 has
-3 repetitions and v0.2.0 has 5; pooling would weight them unequally.
+Campaigns are compared as **per-repetition medians, never pooled**. Both
+campaigns ran 3 repetitions (see the §6 deviation), so pooling would happen to
+weight them equally here — the medians are still what gets reported, because
+the equality is an accident of the truncation rather than a property of the
+design.
 
 ---
 
@@ -266,9 +270,30 @@ first. On cap the task is scored on whatever the arm produced and flagged
 A cap is a result, not a discard. Caps are unchanged from v1 and are part of
 the frozen comparison.
 
-**Repetitions.** 5 independent runs per task per arm — 18 × 3 × 5 = **270
-sessions** — each a fresh session with no memory across tasks. Report median
-and interquartile range. Single-run agent benchmarks are noise.
+**Repetitions.** Pre-registered at 5 independent runs per task per arm —
+18 × 3 × 5 = 270 sessions — each a fresh session with no memory across tasks.
+Report median and interquartile range. Single-run agent benchmarks are noise.
+
+> **Deviation: the campaign executed 3 repetitions, not 5.** On 2026-07-30,
+> after repetition 3 completed, the operator stopped the campaign — *"No more
+> repitions this is way too expensive"*. The executed campaign is **162 runs**
+> (3 × 3 × 18).
+>
+> Three facts make this auditable rather than a rewrite of the
+> pre-registration. **Nothing had been graded when the decision was made**: no
+> score, cost ratio or verdict existed for any of the 162 runs, so the cut
+> cannot have been informed by how the results were trending. **The decision
+> was the operator's and its stated reason was cost**, not a result. And
+> `schedule.json` still carries all 5 repetitions with repetitions 4 and 5
+> unexecuted, so the pre-registered plan is still readable next to what was
+> done; `protocol.json` records `repetitions_scheduled: 5` and
+> `repetitions_executed: 3` as separate fields for the same reason.
+>
+> The cost is statistical, and it is real: 3 repetitions give a weaker estimate
+> of run-to-run variance than 5, and an IQR over 3 points is a crude interval.
+> Results are reported with that caveat rather than with the precision 5
+> repetitions would have supported. One incidental benefit — with 3 arms
+> rotating over 3 repetitions, each arm led the schedule exactly once.
 
 **Randomisation.** Task order is shuffled per repetition from a recorded seed
 (`20260730`), and arm order is rotated by repetition rather than alternated,
@@ -317,7 +342,7 @@ described in §7.1.
 
 **5. No agentlens self-measurement.** External tokenizer, external grader.
 
-**6. Raw transcripts retained** for all 270 runs, so any published number can
+**6. Raw transcripts retained** for all 162 runs, so any published number can
 be audited back to the tool calls that produced it.
 
 **7. Author bias, disclosed.** Tasks derive from Django's own documentation
@@ -398,6 +423,7 @@ with all three caveats attached rather than as a clean before/after.
 | **Worker model pinned but unproven** | §7.2. Dispatch configuration is recorded; there is no runtime receipt. |
 | **v0.1.0 ran under a leaked environment** | `RIPGREP_CONFIG_PATH` from the operator's shell reached measured commands and its warning output was billed to a control arm. v0.1.0's published cost figures are therefore slightly *favourable to agentlens* and should be treated as provisional. v0.2.0 uses an environment allowlist. |
 | **v0.1.0 used a different worker model** | Cross-campaign deltas confound tool version with model. |
+| **3 repetitions, not the pre-registered 5** | §6. Variance is estimated from 3 points per cell, so intervals are crude and a single anomalous repetition moves a median more than it should. Stopped for cost, by the operator, before any grading — but a reader cannot verify a negative, so the ordering evidence is what is offered: the grader had not been run, and `schedule.json` still shows the unexecuted repetitions. |
 
 The v1 threat **"no line-range baseline"** is retired: Arm C now exists, and
 the measured advantage is no longer an upper bound taken against the weaker
@@ -416,10 +442,10 @@ control alone.
    transcripts by hand: arm isolation held, token counts non-zero and
    plausible, `submit` wrote `answer.txt`. Do not launch the campaign until
    this passes.
-4. Execute 270 runs in schedule order, batched by repetition. Runs are
+4. Execute the campaign in schedule order, batched by repetition. Runs are
    resumable: an existing `answer.txt` means complete and is skipped, never
    redone.
-5. Run leak detection over all 270. Quarantine and re-run anything flagged.
+5. Run leak detection over every completed run. Quarantine and re-run anything flagged.
 6. Grade mechanically. Re-grade the frozen v0.1.0 transcripts with the same v2
    matcher.
 7. Publish `EVAL_RESULTS_0_2_0.md`: verdict against every pre-registered
@@ -433,7 +459,7 @@ control alone.
 uv sync --directory evals/harness
 
 uv run --directory evals/harness python verify_gold.py       # hard gate
-uv run --directory evals/harness python validate_protocol.py # 270 attestations
+uv run --directory evals/harness python validate_protocol.py # 162 attestations
 uv run --directory evals/harness python -m unittest discover # harness + gate tests
 uv run --directory evals/harness python plan_runs.py --status
 uv run --directory evals/harness python detect_leaks.py

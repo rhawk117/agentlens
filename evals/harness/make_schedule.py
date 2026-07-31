@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 import random
 
-from paths import ARMS, REPETITIONS, ROOT
+from paths import ARMS, REPETITIONS_SCHEDULED, ROOT
 
 # Recorded, not derived: the campaign is reproducible only if these are fixed.
 BASE_SEED = 20260730
@@ -43,13 +43,13 @@ def main() -> None:
     schedule = {
         "generator": "make_schedule.py",
         "base_seed": BASE_SEED,
-        "schedule": [schedule_for(index) for index in range(1, REPETITIONS + 1)],
+        "schedule": [schedule_for(index) for index in range(1, REPETITIONS_SCHEDULED + 1)],
     }
     path = ROOT / "schedule.json"
     path.write_text(json.dumps(schedule, indent=2) + "\n", encoding="utf-8")
-    runs = REPETITIONS * len(TASK_IDS) * len(ARMS)
+    runs = REPETITIONS_SCHEDULED * len(TASK_IDS) * len(ARMS)
     print(
-        f"wrote {path.name}: {REPETITIONS} repetitions"
+        f"wrote {path.name}: {REPETITIONS_SCHEDULED} repetitions"
         f" x {len(TASK_IDS)} tasks x {len(ARMS)} arms = {runs} runs"
     )
 

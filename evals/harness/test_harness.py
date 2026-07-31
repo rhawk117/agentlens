@@ -410,12 +410,20 @@ class LeakDetectionTests(unittest.TestCase):
 
 
 class RunIdTests(unittest.TestCase):
-    def test_five_repetitions_are_accepted(self) -> None:
-        self.assertEqual(parse_run_id("r5-linerange-M01"), (5, "linerange", "M01"))
+    def test_every_executed_repetition_is_accepted(self) -> None:
+        self.assertEqual(parse_run_id("r3-linerange-M01"), (3, "linerange", "M01"))
 
-    def test_sixth_repetition_is_rejected(self) -> None:
-        with self.assertRaises(SystemExit):
-            parse_run_id("r6-agentlens-M01")
+    def test_a_scheduled_but_unexecuted_repetition_is_rejected(self) -> None:
+        """The wrapper bounds itself by what ran, not by what was scheduled.
+
+        schedule.json still lists repetitions 4 and 5; the campaign stopped at
+        3. Accepting `r4-...` here would let a stray dispatch spend a session
+        on a repetition no published number covers, and the resulting run would
+        look legitimate on disk.
+        """
+        for run_id in ("r4-agentlens-M01", "r5-agentlens-M01", "r6-agentlens-M01"):
+            with self.subTest(run_id=run_id), self.assertRaises(SystemExit):
+                parse_run_id(run_id)
 
     def test_unknown_arm_is_rejected(self) -> None:
         with self.assertRaises(SystemExit):

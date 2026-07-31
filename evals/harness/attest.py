@@ -6,6 +6,7 @@ import json
 import sys
 
 from paths import ROOT, RUNS_ROOT
+from plan_runs import scheduled_runs
 
 # v0.1.0's attestations are frozen in attestations_v1.jsonl. A new campaign
 # writes its own file: appending would let the two runs' event counts and
@@ -44,13 +45,7 @@ def load_tasks() -> dict[str, dict[str, object]]:
 
 
 def expected_runs() -> list[str]:
-    schedule = json.loads((ROOT / "schedule.json").read_text())["schedule"]
-    runs: list[str] = []
-    for repetition in schedule:
-        for task_id in repetition["task_order"]:
-            for arm in repetition["arm_order"]:
-                runs.append(f"r{repetition['repetition']}-{arm}-{task_id}")
-    return runs
+    return scheduled_runs()
 
 
 def parse_run_id(run_id: str) -> tuple[int, str, str]:

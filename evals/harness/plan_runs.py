@@ -22,14 +22,21 @@ from __future__ import annotations
 import argparse
 import json
 
-from paths import ARMS, EXPECTED_RUNS, ROOT, RUNS_ROOT
+from paths import ARMS, EXPECTED_RUNS, REPETITIONS, ROOT, RUNS_ROOT
 
 
 def scheduled_runs() -> list[str]:
-    """Every run ID, in the order the schedule says to execute them."""
+    """Every run ID of the executed campaign, in the order the schedule gives.
+
+    schedule.json still carries the pre-registered repetitions 4 and 5. They
+    were never executed, so they are truncated here rather than deleted there:
+    the file stays as pre-registered, and every consumer -- the driver, the
+    leak detector, the protocol validator -- agrees on the same boundary
+    because they all read this one function.
+    """
     schedule = json.loads((ROOT / "schedule.json").read_text(encoding="utf-8"))["schedule"]
     runs: list[str] = []
-    for repetition in schedule:
+    for repetition in schedule[:REPETITIONS]:
         for task_id in repetition["task_order"]:
             for arm in repetition["arm_order"]:
                 runs.append(f"r{repetition['repetition']}-{arm}-{task_id}")

@@ -36,6 +36,17 @@ RUNS_ROOT = Path(os.environ.get("BENCH_RUNS_ROOT", REPO_ROOT / ".eval" / "runs_v
 RUNS_ROOT_V1 = REPO_ROOT / ".eval" / "runs_v1"
 
 TASK_COUNT = 18
-REPETITIONS = 5
 ARMS = ("agentlens", "baseline", "linerange")
+
+# The schedule was pre-registered for 5 repetitions and is generated from that
+# number, so it stays at 5: regenerating it to 3 would rewrite the
+# pre-registration to match the outcome, which is the one edit a benchmark
+# author must never make.
+REPETITIONS_SCHEDULED = 5
+# What the campaign actually executed. Cut from 5 to 3 on 2026-07-30 at the
+# user's instruction -- "No more repitions this is way too expensive" -- after
+# repetition 3 finished and *before* anything was graded. The truncation is a
+# cost decision, not a result-driven one; §6 of METHODOLOGY.md records it.
+# Repetitions 4 and 5 remain in schedule.json, unexecuted and reported as such.
+REPETITIONS = 3
 EXPECTED_RUNS = TASK_COUNT * REPETITIONS * len(ARMS)
