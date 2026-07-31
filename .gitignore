@@ -28,7 +28,11 @@ __pycache__/
 # frozen task and gold inputs, and the graded results all live in evals/harness/
 # and are committed -- reviewing a published number means reading the code that
 # produced it, so only the bulk transcripts stay out.
-.eval/runs/
+#
+# Match the directory, not one name inside it: campaigns live in runs_v1/ and
+# runs_v2/, which the old `.eval/runs/` pattern stopped matching the moment the
+# corpora were split per campaign, leaving 13 MB showing up as untracked.
+.eval/
 
 # Staged phase snapshot and loop scratchpad. Never committed: the migration
 # copies source OUT of here, and the zip itself must not land in a phase PR.
