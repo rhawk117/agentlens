@@ -379,6 +379,35 @@ class LeakDetectionTests(unittest.TestCase):
         (directory / "transcript.jsonl").write_text("", encoding="utf-8")
         self.assertIsNone(detect_leaks.unsupported_citations("r1-agentlens-M04"))
 
+    def test_an_uncapped_run_citing_unseen_evidence_is_a_breach(self) -> None:
+        self.write(
+            "r1-agentlens-M05",
+            "See django/core/handlers/base.py",
+            [{"stdout": "django/urls/resolvers.py:12: other", "stderr": "", "args": []}],
+        )
+        self.assertEqual(detect_leaks.classify("r1-agentlens-M05"), "breach")
+
+    def test_a_capped_run_citing_unseen_evidence_is_only_memorisation(self) -> None:
+        # The harness tells a capped worker to answer with what it has, so a
+        # citation it could not retrieve is the cap talking, not a bypass --
+        # and the gate makes an unmetered read impossible either way.
+        self.write(
+            "r1-agentlens-M06",
+            "See django/core/handlers/base.py",
+            [{"stdout": "django/urls/resolvers.py:12: other", "stderr": "", "args": []}],
+        )
+        (self.run_directory("r1-agentlens-M06") / "capped").touch()
+        self.assertEqual(detect_leaks.classify("r1-agentlens-M06"), "memorisation")
+
+    def test_a_capped_run_that_cites_only_what_it_saw_is_clean(self) -> None:
+        self.write(
+            "r1-agentlens-M08",
+            "See django/urls/resolvers.py",
+            [{"stdout": "django/urls/resolvers.py:12: other", "stderr": "", "args": []}],
+        )
+        (self.run_directory("r1-agentlens-M08") / "capped").touch()
+        self.assertEqual(detect_leaks.classify("r1-agentlens-M08"), "clean")
+
 
 class RunIdTests(unittest.TestCase):
     def test_five_repetitions_are_accepted(self) -> None:

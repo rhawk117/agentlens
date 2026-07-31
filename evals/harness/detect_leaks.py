@@ -63,39 +63,74 @@ def unsupported_citations(run_id: str) -> list[str] | None:
     return sorted(path for path in cited if path not in transcript)
 
 
+def classify(run_id: str) -> str | None:
+    """ "clean", "memorisation", "breach", or None if the run has no answer.
+
+    The two flagged classes need different remedies, and collapsing them gets
+    one of the two wrong.
+
+    A run that still had budget and cited a file it never retrieved is a
+    **breach**: something reached the subject outside the wrapper, or the model
+    answered from its own memory of Django while it could still have looked.
+    That contaminates the token cost, so the run is quarantined and re-run.
+
+    A **capped** run is a different animal. The harness stops it and its own
+    prompt tells it to submit the best answer available, so an unretrieved
+    citation is the cap talking rather than a bypass -- and with the gate in
+    place there was no unmetered read available to it. Re-running it would not
+    remove the memorisation; it would just re-roll a hard task until the answer
+    changed. That is reported, not re-rolled.
+    """
+    leaks = unsupported_citations(run_id)
+    if leaks is None:
+        return None
+    if not leaks:
+        return "clean"
+    return "memorisation" if (run_directory(run_id) / "capped").exists() else "breach"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--quarantine", action="store_true", help="write quarantine.json")
     options = parser.parse_args()
 
-    quarantined: dict[str, list[str]] = {}
+    flagged: dict[str, dict[str, object]] = {}
     checked = 0
     for run_id in scheduled_runs():
-        leaks = unsupported_citations(run_id)
-        if leaks is None:
+        verdict = classify(run_id)
+        if verdict is None:
             continue
         checked += 1
-        if leaks:
-            quarantined[run_id] = leaks
+        if verdict != "clean":
+            flagged[run_id] = {"class": verdict, "paths": unsupported_citations(run_id)}
+
+    breaches = {r: d for r, d in flagged.items() if d["class"] == "breach"}
+    memorised = {r: d for r, d in flagged.items() if d["class"] == "memorisation"}
 
     print(f"checked {checked} completed runs")
-    if not quarantined:
-        print("no run cites evidence absent from its own transcript")
-        return
+    for label, group in (("BREACH", breaches), ("MEMORISATION (capped)", memorised)):
+        if not group:
+            continue
+        print(f"{label}: {len(group)} run(s)")
+        for run_id, detail in sorted(group.items()):
+            print(f"  {run_id}: {', '.join(detail['paths'])}")
+        by_arm = {arm: sum(1 for r in group if r.split("-", 2)[1] == arm) for arm in ARMS}
+        print(f"  by arm: {by_arm}")
 
-    print(f"QUARANTINE {len(quarantined)} run(s):")
-    for run_id, paths in sorted(quarantined.items()):
-        print(f"  {run_id}: {', '.join(paths)}")
-    by_arm = {arm: sum(1 for r in quarantined if r.split("-", 2)[1] == arm) for arm in ARMS}
-    print(f"by arm: {by_arm}")
+    if not flagged:
+        print("no run cites evidence absent from its own transcript")
 
     if options.quarantine:
         (ROOT / "quarantine.json").write_text(
-            json.dumps(quarantined, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            json.dumps(flagged, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
         print("wrote quarantine.json")
-    # Non-zero so a driver script stops rather than grading contaminated runs.
-    raise SystemExit(1)
+
+    # Only a breach stops the driver. Capped memorisation is published alongside
+    # the results instead, because re-running it is indistinguishable from
+    # re-rolling until the tool under test looks better.
+    if breaches:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
