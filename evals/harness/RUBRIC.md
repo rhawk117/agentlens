@@ -1,6 +1,24 @@
 # agentlens benchmark — Django middleware
 
-**Status: DRAFT FOR APPROVAL. Nothing has been run.**
+> **Superseded. This is the frozen v1 record — do not edit it.**
+>
+> This document is the pre-registration for the **v0.1.0** campaign, written
+> before that campaign ran. It is kept unedited so the v0.1.0 results remain
+> auditable against the specification they were produced under, including the
+> parts that were still open questions at the time.
+>
+> It is **not** an accurate description of how the benchmark runs today. It
+> describes two arms, three repetitions, an unpinned commit and unverified
+> gold. The current specification — three arms, five repetitions, the pinned
+> commit, verified gold, matcher v2 and enforced worker isolation — is
+> [`evals/METHODOLOGY.md`](../METHODOLOGY.md).
+>
+> Two notes for anyone reading the v0.1.0 numbers against this text. Gold *was*
+> verified against the pinned commit before that campaign ran, despite the
+> DRAFT markings below; and the open questions in §10 were all answered, in
+> §1.1 and §3 of the current specification.
+
+**Status: superseded by evals/METHODOLOGY.md. Frozen v1 pre-registration.**
 
 Gold answers below are drafted from knowledge of Django's middleware architecture
 and are marked unverified. Verification against the pinned commit is step 0 of the
