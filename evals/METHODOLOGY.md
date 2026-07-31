@@ -101,9 +101,15 @@ number is quoted anywhere."* v0.1.0 came out at 0.1706, so Arm C is owed.
 plus an option, and the arms stop being distinct. Removing whole-file reads is
 what makes it a separate strategy rather than a superset.
 
-Arm A's index cache is warmed once before the run. Warm cache is the realistic
-steady-state condition; the cold build cost is measured separately and reported
-as a footnote so anyone can adjust the headline number for it.
+Arm A's index cache is warmed once before the run, and the cold build cost is
+measured and recorded in `protocol.json` so anyone can adjust for it.
+
+Only `callers` and `dead` read or write the index; `map`, `find`, `slice`,
+`literals` and `packet` parse on demand and are unaffected by cache state. More
+to the point, **warming changes latency and never output** — the cold and warm
+probes produce byte-identical results — so the token cost this benchmark reports
+does not depend on cache state at all. Warming is done for realism, not because
+the measurement needs it.
 
 ### 3.1 The sed validator
 
@@ -374,7 +380,7 @@ with all three caveats attached rather than as a clean before/after.
 | **Author-written gold** | See §7.7. Mitigated by documentation-derived tasks and per-task `source_of_truth`, not eliminated. |
 | **Baseline prompt quality** | How well Arms B and C are instructed materially changes their cost. Both prompts are written to be genuinely competent and are published verbatim. |
 | **Whole-file size drives Arm B's cost** | `django/core/handlers/base.py` is large; a repo of small files would narrow the gap. File sizes touched are reported alongside totals. |
-| **Warm cache** | Arm A runs warm. Cold-build cost is reported as a footnote so the headline can be adjusted. |
+| **Warm cache** | Arm A runs warm, but cache state changes latency only — cold and warm output is byte-identical, so it cannot move the token cost. Cold-build cost is recorded regardless. |
 | **Matcher changed between campaigns** | Both fact matching (§5.3) and address matching (§5.2) changed. v1 and v2 scores are not interchangeable. v0.1.0 is re-graded under v2 and reported under both, and the per-arm recall change is published (§7.3). Both changes were made before any v0.2.0 number existed, and the address change corrects a bias that favoured agentlens. |
 | **Worker model pinned but unproven** | §7.2. Dispatch configuration is recorded; there is no runtime receipt. |
 | **v0.1.0 ran under a leaked environment** | `RIPGREP_CONFIG_PATH` from the operator's shell reached measured commands and its warning output was billed to a control arm. v0.1.0's published cost figures are therefore slightly *favourable to agentlens* and should be treated as provisional. v0.2.0 uses an environment allowlist. |

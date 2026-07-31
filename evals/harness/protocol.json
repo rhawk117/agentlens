@@ -8,14 +8,28 @@
   },
   "tool": {
     "repository": "rhawk117/agentlens",
-    "commit": "PENDING: set to the dev commit the release binary is built from, immediately before the run",
+    "commit": "61ba0258821dcce46f7aa99617385fa88752eb4c",
     "version": "0.2.0",
-    "binary_sha256": "PENDING: recorded at build time, immediately before the run"
+    "binary_sha256": "77f8981529daafd1bd2263cc0adc1dd36f91d055cd819bbe6c9a2faaecdff5b4"
   },
   "arms": {
-    "agentlens": ["slice", "map", "find", "literals", "callers", "packet", "dead"],
-    "baseline": ["rg", "cat"],
-    "linerange": ["rg", "sed"]
+    "agentlens": [
+      "slice",
+      "map",
+      "find",
+      "literals",
+      "callers",
+      "packet",
+      "dead"
+    ],
+    "baseline": [
+      "rg",
+      "cat"
+    ],
+    "linerange": [
+      "rg",
+      "sed"
+    ]
   },
   "arm_notes": {
     "baseline": "Whole-file reads. The weaker of the two controls, kept for comparability with v0.1.0.",
@@ -32,7 +46,7 @@
     "agentlens": "warm",
     "baseline": "filesystem cache uncontrolled",
     "linerange": "filesystem cache uncontrolled",
-    "measured_at_version": "PENDING: re-measure against 0.2.0 before the run",
+    "measured_at_version": "0.2.0",
     "v0_1_0_reference": {
       "cold_index_build": {
         "elapsed_seconds": 0.631,
@@ -43,6 +57,23 @@
         "elapsed_seconds": 0.295,
         "byte_identical_output": true
       }
+    },
+    "index_backed_commands": [
+      "callers",
+      "dead"
+    ],
+    "note": "Only callers and dead read or write .agentlens-cache. map, find, slice, literals and packet parse on demand and are unaffected by cache state. Warming changes latency, never output: the cold and warm runs below are byte-identical, so the token cost this benchmark reports does not depend on cache state.",
+    "v0_2_0": {
+      "cold_index_build": {
+        "elapsed_seconds": 1.019,
+        "tool_result_tokens": 100,
+        "cache_size_bytes_approx": 43163814
+      },
+      "warm_repeat": {
+        "elapsed_seconds": 0.545,
+        "byte_identical_output": true
+      },
+      "probe_command": "agentlens callers process_template_response"
     }
   },
   "falsification": {
