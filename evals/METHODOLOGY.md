@@ -346,9 +346,22 @@ reads what happened rather than what was supposed to. Every repo-relative
 source path an answer cites must appear somewhere in that run's own captured
 tool output. An answer naming a file the run never retrieved either came from
 the model's prior knowledge of Django — which is memorisation, not navigation —
-or from an unmetered read. Flagged runs are **quarantined and re-run, and the
-quarantine count is published**; silently dropping runs would bias the sample
-toward whatever the tool happens to be good at.
+or from an unmetered read.
+
+Flagged runs split into two classes, because they need different remedies:
+
+- **Breach** — the run still had budget and cited a file it never retrieved.
+  Quarantined and re-run, and the count published.
+- **Memorisation under cap** — the run hit the 25-call or 60k-token cap, and
+  its own prompt then told it to submit the best answer available. An
+  unretrieved citation here is the cap talking, not a bypass; with the gate in
+  place there was no unmetered read on offer. **Reported and retained, not
+  re-run.** Re-running a capped run is indistinguishable from re-rolling a hard
+  task until the tool under test looks better — which matters most precisely
+  when the flagged run is in Arm A, as it is in this campaign.
+
+Silently dropping either class would bias the sample toward whatever the tool
+happens to be good at, so both counts are published per arm.
 
 The leak detector is conservative by design: it flags cited paths only, never
 prose, because a worker may legitimately describe behaviour in words it never
