@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "subject": {
+    "repository": "django/django",
+    "tag": "6.0.7",
+    "commit": "e2a424605ac2e7e6e799496542fb2997207e2f23"
+  },
+  "tasks": [
+    {
+      "id": "M01",
+      "type": "comprehension",
+      "prompt": "In what order are middleware applied on the request path versus the response path, and where is that order established?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler.load_middleware", "start_line": 26, "end_line": 103}
+      ],
+      "supporting_addresses": [
+        {"address": "django/utils/deprecation.py#MiddlewareMixin.__call__", "start_line": 302, "end_line": 312},
+        {"address": "django/utils/deprecation.py#MiddlewareMixin.__acall__", "start_line": 314, "end_line": 331}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["request path follows middleware order", "request phase in listed order", "top-down", "order it is defined"]},
+        {"id": "F2", "any_of": ["response path is reverse order", "response phase in reverse order", "reverse order on the way back"]},
+        {"id": "F3", "any_of": ["reversed(settings.middleware)", "iterates over middleware in reverse", "wraps the handler", "nested middleware chain"]}
+      ],
+      "forbidden_claims": [
+        "requests run through middleware in reverse order",
+        "responses run in the same order as requests",
+        "every response passes through every configured middleware"
+      ],
+      "source_of_truth": ["docs/topics/http/middleware.txt#L135-L151"]
+    },
+    {
+      "id": "M02",
+      "type": "comprehension",
+      "prompt": "What does raising MiddlewareNotUsed from a middleware factory do, and where is it handled?",
+      "required_addresses": [
+        {"address": "django/core/exceptions.py#MiddlewareNotUsed", "start_line": 117, "end_line": 120},
+        {"address": "django/core/handlers/base.py#BaseHandler.load_middleware", "start_line": 26, "end_line": 103}
+      ],
+      "supporting_addresses": [
+        {"address": "tests/middleware_exceptions/tests.py#MiddlewareNotUsedTests.test_log", "start_line": 183, "end_line": 189}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["raised from __init__", "factory raises middlewarenotused", "during middleware loading", "at startup"]},
+        {"id": "F2", "any_of": ["middleware is skipped", "middleware is not added", "removed from the middleware process", "continues loading"]},
+        {"id": "F3", "any_of": ["logs a debug message when debug is true", "debug log in debug mode", "django.request logger"]}
+      ],
+      "forbidden_claims": [
+        "it aborts server startup",
+        "it returns a 500 response",
+        "it is always logged"
+      ],
+      "source_of_truth": ["docs/topics/http/middleware.txt#L93-L100"]
+    },
+    {
+      "id": "M03",
+      "type": "comprehension",
+      "prompt": "How does middleware declare sync and async capability, and what does Django do when it cannot natively support the current mode?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler.load_middleware", "start_line": 26, "end_line": 103},
+        {"address": "django/core/handlers/base.py#BaseHandler.adapt_method_mode", "start_line": 105, "end_line": 135}
+      ],
+      "supporting_addresses": [
+        {"address": "django/utils/deprecation.py#MiddlewareMixin", "start_line": 275, "end_line": 331}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["sync_capable and async_capable", "capability flags", "capability attributes"]},
+        {"id": "F2", "any_of": ["sync_capable defaults to true", "sync defaults to true"]},
+        {"id": "F3", "any_of": ["async_capable defaults to false", "async defaults to false"]},
+        {"id": "F4", "any_of": ["sync_to_async", "async_to_sync", "django adapts the middleware", "performance penalty"]},
+        {"id": "F5", "any_of": ["both flags false raises runtimeerror", "at least one of sync_capable/async_capable", "neither sync nor async is invalid"]}
+      ],
+      "forbidden_claims": [
+        "defining async def __call__ alone advertises async support",
+        "django rejects every middleware that cannot support both modes",
+        "sync middleware is called directly on the event loop"
+      ],
+      "source_of_truth": ["docs/topics/http/middleware.txt#L298-L336"]
+    },
+    {
+      "id": "M04",
+      "type": "comprehension",
+      "prompt": "A view or process_template_response hook returns None. What happens, and which code raises the error?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response", "start_line": 175, "end_line": 227},
+        {"address": "django/core/handlers/base.py#BaseHandler.check_response", "start_line": 318, "end_line": 342}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response_async", "start_line": 229, "end_line": 299}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["check_response", "response validation"]},
+        {"id": "F2", "any_of": ["valueerror", "raises a valueerror"]},
+        {"id": "F3", "any_of": ["returned none", "httpresponse object", "none instead"]}
+      ],
+      "forbidden_claims": [
+        "the chain silently continues",
+        "returns an empty 200",
+        "raises improperlyconfigured"
+      ],
+      "source_of_truth": [
+        "tests/handlers/tests.py#HandlerRequestTests.test_no_response",
+        "tests/middleware_exceptions/tests.py#MiddlewareTests.test_process_template_response_returns_none"
+      ]
+    },
+    {
+      "id": "M05",
+      "type": "comprehension",
+      "prompt": "What is convert_exception_to_response for, and where is it applied in the middleware chain?",
+      "required_addresses": [
+        {"address": "django/core/handlers/exception.py#convert_exception_to_response", "start_line": 24, "end_line": 60},
+        {"address": "django/core/handlers/base.py#BaseHandler.load_middleware", "start_line": 26, "end_line": 103}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/handlers/exception.py#response_for_exception", "start_line": 63, "end_line": 159}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["converts exceptions to http responses", "known exceptions become 4xx", "unknown exceptions become 500"]},
+        {"id": "F2", "any_of": ["wraps sync and async get_response", "catches exception from get_response", "exception-to-response wrapper"]},
+        {"id": "F3", "any_of": ["applied around every middleware", "before and after each middleware", "thin film between middleware layers", "upstream middleware receives a response"]}
+      ],
+      "forbidden_claims": [
+        "it wraps only the view",
+        "there is one wrapper only around the entire middleware stack",
+        "middleware exceptions are sent to process_exception",
+        "it converts a returned none"
+      ],
+      "source_of_truth": ["docs/topics/http/middleware.txt#L276-L296"]
+    },
+    {
+      "id": "M06",
+      "type": "comprehension",
+      "prompt": "When is process_view called relative to URL resolution?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response", "start_line": 175, "end_line": 227},
+        {"address": "django/core/handlers/base.py#BaseHandler.resolve_request", "start_line": 301, "end_line": 316}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response_async", "start_line": 229, "end_line": 299}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["url resolution happens before process_view", "resolve_request is called before view middleware", "resolved before process_view"]},
+        {"id": "F2", "any_of": ["request.resolver_match is assigned", "resolver_match is set on the request", "resolved callback args and kwargs"]},
+        {"id": "F3", "any_of": ["process_view is called just before the view", "process_view receives the resolved callback", "before django calls the view"]},
+        {"id": "F4", "any_of": ["process_view can short-circuit the view", "returning a response skips the view", "none continues to the next process_view"]}
+      ],
+      "forbidden_claims": [
+        "process_view runs before url resolution",
+        "url resolution occurs only after all process_view hooks",
+        "the view is always called after process_view"
+      ],
+      "source_of_truth": ["docs/topics/http/middleware.txt#L161-L181"]
+    },
+    {
+      "id": "M07",
+      "type": "comprehension",
+      "prompt": "How is process_template_response invoked, and what must the response provide?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response", "start_line": 175, "end_line": 227}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response_async", "start_line": 229, "end_line": 299},
+        {"address": "django/core/handlers/base.py#BaseHandler.load_middleware", "start_line": 26, "end_line": 103}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["has a callable render", "callable render method", "supports deferred rendering"]},
+        {"id": "F2", "any_of": ["process_template_response(request, response)", "middleware_method(request, response)"]},
+        {"id": "F3", "any_of": ["must return a response object that implements a render method", "must return a response with a render method", "return value must have render"]},
+        {"id": "F4", "any_of": ["run in reverse order", "middleware are run in reverse order", "reverse response order"]},
+        {"id": "F5", "any_of": ["automatically rendered", "response.render()", "rendered after all template response middleware"]}
+      ],
+      "forbidden_claims": [
+        "it runs for every httpresponse",
+        "it runs before the view",
+        "it may return none",
+        "the middleware must render the response itself"
+      ],
+      "source_of_truth": ["docs/topics/http/middleware.txt#L221-L244"]
+    },
+    {
+      "id": "M08",
+      "type": "comprehension",
+      "prompt": "How does process_exception differ from convert_exception_to_response?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler.process_exception_by_middleware", "start_line": 357, "end_line": 366},
+        {"address": "django/core/handlers/exception.py#convert_exception_to_response", "start_line": 24, "end_line": 60}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response", "start_line": 175, "end_line": 227},
+        {"address": "django/core/handlers/exception.py#response_for_exception", "start_line": 63, "end_line": 159}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["exceptions raised by the view or render", "view and template response rendering exceptions", "view or templateresponse.render"]},
+        {"id": "F2", "any_of": ["return httpresponse or none", "returns a response to handle the exception", "none re-raises the exception"]},
+        {"id": "F3", "any_of": ["wraps every middleware", "applied to all middleware", "wraps each middleware layer"]},
+        {"id": "F4", "any_of": ["middleware exceptions are converted to http responses", "no middleware leaks an exception", "converted before the next middleware"]},
+        {"id": "F5", "any_of": ["known 4xx exceptions", "appropriate 4xx response", "other exceptions become 500"]}
+      ],
+      "forbidden_claims": [
+        "process_exception handles exceptions raised by middleware",
+        "convert_exception_to_response calls process_exception hooks",
+        "returning none suppresses the exception",
+        "all exceptions are converted to 500"
+      ],
+      "source_of_truth": ["docs/topics/http/middleware.txt#L199-L217", "docs/topics/http/middleware.txt#L276-L296"]
+    },
+    {
+      "id": "M09",
+      "type": "comprehension",
+      "prompt": "Which settings does SecurityMiddleware read, and where are they read?",
+      "required_addresses": [
+        {"address": "django/middleware/security.py#SecurityMiddleware.__init__", "start_line": 9, "end_line": 19}
+      ],
+      "supporting_addresses": [
+        {"address": "django/middleware/security.py#SecurityMiddleware.process_request", "start_line": 21, "end_line": 31},
+        {"address": "django/middleware/security.py#SecurityMiddleware.process_response", "start_line": 33, "end_line": 66}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["secure_hsts_seconds"]},
+        {"id": "F2", "any_of": ["secure_hsts_include_subdomains"]},
+        {"id": "F3", "any_of": ["secure_hsts_preload"]},
+        {"id": "F4", "any_of": ["secure_content_type_nosniff"]},
+        {"id": "F5", "any_of": ["secure_ssl_redirect"]},
+        {"id": "F6", "any_of": ["secure_ssl_host"]},
+        {"id": "F7", "any_of": ["secure_redirect_exempt"]},
+        {"id": "F8", "any_of": ["secure_referrer_policy"]},
+        {"id": "F9", "any_of": ["secure_cross_origin_opener_policy"]},
+        {"id": "F10", "any_of": ["in __init__", "during initialization", "when the middleware is initialized"]}
+      ],
+      "forbidden_claims": [
+        "securitymiddleware reads secure_proxy_ssl_header",
+        "securitymiddleware reads debug",
+        "settings are fetched afresh on every request",
+        "secure_redirect_exempt is compiled per request"
+      ],
+      "source_of_truth": ["django/middleware/security.py#SecurityMiddleware.__init__"]
+    },
+    {
+      "id": "M10",
+      "type": "comprehension",
+      "prompt": "Under what conditions does CommonMiddleware issue a redirect?",
+      "required_addresses": [
+        {"address": "django/middleware/common.py#CommonMiddleware.process_request", "start_line": 34, "end_line": 60},
+        {"address": "django/middleware/common.py#CommonMiddleware.should_redirect_with_slash", "start_line": 62, "end_line": 74},
+        {"address": "django/middleware/common.py#CommonMiddleware.process_response", "start_line": 100, "end_line": 117}
+      ],
+      "supporting_addresses": [
+        {"address": "django/middleware/common.py#CommonMiddleware.get_full_path_with_slash", "start_line": 76, "end_line": 98}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["prepend_www is true and host does not start with www", "prepend_www and a non-www host", "prepend www to a host lacking www"]},
+        {"id": "F2", "any_of": ["404 and should_redirect_with_slash", "response status code is 404", "404 response triggers the slash check"]},
+        {"id": "F3", "any_of": ["append_slash is true", "append_slash enabled"]},
+        {"id": "F4", "any_of": ["path does not end with a slash", "slashless path"]},
+        {"id": "F5", "any_of": ["current path is invalid and slashed path is valid", "invalid unslashed path and valid slashed path"]},
+        {"id": "F6", "any_of": ["should_append_slash is not false", "no_append_slash opt-out", "view allows appending a slash"]},
+        {"id": "F7", "any_of": ["debug raises runtimeerror for delete, post, put, or patch", "cannot redirect while maintaining post data"]},
+        {"id": "F8", "any_of": ["permanent redirect", "301", "httpresponsepermanentredirect"]}
+      ],
+      "forbidden_claims": [
+        "append_slash alone redirects in process_request",
+        "every 404 redirects",
+        "a valid unslashed path redirects",
+        "post data is always preserved",
+        "commonmiddleware returns a 302"
+      ],
+      "source_of_truth": ["docs/ref/middleware.txt#L35-L82"]
+    },
+    {
+      "id": "M11",
+      "type": "comprehension",
+      "prompt": "What conditions cause GZipMiddleware to skip compression?",
+      "required_addresses": [
+        {"address": "django/middleware/gzip.py#GZipMiddleware.process_response", "start_line": 18, "end_line": 66}
+      ],
+      "supporting_addresses": [],
+      "required_facts": [
+        {"id": "F1", "any_of": ["non-streaming content is less than 200 bytes", "body is less than 200 bytes", "len(response.content) < 200"]},
+        {"id": "F2", "any_of": ["content-encoding is already set", "existing content-encoding header", "has_header(\"content-encoding\")"]},
+        {"id": "F3", "any_of": ["accept-encoding does not contain gzip", "browser did not request gzip", "no gzip in http_accept_encoding"]},
+        {"id": "F4", "any_of": ["compressed content is not shorter", "compressed size is greater than or equal to the original", "len(compressed_content) >= len(response.content)"]}
+      ],
+      "forbidden_claims": [
+        "all streaming responses are skipped",
+        "only status 200 responses are compressed",
+        "only html or text content is compressed",
+        "200 bytes or less is always skipped",
+        "an etag causes compression to be skipped"
+      ],
+      "source_of_truth": ["django/middleware/gzip.py#GZipMiddleware.process_response"]
+    },
+    {
+      "id": "M12",
+      "type": "comprehension",
+      "prompt": "What is the default MIDDLEWARE value shipped in django/conf/global_settings.py?",
+      "required_addresses": [
+        {"address": "django/conf/global_settings.py#MIDDLEWARE", "start_line": 471, "end_line": 471}
+      ],
+      "supporting_addresses": [
+        {"address": "django/conf/__init__.py#Settings.__init__", "start_line": 152, "end_line": 195}
+      ],
+      "required_facts": [
+        {"id": "F1", "any_of": ["middleware = []", "empty list", "[]"]}
+      ],
+      "forbidden_claims": [
+        "global default is none",
+        "global default contains seven middleware",
+        "securitymiddleware is enabled by the global default"
+      ],
+      "source_of_truth": ["django/conf/global_settings.py#MIDDLEWARE"]
+    },
+    {
+      "id": "L01",
+      "type": "localization",
+      "prompt": "Add a hook that runs after request middleware but before URL resolution. Which existing addresses would you edit?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response", "start_line": 175, "end_line": 227},
+        {"address": "django/core/handlers/base.py#BaseHandler._get_response_async", "start_line": 229, "end_line": 299}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler.resolve_request", "start_line": 301, "end_line": 316}
+      ],
+      "required_facts": [],
+      "forbidden_claims": [],
+      "source_of_truth": ["django/core/handlers/base.py"]
+    },
+    {
+      "id": "L02",
+      "type": "localization",
+      "prompt": "Change how old-style MiddlewareMixin subclasses are adapted. Which existing address would you edit?",
+      "required_addresses": [
+        {"address": "django/utils/deprecation.py#MiddlewareMixin", "start_line": 275, "end_line": 331}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler.adapt_method_mode", "start_line": 105, "end_line": 135}
+      ],
+      "required_facts": [],
+      "forbidden_claims": [],
+      "source_of_truth": ["django/utils/deprecation.py#MiddlewareMixin"]
+    },
+    {
+      "id": "L03",
+      "type": "localization",
+      "prompt": "Change what happens when middleware construction raises during load_middleware. Which existing address would you edit?",
+      "required_addresses": [
+        {"address": "django/core/handlers/base.py#BaseHandler.load_middleware", "start_line": 26, "end_line": 103}
+      ],
+      "supporting_addresses": [
+        {"address": "django/core/exceptions.py#MiddlewareNotUsed", "start_line": 117, "end_line": 120}
+      ],
+      "required_facts": [],
+      "forbidden_claims": [],
+      "source_of_truth": ["django/core/handlers/base.py#BaseHandler.load_middleware"]
+    },
+    {
+      "id": "L04",
+      "type": "localization",
+      "prompt": "Change Django's existing startup check for AuthenticationMiddleware and LoginRequiredMiddleware ordering. Which implementation and registration addresses would you edit?",
+      "required_addresses": [
+        {"address": "django/contrib/auth/checks.py#check_middleware", "start_line": 240, "end_line": 262},
+        {"address": "django/contrib/auth/apps.py#AuthConfig.ready", "start_line": 18, "end_line": 31}
+      ],
+      "supporting_addresses": [
+        {"address": "django/contrib/auth/checks.py#_subclass_index", "start_line": 12, "end_line": 25}
+      ],
+      "required_facts": [],
+      "forbidden_claims": [],
+      "source_of_truth": ["django/contrib/auth/checks.py#check_middleware"]
+    },
+    {
+      "id": "L05",
+      "type": "localization",
+      "prompt": "Add a new setting consumed by SecurityMiddleware. Which existing addresses would you edit?",
+      "required_addresses": [
+        {"address": "django/middleware/security.py#SecurityMiddleware.__init__", "start_line": 9, "end_line": 19},
+        {"address": "django/conf/global_settings.py#L654-L665", "start_line": 654, "end_line": 665}
+      ],
+      "supporting_addresses": [
+        {"address": "django/middleware/security.py#SecurityMiddleware.process_request", "start_line": 21, "end_line": 31},
+        {"address": "django/middleware/security.py#SecurityMiddleware.process_response", "start_line": 33, "end_line": 66}
+      ],
+      "required_facts": [],
+      "forbidden_claims": [],
+      "source_of_truth": ["django/middleware/security.py", "django/conf/global_settings.py#L654-L665"]
+    },
+    {
+      "id": "L06",
+      "type": "localization",
+      "prompt": "Where do the tests asserting the AuthenticationMiddleware and LoginRequiredMiddleware startup ordering check live?",
+      "required_addresses": [
+        {"address": "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware", "start_line": 413, "end_line": 415},
+        {"address": "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_incorrect_order_with_login_required_middleware", "start_line": 424, "end_line": 436}
+      ],
+      "supporting_addresses": [
+        {"address": "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_missing_authentication_with_login_required_middleware", "start_line": 443, "end_line": 455}
+      ],
+      "required_facts": [],
+      "forbidden_claims": [],
+      "source_of_truth": ["tests/auth_tests/test_checks.py#MiddlewareChecksTests"]
+    }
+  ]
+}

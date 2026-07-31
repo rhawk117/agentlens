@@ -1,0 +1,19 @@
+[project]
+name = "agentlens-eval-harness"
+version = "2.0.0"
+description = "Benchmark harness for the agentlens Django navigation evaluation"
+# Pinned to a single minor, not a floor. tiktoken ships prebuilt wheels per
+# interpreter version; on a newer Python uv falls back to a source build that
+# needs a pyo3 too old to support it. A floor would make the environment
+# resolve differently on different machines, which is the opposite of the point.
+requires-python = "==3.12.*"
+# tiktoken is pinned, not floated. Token count is the benchmark's headline
+# metric, so a tokenizer upgrade between campaigns would move the number
+# without any change to the tool under test.
+dependencies = ["tiktoken==0.8.0", "blake3==1.0.4"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
