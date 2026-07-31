@@ -25,7 +25,11 @@ import random
 import sys
 from dataclasses import dataclass
 
-from paths import ROOT, RUNS_ROOT
+# Bound to the frozen v0.1.0 corpus, not to BENCH_RUNS_ROOT. Tuning is only
+# ever done against answers that already exist; pointing this at a live
+# campaign would mean tuning the grader on the runs it is about to grade.
+from paths import ROOT
+from paths import RUNS_ROOT_V1 as RUNS_ROOT
 
 # Fixed so the dev/held-out split cannot be reshuffled until it flatters a
 # result. Changing this value invalidates every recall number ever reported.

@@ -40,9 +40,15 @@ ANSWER_KEY = re.compile(
 )
 
 
+# The orchestrator's own escape hatch. It has to be read out of the command
+# text: a hook runs in its own process, so an inline `BENCH_GATE=off cmd` or an
+# `export` inside the command never reaches this environment.
+OVERRIDE = re.compile(r"^\s*BENCH_GATE=off\b")
+
+
 def decision(command: str) -> str | None:
     """Return a denial reason, or None to allow."""
-    if os.environ.get("BENCH_GATE") == "off":
+    if OVERRIDE.match(command):
         return None
     if WRAPPER.search(command):
         # The wrapper validates its own arguments and meters what it runs.
