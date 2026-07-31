@@ -17,10 +17,18 @@ target
 # Coverage output
 lcov.info
 
-# Frozen benchmark transcripts: 108 runs, ~6 MB of prompts, answers and
-# per-call records. Read during planning and calibration, deliberately not
-# tracked. Fixtures derived from it are committed; the corpus itself is not.
-.eval/
+# Python tooling for the eval harness. uv.lock is committed; the environment it
+# builds is not.
+.venv/
+.ruff_cache/
+__pycache__/
+
+# Benchmark run corpus: per-call transcripts, answers and cap markers, several
+# MB per campaign. Deliberately not tracked. The harness that produces it, the
+# frozen task and gold inputs, and the graded results all live in evals/harness/
+# and are committed -- reviewing a published number means reading the code that
+# produced it, so only the bulk transcripts stay out.
+.eval/runs/
 
 # Staged phase snapshot and loop scratchpad. Never committed: the migration
 # copies source OUT of here, and the zip itself must not land in a phase PR.

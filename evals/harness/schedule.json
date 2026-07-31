@@ -1,0 +1,22 @@
+{
+  "schedule": [
+    {
+      "repetition": 1,
+      "seed": 20260729,
+      "task_order": ["M01", "M07", "M06", "M08", "M02", "L03", "M09", "M11", "M10", "M03", "L05", "M05", "M04", "L06", "M12", "L01", "L04", "L02"],
+      "arm_order": ["agentlens", "baseline"]
+    },
+    {
+      "repetition": 2,
+      "seed": 20260730,
+      "task_order": ["L04", "M11", "M02", "M04", "L02", "M08", "M05", "M03", "L03", "L01", "L05", "M07", "M10", "M12", "M01", "L06", "M09", "M06"],
+      "arm_order": ["baseline", "agentlens"]
+    },
+    {
+      "repetition": 3,
+      "seed": 20260731,
+      "task_order": ["M07", "M12", "M11", "L01", "M05", "L02", "L03", "L06", "L05", "M06", "M03", "L04", "M02", "M04", "M10", "M08", "M09", "M01"],
+      "arm_order": ["agentlens", "baseline"]
+    }
+  ]
+}

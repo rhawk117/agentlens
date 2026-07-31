@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "subject": {
+    "repository": "django/django",
+    "tag": "6.0.7",
+    "tag_object": "c7b3ee972494d7d9903db3db7cbe2e9ffe20f457",
+    "commit": "e2a424605ac2e7e6e799496542fb2997207e2f23"
+  },
+  "tool": {
+    "repository": "rhawk117/agentlens",
+    "commit": "8033e6ccc00dcca316ab1e8ea83c5932296ec4a7",
+    "version": "0.1.0",
+    "binary_sha256": "81127fabf67018b9f83b17ffe1d3cdb7849f8258dd2d9f91767b08468127f69a"
+  },
+  "arms": {
+    "agentlens": ["slice", "map", "find", "literals", "callers", "packet", "dead"],
+    "baseline": ["rg", "cat"]
+  },
+  "repetitions": 3,
+  "task_count": 18,
+  "expected_runs": 108,
+  "call_cap_per_task": 25,
+  "tool_result_token_cap_per_task": 60000,
+  "tokenizer": "tiktoken:o200k_base",
+  "cache": {
+    "agentlens": "warm",
+    "baseline": "filesystem cache uncontrolled",
+    "cold_index_build": {
+      "elapsed_seconds": 0.631,
+      "tool_result_tokens": 483,
+      "cache_size_bytes_approx": 44040192
+    },
+    "warm_repeat": {
+      "elapsed_seconds": 0.295,
+      "byte_identical_output": true
+    }
+  },
+  "falsification": {
+    "maximum_cost_ratio": 0.5,
+    "maximum_accuracy_delta_below_baseline": 0.05,
+    "maximum_tasks_lost": 4
+  },
+  "verification_corrections": [
+    "Added the missing django/ prefix to draft source addresses.",
+    "M04 was changed from middleware __call__ returning None to a view or process_template_response returning None because the draft gold addressed check_response, which does not validate general middleware return values.",
+    "M08 primary gold now names process_exception_by_middleware and convert_exception_to_response directly.",
+    "M10 primary gold adds process_response, where APPEND_SLASH-only redirects occur.",
+    "L01 includes both synchronous and asynchronous handler paths.",
+    "L04 and L06 now target Django's actual AuthenticationMiddleware/LoginRequiredMiddleware startup ordering check and its tests; the drafted security/base.py and handler test locations did not contain that behavior."
+  ]
+}

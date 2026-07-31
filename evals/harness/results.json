@@ -1,0 +1,3307 @@
+{
+  "accuracy_delta": {
+    "iqr": 0.033912037037037046,
+    "median": 0.34513888888888883,
+    "q1": 0.312037037037037,
+    "q3": 0.34594907407407405
+  },
+  "arms": {
+    "agentlens": {
+      "accuracy": {
+        "iqr": 0.00462962962962965,
+        "median": 0.7231481481481481,
+        "q1": 0.7231481481481481,
+        "q3": 0.7277777777777777
+      },
+      "capped_runs": 0,
+      "cost_tokens_per_point": {
+        "iqr": 157.6440460947506,
+        "median": 4187.863463969658,
+        "q1": 4128.976546325418,
+        "q3": 4286.620592420169
+      },
+      "navigation": {
+        "iqr": 0.5,
+        "median": 3.5,
+        "q1": 3.25,
+        "q3": 3.75
+      },
+      "repetitions": [
+        {
+          "accuracy": 0.7324074074074074,
+          "capped_runs": 0,
+          "cost_tokens_per_point": 4187.863463969658,
+          "navigation_median": 3.0,
+          "repetition": 1,
+          "total_points": 13.183333333333334,
+          "total_tool_result_tokens": 55210
+        },
+        {
+          "accuracy": 0.7231481481481481,
+          "capped_runs": 0,
+          "cost_tokens_per_point": 4070.089628681178,
+          "navigation_median": 3.5,
+          "repetition": 2,
+          "total_points": 13.016666666666666,
+          "total_tool_result_tokens": 52979
+        },
+        {
+          "accuracy": 0.7231481481481481,
+          "capped_runs": 0,
+          "cost_tokens_per_point": 4385.377720870679,
+          "navigation_median": 4.0,
+          "repetition": 3,
+          "total_points": 13.016666666666666,
+          "total_tool_result_tokens": 57083
+        }
+      ]
+    },
+    "baseline": {
+      "accuracy": {
+        "iqr": 0.038541666666666696,
+        "median": 0.37800925925925927,
+        "q1": 0.37719907407407405,
+        "q3": 0.41574074074074074
+      },
+      "capped_runs": 2,
+      "cost_tokens_per_point": {
+        "iqr": 6964.355825794097,
+        "median": 25703.661971830985,
+        "q1": 22926.07294609926,
+        "q3": 29890.428771893356
+      },
+      "navigation": {
+        "iqr": 0.0,
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0
+      },
+      "repetitions": [
+        {
+          "accuracy": 0.4534722222222222,
+          "capped_runs": 0,
+          "cost_tokens_per_point": 20148.483920367536,
+          "navigation_median": 1.0,
+          "repetition": 1,
+          "total_points": 8.1625,
+          "total_tool_result_tokens": 164462
+        },
+        {
+          "accuracy": 0.3763888888888889,
+          "capped_runs": 2,
+          "cost_tokens_per_point": 34077.19557195572,
+          "navigation_median": 1.0,
+          "repetition": 2,
+          "total_points": 6.7749999999999995,
+          "total_tool_result_tokens": 230873
+        },
+        {
+          "accuracy": 0.37800925925925927,
+          "capped_runs": 0,
+          "cost_tokens_per_point": 25703.661971830985,
+          "navigation_median": 1.0,
+          "repetition": 3,
+          "total_points": 6.804166666666667,
+          "total_tool_result_tokens": 174892
+        }
+      ]
+    }
+  },
+  "benchmark_failed": false,
+  "cost_ratio": {
+    "iqr": 0.04420635631667352,
+    "median": 0.17061295490411746,
+    "q1": 0.1450251479642342,
+    "q3": 0.18923150428090774
+  },
+  "falsification": {
+    "accuracy_more_than_0_05_below_baseline": false,
+    "cost_ratio_at_least_0_5": false,
+    "loses_more_than_4_tasks": false
+  },
+  "gold_blake3": "45e7d1f546a491821f1f748f5266cd721c6c4d10d88f6d4f4f757241de216bf9",
+  "gold_sha256": "ad9112eebd4a07daafff165d40c9b39c0b611eccc1fa45de4a892f48676ab39e",
+  "head_to_head": {
+    "agentlens_wins": 10,
+    "baseline_wins": 0,
+    "ties": 8
+  },
+  "per_task": [
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.5,
+          "median": 2.0,
+          "q1": 1.5,
+          "q3": 3.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.6666666666666666,
+          "q1": 0.6666666666666666,
+          "q3": 0.6666666666666666
+        },
+        "tool_result_tokens": {
+          "iqr": 1246.5,
+          "median": 3313.0,
+          "q1": 2629.5,
+          "q3": 3876.0
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.25,
+          "median": 0.6666666666666666,
+          "q1": 0.41666666666666663,
+          "q3": 0.6666666666666666
+        },
+        "tool_result_tokens": {
+          "iqr": 13614.5,
+          "median": 13639.0,
+          "q1": 11836.5,
+          "q3": 25451.0
+        }
+      },
+      "task_id": "M01"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.08333333333333326,
+          "median": 0.5,
+          "q1": 0.5,
+          "q3": 0.5833333333333333
+        },
+        "tool_result_tokens": {
+          "iqr": 96.5,
+          "median": 1482.0,
+          "q1": 1438.0,
+          "q3": 1534.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.25,
+          "median": 0.25,
+          "q1": 0.25,
+          "q3": 0.5
+        },
+        "tool_result_tokens": {
+          "iqr": 1191.0,
+          "median": 7063.0,
+          "q1": 6514.5,
+          "q3": 7705.5
+        }
+      },
+      "task_id": "M02"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.5,
+          "median": 5.0,
+          "q1": 4.0,
+          "q3": 5.5
+        },
+        "score": {
+          "iqr": 0.04999999999999993,
+          "median": 0.6,
+          "q1": 0.6,
+          "q3": 0.6499999999999999
+        },
+        "tool_result_tokens": {
+          "iqr": 30.0,
+          "median": 2361.0,
+          "q1": 2345.5,
+          "q3": 2375.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.05000000000000002,
+          "median": 0.1,
+          "q1": 0.1,
+          "q3": 0.15000000000000002
+        },
+        "tool_result_tokens": {
+          "iqr": 0.0,
+          "median": 8737.0,
+          "q1": 8737.0,
+          "q3": 8737.0
+        }
+      },
+      "task_id": "M03"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.5,
+          "median": 3.0,
+          "q1": 2.5,
+          "q3": 4.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 88.5,
+          "median": 2072.0,
+          "q1": 2010.0,
+          "q3": 2098.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 1,
+        "navigation": {
+          "iqr": 12.5,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 13.5
+        },
+        "score": {
+          "iqr": 0.14583333333333337,
+          "median": 0.75,
+          "q1": 0.6666666666666666,
+          "q3": 0.8125
+        },
+        "tool_result_tokens": {
+          "iqr": 25145.0,
+          "median": 44314.0,
+          "q1": 27012.0,
+          "q3": 52157.0
+        }
+      },
+      "task_id": "M04"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.5,
+          "q1": 0.5,
+          "q3": 0.5
+        },
+        "tool_result_tokens": {
+          "iqr": 353.5,
+          "median": 1152.0,
+          "q1": 1127.0,
+          "q3": 1480.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.5,
+          "q1": 0.5,
+          "q3": 0.5
+        },
+        "tool_result_tokens": {
+          "iqr": 0.0,
+          "median": 3871.0,
+          "q1": 3871.0,
+          "q3": 3871.0
+        }
+      },
+      "task_id": "M05"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.0,
+          "median": 4.0,
+          "q1": 3.0,
+          "q3": 4.0
+        },
+        "score": {
+          "iqr": 0.0625,
+          "median": 0.5,
+          "q1": 0.4375,
+          "q3": 0.5
+        },
+        "tool_result_tokens": {
+          "iqr": 85.0,
+          "median": 3842.0,
+          "q1": 3793.0,
+          "q3": 3878.0
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.0,
+          "q1": 0.0,
+          "q3": 0.0
+        },
+        "tool_result_tokens": {
+          "iqr": 0.0,
+          "median": 9264.0,
+          "q1": 9264.0,
+          "q3": 9264.0
+        }
+      },
+      "task_id": "M06"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.0,
+          "median": 5.0,
+          "q1": 4.0,
+          "q3": 5.0
+        },
+        "score": {
+          "iqr": 0.050000000000000044,
+          "median": 0.7,
+          "q1": 0.7,
+          "q3": 0.75
+        },
+        "tool_result_tokens": {
+          "iqr": 551.0,
+          "median": 3578.0,
+          "q1": 3078.5,
+          "q3": 3629.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.04999999999999999,
+          "median": 0.2,
+          "q1": 0.15000000000000002,
+          "q3": 0.2
+        },
+        "tool_result_tokens": {
+          "iqr": 0.0,
+          "median": 7258.0,
+          "q1": 7258.0,
+          "q3": 7258.0
+        }
+      },
+      "task_id": "M07"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0
+        },
+        "score": {
+          "iqr": 0.050000000000000044,
+          "median": 0.5,
+          "q1": 0.5,
+          "q3": 0.55
+        },
+        "tool_result_tokens": {
+          "iqr": 542.5,
+          "median": 4664.0,
+          "q1": 4178.5,
+          "q3": 4721.0
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.05,
+          "median": 0.1,
+          "q1": 0.05,
+          "q3": 0.1
+        },
+        "tool_result_tokens": {
+          "iqr": 2018.0,
+          "median": 8565.0,
+          "q1": 6547.0,
+          "q3": 8565.0
+        }
+      },
+      "task_id": "M08"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 4.0,
+          "q1": 4.0,
+          "q3": 4.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.95,
+          "q1": 0.95,
+          "q3": 0.95
+        },
+        "tool_result_tokens": {
+          "iqr": 59.0,
+          "median": 839.0,
+          "q1": 831.5,
+          "q3": 890.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0
+        },
+        "score": {
+          "iqr": 0.25,
+          "median": 0.95,
+          "q1": 0.7,
+          "q3": 0.95
+        },
+        "tool_result_tokens": {
+          "iqr": 0.0,
+          "median": 554.0,
+          "q1": 554.0,
+          "q3": 554.0
+        }
+      },
+      "task_id": "M09"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.5,
+          "median": 5.0,
+          "q1": 4.5,
+          "q3": 5.0
+        },
+        "score": {
+          "iqr": 0.0625,
+          "median": 0.5,
+          "q1": 0.5,
+          "q3": 0.5625
+        },
+        "tool_result_tokens": {
+          "iqr": 311.5,
+          "median": 2487.0,
+          "q1": 2392.0,
+          "q3": 2703.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.5,
+          "median": 2.0,
+          "q1": 1.5,
+          "q3": 2.0
+        },
+        "score": {
+          "iqr": 0.04166666666666666,
+          "median": 0.125,
+          "q1": 0.09375,
+          "q3": 0.13541666666666666
+        },
+        "tool_result_tokens": {
+          "iqr": 1395.5,
+          "median": 2151.0,
+          "q1": 1872.0,
+          "q3": 3267.5
+        }
+      },
+      "task_id": "M10"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.5,
+          "median": 4.0,
+          "q1": 3.5,
+          "q3": 5.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.5,
+          "q1": 0.5,
+          "q3": 0.5
+        },
+        "tool_result_tokens": {
+          "iqr": 1371.0,
+          "median": 1951.0,
+          "q1": 1588.0,
+          "q3": 2959.0
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.5,
+          "median": 2.0,
+          "q1": 1.5,
+          "q3": 2.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.0,
+          "q1": 0.0,
+          "q3": 0.0
+        },
+        "tool_result_tokens": {
+          "iqr": 1300.5,
+          "median": 1372.0,
+          "q1": 1009.0,
+          "q3": 2309.5
+        }
+      },
+      "task_id": "M11"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 10.5,
+          "median": 5.0,
+          "q1": 5.0,
+          "q3": 15.5
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 74.0,
+          "median": 2510.0,
+          "q1": 2446.5,
+          "q3": 2520.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 26.0,
+          "q1": 26.0,
+          "q3": 26.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 21.5,
+          "median": 5.0,
+          "q1": 5.0,
+          "q3": 26.5
+        }
+      },
+      "task_id": "M12"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.0,
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 3.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 3060.0,
+          "median": 4537.0,
+          "q1": 4149.5,
+          "q3": 7209.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 1,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.5,
+          "median": 0.0,
+          "q1": 0.0,
+          "q3": 0.5
+        },
+        "tool_result_tokens": {
+          "iqr": 20647.5,
+          "median": 44634.0,
+          "q1": 31669.5,
+          "q3": 52317.0
+        }
+      },
+      "task_id": "L01"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 923.0,
+          "median": 4254.0,
+          "q1": 3450.5,
+          "q3": 4373.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.5,
+          "median": 1.0,
+          "q1": 0.5,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 15728.0,
+          "median": 8430.0,
+          "q1": 5514.0,
+          "q3": 21242.0
+        }
+      },
+      "task_id": "L02"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 149.0,
+          "median": 1055.0,
+          "q1": 938.0,
+          "q3": 1087.0
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.5,
+          "median": 1.0,
+          "q1": 0.5,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 0.0,
+          "median": 2697.0,
+          "q1": 2697.0,
+          "q3": 2697.0
+        }
+      },
+      "task_id": "L03"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.5,
+          "median": 9.0,
+          "q1": 8.0,
+          "q3": 9.5
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 177.5,
+          "median": 1918.0,
+          "q1": 1861.0,
+          "q3": 2038.5
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 430.5,
+          "median": 2755.0,
+          "q1": 2714.5,
+          "q3": 3145.0
+        }
+      },
+      "task_id": "L04"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.5,
+          "median": 3.0,
+          "q1": 2.0,
+          "q3": 3.5
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.0,
+          "q1": 0.0,
+          "q3": 0.0
+        },
+        "tool_result_tokens": {
+          "iqr": 1729.5,
+          "median": 9472.0,
+          "q1": 9388.5,
+          "q3": 11118.0
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.5,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.5
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 0.0,
+          "q1": 0.0,
+          "q3": 0.0
+        },
+        "tool_result_tokens": {
+          "iqr": 3768.5,
+          "median": 18502.0,
+          "q1": 16183.0,
+          "q3": 19951.5
+        }
+      },
+      "task_id": "L05"
+    },
+    {
+      "agentlens": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 1.5,
+          "median": 6.0,
+          "q1": 5.0,
+          "q3": 6.5
+        },
+        "score": {
+          "iqr": 0.0,
+          "median": 1.0,
+          "q1": 1.0,
+          "q3": 1.0
+        },
+        "tool_result_tokens": {
+          "iqr": 76.5,
+          "median": 1498.0,
+          "q1": 1456.5,
+          "q3": 1533.0
+        }
+      },
+      "baseline": {
+        "capped_runs": 0,
+        "navigation": {
+          "iqr": 0.0,
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0
+        },
+        "score": {
+          "iqr": 0.25,
+          "median": 0.0,
+          "q1": 0.0,
+          "q3": 0.25
+        },
+        "tool_result_tokens": {
+          "iqr": 0.0,
+          "median": 3495.0,
+          "q1": 3495.0,
+          "q3": 3495.0
+        }
+      },
+      "task_id": "L06"
+    }
+  ],
+  "runs": [
+    {
+      "address_score": 1.0,
+      "answer": "Requests pass through middleware in the order listed in settings.MIDDLEWARE (top to bottom); responses unwind through the middleware in the opposite order (bottom to top). This is established in django/core/handlers/base.py#BaseHandler.load_middleware (L26-L103): it iterates reversed(settings.MIDDLEWARE) and wraps each middleware around the handler built so far, then assigns the outermost wrapper to _middleware_chain. django/core/handlers/base.py#BaseHandler.get_response (L137-L151) invokes that chain. The per-middleware before/after shape is also explicit in django/utils/deprecation.py#MiddlewareMixin.__call__ (L302-L312), where process_request runs before get_response and process_response after it returns.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.3333333333333333,
+      "facts_found": [
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.6666666666666666,
+      "supporting_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin.__call__"
+      ],
+      "task_id": "M01",
+      "tool_calls": 12,
+      "tool_result_tokens": 3313
+    },
+    {
+      "address_score": 1.0,
+      "answer": "Raising MiddlewareNotUsed while a middleware factory is instantiated tells Django to omit that middleware from the middleware chain. BaseHandler.load_middleware catches it around middleware(adapted_handler); when settings.DEBUG is true it writes a django.request debug log (including the exception text when present), then continues loading the remaining middleware. Handled at django/core/handlers/base.py#BaseHandler.load_middleware (L48-L66); the marker exception is defined at django/core/exceptions.py#MiddlewareNotUsed (L117-L120).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.3333333333333333,
+      "facts_found": [
+        "F2"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/exceptions.py#MiddlewareNotUsed",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.6666666666666666,
+      "supporting_addresses_found": [],
+      "task_id": "M02",
+      "tool_calls": 7,
+      "tool_result_tokens": 1587
+    },
+    {
+      "address_score": 1.0,
+      "answer": "Middleware declares capability on its factory/class with boolean `sync_capable` and `async_capable` attributes. Django provides `sync_and_async_middleware`, `sync_only_middleware`, and `async_only_middleware` decorators that set those flags; absent flags default to sync-capable=True and async-capable=False. While constructing the stack, Django chooses a mode each middleware supports, adapts the downstream handler to that mode, and finally adapts the top of the stack back to the server mode. Adaptation wraps sync callables with `sync_to_async(..., thread_sensitive=True)` for async operation and async callables with `async_to_sync` for sync operation (logging the adaptation in DEBUG). If both capability flags are false, startup raises `RuntimeError`. Sources: django/utils/decorators.py:205-229; django/core/handlers/base.py:26-135; django/utils/deprecation.py:275-331.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.4,
+      "facts_found": [
+        "F1",
+        "F4"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 3,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware",
+        "django/core/handlers/base.py#BaseHandler.adapt_method_mode"
+      ],
+      "score": 0.7,
+      "supporting_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "task_id": "M03",
+      "tool_calls": 11,
+      "tool_result_tokens": 2361
+    },
+    {
+      "address_score": 1.0,
+      "answer": "In both sync and async request handling, returning `None` is rejected immediately rather than being treated as a response: Django raises `ValueError` saying the named view or `<MiddlewareClass>.process_template_response` \u201cdidn\u2019t return an HttpResponse object. It returned None instead.\u201d `BaseHandler._get_response()` and `BaseHandler._get_response_async()` call `BaseHandler.check_response()` after the view and after every template-response hook; `check_response()` is the code that raises the error. Sources: django/core/handlers/base.py:175-227, django/core/handlers/base.py:229-299, django/core/handlers/base.py:318-342.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler.check_response"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "task_id": "M04",
+      "tool_calls": 9,
+      "tool_result_tokens": 2072
+    },
+    {
+      "address_score": 1.0,
+      "answer": "convert_exception_to_response wraps a sync or async get_response callable so every exception becomes an HttpResponse: known 4xx exceptions get their appropriate response and all others become 500 responses. This guarantees middleware does not leak exceptions and outer middleware receives a response. It is applied in BaseHandler.load_middleware first around the core _get_response/_get_response_async handler, then around each middleware instance as the chain is built in reverse, before the final adapted handler is assigned to _middleware_chain. Sources: django/core/handlers/exception.py#convert_exception_to_response (L24-L60); django/core/handlers/base.py#BaseHandler.load_middleware (L26-L103).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/exception.py#convert_exception_to_response",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "M05",
+      "tool_calls": 5,
+      "tool_result_tokens": 1152
+    },
+    {
+      "address_score": 1.0,
+      "answer": "process_view is called after URL resolution completes: resolve_request() resolves request.path_info, sets request.resolver_match, and returns the resolved callback/args/kwargs; view middleware is then run with those values, before the resolved view is invoked. This ordering is the same in synchronous and asynchronous handling. django/core/handlers/base.py:175-227; django/core/handlers/base.py:229-299; django/core/handlers/base.py:301-316",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler.resolve_request"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "task_id": "M06",
+      "tool_calls": 7,
+      "tool_result_tokens": 3914
+    },
+    {
+      "address_score": 1.0,
+      "answer": "After a view (or view middleware) returns, Django checks whether the response has a callable `render`. If so, it runs each registered template-response middleware hook on the response path as `process_template_response(request, response)` (awaiting the adapted hook in the async handler); each hook\u2019s return value becomes the response passed to the next hook, and Django then calls/awaits `response.render()`. The hook must return a non-`None`, non-unawaited-coroutine HttpResponse-like object, and the final response must provide a callable `render` method. The hooks are collected in response-order while middleware is loaded. Sources: django/core/handlers/base.py#BaseHandler.load_middleware, django/core/handlers/base.py#BaseHandler._get_response, django/core/handlers/base.py#BaseHandler._get_response_async, django/core/handlers/base.py#BaseHandler.check_response",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.4,
+      "facts_found": [
+        "F2",
+        "F5"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 3,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response"
+      ],
+      "score": 0.7,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "task_id": "M07",
+      "tool_calls": 14,
+      "tool_result_tokens": 3578
+    },
+    {
+      "address_score": 1.0,
+      "answer": "process_exception is an optional middleware hook, collected by BaseHandler and run synchronously (the async handler bridges to it) only when the view call or deferred-response rendering raises. Hooks are tried in exception-middleware order until one returns a response; if none does, the original exception is re-raised. django/core/handlers/base.py#BaseHandler.load_middleware; django/core/handlers/base.py#BaseHandler.process_exception_by_middleware; django/core/handlers/base.py#BaseHandler._get_response; django/core/handlers/base.py#BaseHandler._get_response_async\n\nconvert_exception_to_response is the framework safety wrapper placed around the base handler and every middleware callable. It catches any exception escaping that wrapped layer, in either sync or async mode, and always converts it through response_for_exception (known request exceptions to their 4xx responses, everything else to a 500), ensuring outer middleware receives a response instead of a leaked exception. Thus process_exception is a selective, opt-in chance to handle view/render failures and may decline; convert_exception_to_response is the exhaustive fallback boundary and also covers failures raised in middleware or exception hooks. django/core/handlers/exception.py#convert_exception_to_response; django/core/handlers/exception.py#response_for_exception; django/core/handlers/base.py#BaseHandler.load_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.process_exception_by_middleware",
+        "django/core/handlers/exception.py#convert_exception_to_response"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/exception.py#response_for_exception"
+      ],
+      "task_id": "M08",
+      "tool_calls": 18,
+      "tool_result_tokens": 4778
+    },
+    {
+      "address_score": 1.0,
+      "answer": "SecurityMiddleware reads these nine settings, all during middleware initialization in django/middleware/security.py#SecurityMiddleware.__init__ (L9-L19): SECURE_HSTS_SECONDS, SECURE_HSTS_INCLUDE_SUBDOMAINS, SECURE_HSTS_PRELOAD, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_SSL_REDIRECT, SECURE_SSL_HOST, SECURE_REDIRECT_EXEMPT, SECURE_REFERRER_POLICY, and SECURE_CROSS_ORIGIN_OPENER_POLICY.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.9,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/middleware/security.py#SecurityMiddleware.__init__"
+      ],
+      "score": 0.95,
+      "supporting_addresses_found": [],
+      "task_id": "M09",
+      "tool_calls": 6,
+      "tool_result_tokens": 942
+    },
+    {
+      "address_score": 1.0,
+      "answer": "CommonMiddleware redirects in two cases: (1) during request processing, when PREPEND_WWW is enabled, the request host is nonempty, and it does not already start with `www.`; it redirects to the same scheme/path on `www.<host>`, folding in a trailing slash when the slash conditions also hold (`django/middleware/common.py:39-60#CommonMiddleware.process_request`). (2) during response processing, when the response is 404 and `should_redirect_with_slash()` is true: APPEND_SLASH is enabled, `path_info` lacks a trailing slash, the original path is invalid, the slash-appended path is valid, and the matched view has not opted out with `should_append_slash=False` (`django/middleware/common.py:62-75#CommonMiddleware.should_redirect_with_slash`, `django/middleware/common.py:100-111#CommonMiddleware.process_response`). The redirect is permanent by default. If DEBUG is true and the slash redirect is being constructed for DELETE, POST, PUT, or PATCH, it raises RuntimeError instead of redirecting (`django/middleware/common.py:77-98#CommonMiddleware.get_full_path_with_slash`).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/middleware/common.py#CommonMiddleware.process_request",
+        "django/middleware/common.py#CommonMiddleware.should_redirect_with_slash",
+        "django/middleware/common.py#CommonMiddleware.process_response"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/middleware/common.py#CommonMiddleware.get_full_path_with_slash"
+      ],
+      "task_id": "M10",
+      "tool_calls": 7,
+      "tool_result_tokens": 2487
+    },
+    {
+      "address_score": 1.0,
+      "answer": "GZipMiddleware skips compression when a non-streaming response is under 200 bytes; when the response already has a Content-Encoding header; when the request HTTP_ACCEPT_ENCODING value does not match gzip acceptance (including a missing header); or, for a non-streaming response, when the produced gzip data is not smaller than the original. Streaming responses are not subject to the size/profitability checks. Source: django/middleware/gzip.py#GZipMiddleware.process_response",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/middleware/gzip.py#GZipMiddleware.process_response"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "M11",
+      "tool_calls": 12,
+      "tool_result_tokens": 3967
+    },
+    {
+      "address_score": 1.0,
+      "answer": "The default is an empty list: `MIDDLEWARE = []` (`django/conf/global_settings.py:471`).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/conf/global_settings.py#MIDDLEWARE"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "M12",
+      "tool_calls": 5,
+      "tool_result_tokens": 2531
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py#BaseHandler._get_response\ndjango/core/handlers/base.py#BaseHandler._get_response_async",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L01",
+      "tool_calls": 17,
+      "tool_result_tokens": 4537
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/utils/deprecation.py#MiddlewareMixin",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L02",
+      "tool_calls": 12,
+      "tool_result_tokens": 4493
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py#BaseHandler.load_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L03",
+      "tool_calls": 3,
+      "tool_result_tokens": 821
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/contrib/auth/checks.py#check_middleware\ndjango/contrib/auth/apps.py#AuthConfig.ready",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 9,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/contrib/auth/checks.py#check_middleware",
+        "django/contrib/auth/apps.py#AuthConfig.ready"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L04",
+      "tool_calls": 11,
+      "tool_result_tokens": 1804
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/conf/global_settings.py#SECURE_CONTENT_TYPE_NOSNIFF\ndjango/middleware/security.py#SecurityMiddleware\ndjango/core/checks/security/base.py#W001\ntests/middleware/test_security.py#SecurityMiddlewareTest",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L05",
+      "tool_calls": 12,
+      "tool_result_tokens": 9305
+    },
+    {
+      "address_score": 1.0,
+      "answer": "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware\ntests/auth_tests/test_checks.py#MiddlewareChecksTests.test_incorrect_order_with_login_required_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 6,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware",
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_incorrect_order_with_login_required_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L06",
+      "tool_calls": 7,
+      "tool_result_tokens": 1568
+    },
+    {
+      "address_score": 1.0,
+      "answer": "For MIDDLEWARE = [M1, M2, M3], the request enters M1 \u2192 M2 \u2192 M3 \u2192 view, while the response unwinds M3 \u2192 M2 \u2192 M1. This onion order is established by BaseHandler.load_middleware(): it iterates reversed(settings.MIDDLEWARE) and wraps the current inner handler with each middleware, leaving the first configured middleware outermost; get_response() then invokes the completed chain. Source: django/core/handlers/base.py (BaseHandler.load_middleware and BaseHandler.get_response/get_response_async).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.3333333333333333,
+      "facts_found": [
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.6666666666666666,
+      "supporting_addresses_found": [],
+      "task_id": "M01",
+      "tool_calls": 3,
+      "tool_result_tokens": 10034
+    },
+    {
+      "address_score": 0.5,
+      "answer": "Raising MiddlewareNotUsed from a middleware factory tells Django to omit that middleware: BaseHandler.load_middleware() catches it during middleware-chain construction and continues with the remaining configured middleware. When DEBUG is true it emits a django.request debug log containing the middleware path and, if present, the exception message; with DEBUG false it is silent. Handled in django/core/handlers/base.py (BaseHandler.load_middleware); the exception is defined in django/core/exceptions.py.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.25,
+      "supporting_addresses_found": [],
+      "task_id": "M02",
+      "tool_calls": 3,
+      "tool_result_tokens": 5966
+    },
+    {
+      "address_score": 0.0,
+      "answer": "Middleware advertises capability with boolean `sync_capable` and `async_capable` attributes on its factory function or class. The defaults are `sync_capable=True` and `async_capable=False` (sync-only); `sync_only_middleware`, `async_only_middleware`, and `sync_and_async_middleware` set the corresponding flag pairs. A middleware declaring both flags false is rejected. While building the chain, Django chooses a native mode the middleware supports and, when that differs from the surrounding handler/request mode, adapts the boundary: async callables are wrapped with `async_to_sync`, while sync callables are wrapped with `sync_to_async(..., thread_sensitive=True)`. It also adapts the top of the completed chain back to the server mode and individually adapts optional middleware hooks as needed, incurring extra transitions/performance cost.\n\nSources: `django/core/handlers/base.py`, `django/utils/decorators.py`, `docs/topics/http/middleware.txt`",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F4"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.1,
+      "supporting_addresses_found": [],
+      "task_id": "M03",
+      "tool_calls": 4,
+      "tool_result_tokens": 8737
+    },
+    {
+      "address_score": 0.5,
+      "answer": "Django rejects the result immediately: a view returning None raises ValueError saying the view did not return an HttpResponse and returned None instead; a process_template_response hook returning None raises the same ValueError, naming <MiddlewareClass>.process_template_response, before rendering continues. Both the synchronous and asynchronous request paths call BaseHandler.check_response(), which raises the error. Source: django/core/handlers/base.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.check_response"
+      ],
+      "score": 0.75,
+      "supporting_addresses_found": [],
+      "task_id": "M04",
+      "tool_calls": 3,
+      "tool_result_tokens": 44314
+    },
+    {
+      "address_score": 1.0,
+      "answer": "convert_exception_to_response wraps a synchronous or asynchronous get_response callable so every exception becomes an HttpResponse: recognized client errors become the appropriate 4xx response and everything else becomes a 500. This prevents middleware from leaking exceptions and lets the next outer middleware rely on receiving a response. In BaseHandler.load_middleware(), it is applied first around the core _get_response/_get_response_async handler, then again around each middleware instance as the stack is assembled in reverse order, placing an exception-to-response boundary between every middleware layer. Source: django/core/handlers/exception.py (convert_exception_to_response, response_for_exception); django/core/handlers/base.py (BaseHandler.load_middleware).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/exception.py#convert_exception_to_response",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/exception.py#response_for_exception"
+      ],
+      "task_id": "M05",
+      "tool_calls": 3,
+      "tool_result_tokens": 3871
+    },
+    {
+      "address_score": 0.0,
+      "answer": "process_view is called after URL resolution. Both the synchronous and asynchronous handlers first call resolve_request(), which resolves request.path_info, assigns request.resolver_match, and returns the resolved callback and its args/kwargs; the process_view middleware chain then runs immediately before the view. Sources: django/core/handlers/base.py; docs/topics/http/middleware.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "M06",
+      "tool_calls": 3,
+      "tool_result_tokens": 9264
+    },
+    {
+      "address_score": 0.0,
+      "answer": "After the view (or middleware) returns, Django checks whether the response has a callable render() method. If so, it invokes each registered process_template_response(request, response) hook in reverse MIDDLEWARE order (awaiting it on the async path), feeds each returned response to the next hook, verifies it is neither None nor an unawaited coroutine, and finally renders the resulting response automatically. Each hook must return a response object implementing render(); it may mutate the supplied TemplateResponse or return a new equivalent. Sources: django/core/handlers/base.py; docs/topics/http/middleware.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.4,
+      "facts_found": [
+        "F1",
+        "F2"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.2,
+      "supporting_addresses_found": [],
+      "task_id": "M07",
+      "tool_calls": 3,
+      "tool_result_tokens": 7258
+    },
+    {
+      "address_score": 0.0,
+      "answer": "`process_exception()` is an optional middleware hook: `BaseHandler` invokes the registered hooks, in response/reverse middleware order, only for exceptions raised by the view or while rendering a template response. The first hook returning an `HttpResponse` handles the exception; if all return `None`, the exception is re-raised for default handling. Under `MIDDLEWARE`, exceptions raised by middleware itself do not go through these hooks. `convert_exception_to_response()` is instead an internal sync/async wrapper installed around the core handler and every middleware instance. It catches any exception escaping that wrapped callable and always turns it into an HTTP response: known exceptions become the appropriate 4xx response and otherwise an uncaught-exception/500 response (unless propagation is configured), so the next outer middleware receives a response rather than an exception. Sources: `django/core/handlers/base.py`, `django/core/handlers/exception.py`, `docs/topics/http/middleware.txt`.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F5"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.1,
+      "supporting_addresses_found": [],
+      "task_id": "M08",
+      "tool_calls": 4,
+      "tool_result_tokens": 8565
+    },
+    {
+      "address_score": 1.0,
+      "answer": "SecurityMiddleware reads these nine settings in SecurityMiddleware.__init__, copying them to instance attributes: SECURE_HSTS_SECONDS, SECURE_HSTS_INCLUDE_SUBDOMAINS, SECURE_HSTS_PRELOAD, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_SSL_REDIRECT, SECURE_SSL_HOST, SECURE_REDIRECT_EXEMPT (compiled into regexes), SECURE_REFERRER_POLICY, and SECURE_CROSS_ORIGIN_OPENER_POLICY. The resulting values are consumed by process_request for HTTPS redirect behavior and by process_response for the HSTS, nosniff, referrer-policy, and cross-origin-opener-policy headers. Source: django/middleware/security.py (SecurityMiddleware.__init__, SecurityMiddleware.process_request, SecurityMiddleware.process_response).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.9,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/middleware/security.py#SecurityMiddleware.__init__"
+      ],
+      "score": 0.95,
+      "supporting_addresses_found": [
+        "django/middleware/security.py#SecurityMiddleware.process_request"
+      ],
+      "task_id": "M09",
+      "tool_calls": 2,
+      "tool_result_tokens": 554
+    },
+    {
+      "address_score": 0.16666666666666666,
+      "answer": "CommonMiddleware redirects in two cases: (1) during request processing, when PREPEND_WWW is enabled and the request host is nonempty and does not start with \"www.\"; the redirect targets the same scheme at www.<host>, and it also appends a slash in that same redirect when the slash rules below are met. (2) during response processing, when the response is 404 and APPEND_SLASH is enabled, the path does not already end in \"/\", the original path does not resolve, the slash-appended path does resolve, and the matched view has not opted out with should_append_slash=False. Redirects use HttpResponsePermanentRedirect by default. If DEBUG is true and a slash redirect is needed for POST, PUT, PATCH, or DELETE, get_full_path_with_slash() raises RuntimeError instead of redirecting. Source: django/middleware/common.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.125,
+      "facts_found": [
+        "F8"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.14583333333333331,
+      "supporting_addresses_found": [
+        "django/middleware/common.py#CommonMiddleware.get_full_path_with_slash"
+      ],
+      "task_id": "M10",
+      "tool_calls": 2,
+      "tool_result_tokens": 4384
+    },
+    {
+      "address_score": 0.0,
+      "answer": "GZipMiddleware skips compression when a non-streaming response is shorter than 200 bytes; when the response already has a Content-Encoding header; when the request HTTP_ACCEPT_ENCODING value does not match the gzip token; or, for a non-streaming response, when the generated gzip payload is not smaller than the original. Streaming responses bypass the size/profitability checks but still require no existing Content-Encoding and a gzip-accepting request. Source: django/middleware/gzip.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "M11",
+      "tool_calls": 2,
+      "tool_result_tokens": 3247
+    },
+    {
+      "address_score": 1.0,
+      "answer": "The default MIDDLEWARE value is an empty list (`[]`). Source: django/conf/global_settings.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": null,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/conf/global_settings.py#MIDDLEWARE"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "M12",
+      "tool_calls": 1,
+      "tool_result_tokens": 5
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py:BaseHandler._get_response\ndjango/core/handlers/base.py:BaseHandler._get_response_async",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L01",
+      "tool_calls": 8,
+      "tool_result_tokens": 18705
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/utils/deprecation.py:MiddlewareMixin",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L02",
+      "tool_calls": 5,
+      "tool_result_tokens": 8430
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/core/handlers/base.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L03",
+      "tool_calls": 2,
+      "tool_result_tokens": 2697
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/contrib/auth/checks.py:check_middleware\ndjango/contrib/auth/apps.py:AuthConfig.ready",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "django/contrib/auth/checks.py#check_middleware",
+        "django/contrib/auth/apps.py#AuthConfig.ready"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L04",
+      "tool_calls": 3,
+      "tool_result_tokens": 3535
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/conf/global_settings.py\ndjango/middleware/security.py\ntests/middleware/test_security.py\ndjango/core/checks/security/base.py\ndocs/ref/settings.txt\ndocs/ref/middleware.txt\ndocs/ref/checks.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L05",
+      "tool_calls": 9,
+      "tool_result_tokens": 21401
+    },
+    {
+      "address_score": 0.5,
+      "answer": "The ordering assertions live in `tests/auth_tests/test_checks.py`, in `MiddlewareChecksTests` (`test_correct_order_with_login_required_middleware`, `test_incorrect_order_with_login_required_middleware`, and the missing-authentication case). They verify that `AuthenticationMiddleware` appears before `LoginRequiredMiddleware`, otherwise producing `auth.E013`.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 1,
+      "required_addresses_found": [
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "L06",
+      "tool_calls": 3,
+      "tool_result_tokens": 3495
+    },
+    {
+      "address_score": 1.0,
+      "answer": "On the request path, middleware run in settings.MIDDLEWARE order (top to bottom, with the first entry outermost); on the response path, the entered layers unwind in reverse order (bottom to top, so the last entered middleware handles the response first). This onion order is established in BaseHandler.load_middleware by iterating reversed(settings.MIDDLEWARE), wrapping the current handler with each middleware instance, and finally assigning the resulting outermost handler to _middleware_chain. The same method builds the hook lists with insert(0) for process_view and append for process_template_response/process_exception to give their intended direction. django/core/handlers/base.py:26-103",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.3333333333333333,
+      "facts_found": [
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.6666666666666666,
+      "supporting_addresses_found": [],
+      "task_id": "M01",
+      "tool_calls": 4,
+      "tool_result_tokens": 1946
+    },
+    {
+      "address_score": 1.0,
+      "answer": "Raising MiddlewareNotUsed from a middleware factory tells Django to skip that middleware entirely while building the middleware chain: its instance/hooks are not installed and loading continues with the remaining middleware. BaseHandler.load_middleware catches it around factory construction; when DEBUG is true it emits a django.request debug log (including the exception message when present), then continues. Handled at django/core/handlers/base.py:26-103#BaseHandler.load_middleware; the exception is defined at django/core/exceptions.py:117#MiddlewareNotUsed.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/exceptions.py#MiddlewareNotUsed",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "M02",
+      "tool_calls": 5,
+      "tool_result_tokens": 1394
+    },
+    {
+      "address_score": 1.0,
+      "answer": "Middleware declares capability with boolean `sync_capable` and `async_capable` attributes on its factory/class; the helpers `sync_only_middleware`, `async_only_middleware`, and `sync_and_async_middleware` set them to (True, False), (False, True), and (True, True), respectively. If omitted, Django treats middleware as sync-capable and not async-capable. While constructing the chain, Django selects a mode the middleware supports, adapts the downstream handler when its mode differs, and finally adapts the top of the chain back to the server-requested mode: sync code used in async mode is wrapped with `sync_to_async(..., thread_sensitive=True)`, while async code used in sync mode is wrapped with `async_to_sync`. Declaring neither capability raises `RuntimeError`. Sources: django/utils/decorators.py:205-229; django/core/handlers/base.py:26-135; django/utils/deprecation.py:275-331.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F4"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware",
+        "django/core/handlers/base.py#BaseHandler.adapt_method_mode"
+      ],
+      "score": 0.6,
+      "supporting_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "task_id": "M03",
+      "tool_calls": 12,
+      "tool_result_tokens": 2390
+    },
+    {
+      "address_score": 1.0,
+      "answer": "Returning None is rejected immediately with ValueError: \"<name> didn\u2019t return an HttpResponse object. It returned None instead.\" For a view, <name> identifies the FBV or CBV; for a template-response hook it is explicitly \"MiddlewareClass.process_template_response\". The sync handler checks after the view and after every hook in django/core/handlers/base.py:205 and django/core/handlers/base.py:214; the async handler does the same at django/core/handlers/base.py:266 and django/core/handlers/base.py:275. BaseHandler.check_response constructs and raises the ValueError in django/core/handlers/base.py:318-342.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler.check_response"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "task_id": "M04",
+      "tool_calls": 11,
+      "tool_result_tokens": 2125
+    },
+    {
+      "address_score": 1.0,
+      "answer": "convert_exception_to_response is a sync/async wrapper that catches exceptions from a request handler and turns them into HttpResponse objects via response_for_exception: recognized client errors become their appropriate 4xx responses and unhandled errors become 500 responses. Its purpose is to prevent any middleware layer from leaking an exception, so the next outer middleware can rely on receiving a response. BaseHandler.load_middleware first wraps the innermost _get_response/_get_response_async handler, then, while building settings.MIDDLEWARE in reverse order, wraps every instantiated middleware before making it the handler for the next outer layer; the resulting wrapped handler becomes _middleware_chain. Sources: django/core/handlers/exception.py#convert_exception_to_response (L24-L60), django/core/handlers/exception.py#response_for_exception (L63-L159), django/core/handlers/base.py#BaseHandler.load_middleware (L26-L103).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/exception.py#convert_exception_to_response",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/exception.py#response_for_exception"
+      ],
+      "task_id": "M05",
+      "tool_calls": 8,
+      "tool_result_tokens": 1809
+    },
+    {
+      "address_score": 1.0,
+      "answer": "process_view is called after URL resolution: resolve_request() first resolves request.path_info, assigns request.resolver_match, and returns the resolved callback plus args/kwargs; Django then runs each view-middleware process_view before invoking the resolved view (in both sync and async paths). django/core/handlers/base.py:175-199, django/core/handlers/base.py:229-255, django/core/handlers/base.py:301-316",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler.resolve_request"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "task_id": "M06",
+      "tool_calls": 5,
+      "tool_result_tokens": 3744
+    },
+    {
+      "address_score": 1.0,
+      "answer": "During middleware loading, each process_template_response hook is adapted to the handler sync/async mode and stored in response-phase order (reverse of the configured middleware order). After the view returns, the handler enters this phase only if the response has a callable render attribute. It invokes each hook as process_template_response(request, response) (awaiting it in the async handler), replaces response with the hook return value, and rejects None (or an uncalled coroutine asynchronously). It then calls/awaits response.render(). Therefore the originating response must support callable render(), every hook must return a non-None response, and the final replacement response must still provide render(). Sources: django/core/handlers/base.py:76-90, django/core/handlers/base.py:208-225, django/core/handlers/base.py:264-296.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.6,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F5"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response"
+      ],
+      "score": 0.8,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "task_id": "M07",
+      "tool_calls": 15,
+      "tool_result_tokens": 3681
+    },
+    {
+      "address_score": 1.0,
+      "answer": "process_exception is an optional middleware hook, registered on the synchronous exception stack and invoked only around view execution and deferred response rendering. Hooks receive (request, exception) in order; the first response short-circuits the rest, while all returning None causes the exception to be re-raised. In the async handler this same synchronous stack is called through sync_to_async. See django/core/handlers/base.py:82-96#BaseHandler.load_middleware, django/core/handlers/base.py:175-227#BaseHandler._get_response, django/core/handlers/base.py:229-299#BaseHandler._get_response_async, and django/core/handlers/base.py:357-366#BaseHandler.process_exception_by_middleware. convert_exception_to_response is instead a sync/async decorator automatically wrapped around the base handler and every middleware instance. It catches any Exception escaping the wrapped callable, including middleware exceptions and view/render exceptions left unhandled by process_exception, and unconditionally converts it through response_for_exception: recognized exceptions become the corresponding 4xx response and other exceptions become a 500, so outer middleware always receives a response. See django/core/handlers/exception.py:24-60#convert_exception_to_response, django/core/handlers/exception.py:63-159#response_for_exception, and django/core/handlers/base.py:26-103#BaseHandler.load_middleware.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.process_exception_by_middleware",
+        "django/core/handlers/exception.py#convert_exception_to_response"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/exception.py#response_for_exception"
+      ],
+      "task_id": "M08",
+      "tool_calls": 19,
+      "tool_result_tokens": 4664
+    },
+    {
+      "address_score": 1.0,
+      "answer": "SecurityMiddleware reads and caches these settings in `SecurityMiddleware.__init__`: `SECURE_HSTS_SECONDS` (django/middleware/security.py:11), `SECURE_HSTS_INCLUDE_SUBDOMAINS` (:12), `SECURE_HSTS_PRELOAD` (:13), `SECURE_CONTENT_TYPE_NOSNIFF` (:14), `SECURE_SSL_REDIRECT` (:15), `SECURE_SSL_HOST` (:16), `SECURE_REDIRECT_EXEMPT` (:17, compiled into regexes), `SECURE_REFERRER_POLICY` (:18), and `SECURE_CROSS_ORIGIN_OPENER_POLICY` (:19). Source: django/middleware/security.py#SecurityMiddleware.__init__ (L9-L19).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.9,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/middleware/security.py#SecurityMiddleware.__init__"
+      ],
+      "score": 0.95,
+      "supporting_addresses_found": [],
+      "task_id": "M09",
+      "tool_calls": 5,
+      "tool_result_tokens": 824
+    },
+    {
+      "address_score": 1.0,
+      "answer": "CommonMiddleware issues a redirect in two cases: (1) during request processing when PREPEND_WWW is enabled and the request has a nonempty host that does not start with \"www.\"; if the slash-redirect test also passes, it adds the slash in the same redirect. (2) during response processing when the response is 404 and APPEND_SLASH is enabled, the path lacks a trailing slash, the original path does not resolve, the slash-appended path does resolve, and the resolved view has not opted out with should_append_slash=False. If adding the slash is required while DEBUG is true for DELETE, POST, PUT, or PATCH, it raises RuntimeError instead of redirecting. The default redirect is permanent, though response_redirect_class is overridable. Sources: django/middleware/common.py#CommonMiddleware.process_request; django/middleware/common.py#CommonMiddleware.should_redirect_with_slash; django/middleware/common.py#CommonMiddleware.get_full_path_with_slash; django/middleware/common.py#CommonMiddleware.process_response",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/middleware/common.py#CommonMiddleware.process_request",
+        "django/middleware/common.py#CommonMiddleware.should_redirect_with_slash",
+        "django/middleware/common.py#CommonMiddleware.process_response"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/middleware/common.py#CommonMiddleware.get_full_path_with_slash"
+      ],
+      "task_id": "M10",
+      "tool_calls": 5,
+      "tool_result_tokens": 2297
+    },
+    {
+      "address_score": 1.0,
+      "answer": "GZipMiddleware skips compression when a non-streaming response is shorter than 200 bytes, when the response already has a Content-Encoding header, when the request Accept-Encoding value does not match gzip, or\u2014only for non-streaming responses\u2014when the compressed result is at least as large as the original. Source: django/middleware/gzip.py#GZipMiddleware.process_response (L18-L66).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 6,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/middleware/gzip.py#GZipMiddleware.process_response"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "M11",
+      "tool_calls": 10,
+      "tool_result_tokens": 1951
+    },
+    {
+      "address_score": 1.0,
+      "answer": "The default is an empty list: `MIDDLEWARE = []`. Source: django/conf/global_settings.py#MIDDLEWARE",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/conf/global_settings.py#MIDDLEWARE"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "M12",
+      "tool_calls": 5,
+      "tool_result_tokens": 2510
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py#BaseHandler._get_response\ndjango/core/handlers/base.py#BaseHandler._get_response_async",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L01",
+      "tool_calls": 12,
+      "tool_result_tokens": 3762
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/utils/deprecation.py#MiddlewareMixin",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L02",
+      "tool_calls": 11,
+      "tool_result_tokens": 2647
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py#BaseHandler.load_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L03",
+      "tool_calls": 4,
+      "tool_result_tokens": 1055
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/contrib/auth/checks.py#check_middleware\ndjango/contrib/auth/apps.py#AuthConfig.ready",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 7,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/contrib/auth/checks.py#check_middleware",
+        "django/contrib/auth/apps.py#AuthConfig.ready"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L04",
+      "tool_calls": 9,
+      "tool_result_tokens": 1918
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/conf/global_settings.py\ndjango/middleware/security.py#SecurityMiddleware\ndjango/core/checks/security/base.py#W001\ntests/middleware/test_security.py#SecurityMiddlewareTest",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 3,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L05",
+      "tool_calls": 15,
+      "tool_result_tokens": 12764
+    },
+    {
+      "address_score": 1.0,
+      "answer": "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware\ntests/auth_tests/test_checks.py#MiddlewareChecksTests.test_incorrect_order_with_login_required_middleware\ntests/auth_tests/test_checks.py#MiddlewareChecksTests.test_missing_authentication_with_login_required_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 7,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware",
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_incorrect_order_with_login_required_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_missing_authentication_with_login_required_middleware"
+      ],
+      "task_id": "L06",
+      "tool_calls": 8,
+      "tool_result_tokens": 1498
+    },
+    {
+      "address_score": 1.0,
+      "answer": "On the request path, middleware run top-to-bottom in settings.MIDDLEWARE (the first configured middleware is entered first); on the response path, the layers that handled the request unwind bottom-to-top, so the last-entered middleware handles the response first. This onion order is established by BaseHandler.load_middleware(), which iterates reversed(settings.MIDDLEWARE) and repeatedly wraps the current handler, leaving the first configured middleware outermost; get_response()/get_response_async() then invoke the resulting chain. Source: django/core/handlers/base.py (BaseHandler.load_middleware, BaseHandler.get_response, BaseHandler.get_response_async).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.3333333333333333,
+      "facts_found": [
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.6666666666666666,
+      "supporting_addresses_found": [],
+      "task_id": "M01",
+      "tool_calls": 2,
+      "tool_result_tokens": 37263
+    },
+    {
+      "address_score": 0.5,
+      "answer": "Raising MiddlewareNotUsed while the middleware factory is instantiated at startup marks that middleware as unused: Django skips it (so it is not added to the middleware chain), continues loading the remaining middleware, and, when DEBUG is true, writes a debug message to the django.request logger, including the exception text when nonempty. It is caught in BaseHandler.load_middleware in django/core/handlers/base.py. The documented contract is in docs/topics/http/middleware.txt.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.75,
+      "supporting_addresses_found": [],
+      "task_id": "M02",
+      "tool_calls": 3,
+      "tool_result_tokens": 7063
+    },
+    {
+      "address_score": 0.0,
+      "answer": "A middleware factory function or class advertises capability with boolean `sync_capable` and `async_capable` attributes. The defaults are sync-only (`True`/`False`); `sync_only_middleware`, `async_only_middleware`, and `sync_and_async_middleware` set the corresponding combinations. A hybrid middleware receives `get_response` in the selected mode and must return a callable of the same sync/async nature. While building the chain, Django chooses a supported mode (favoring sync when the inner handler is sync and the middleware supports sync). If the middleware cannot natively run in the current mode, Django adapts the boundary: async callables are wrapped with `async_to_sync`, synchronous callables with `sync_to_async(thread_sensitive=True)`, and the completed top of the chain is adapted back to the server mode. Optional hooks are adapted individually (with exception middleware kept synchronous), at an added performance cost. Declaring both flags false raises `RuntimeError`. Sources: `django/core/handlers/base.py`, `django/utils/decorators.py`, `docs/topics/http/middleware.txt`.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F4"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.1,
+      "supporting_addresses_found": [],
+      "task_id": "M03",
+      "tool_calls": 4,
+      "tool_result_tokens": 8737
+    },
+    {
+      "address_score": 0.5,
+      "answer": "Django raises ValueError: a view returning None is reported as not returning an HttpResponse object, and a process_template_response hook returning None is likewise reported with the middleware hook name. BaseHandler._get_response() (and _get_response_async()) calls BaseHandler.check_response() after the view and after each template-response middleware; check_response() raises the error. django/core/handlers/base.py",
+      "arm": "baseline",
+      "capped": true,
+      "fact_score": 0.6666666666666666,
+      "facts_found": [
+        "F1",
+        "F2"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": null,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.check_response"
+      ],
+      "score": 0.5833333333333333,
+      "supporting_addresses_found": [],
+      "task_id": "M04",
+      "tool_calls": 1,
+      "tool_result_tokens": 60000
+    },
+    {
+      "address_score": 1.0,
+      "answer": "convert_exception_to_response wraps a synchronous or asynchronous request handler so every exception becomes an HTTP response: recognized client errors become their appropriate 4xx response and otherwise uncaught errors become 500 responses, preventing middleware from leaking exceptions and ensuring the next outer layer receives a response. BaseHandler.load_middleware first applies it to the innermost _get_response/_get_response_async handler, then applies it again around every middleware instance as the chain is assembled in reverse order. Sources: django/core/handlers/exception.py (convert_exception_to_response, response_for_exception); django/core/handlers/base.py (BaseHandler.load_middleware).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/exception.py#convert_exception_to_response",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/exception.py#response_for_exception"
+      ],
+      "task_id": "M05",
+      "tool_calls": 3,
+      "tool_result_tokens": 3871
+    },
+    {
+      "address_score": 0.0,
+      "answer": "process_view is called after URL resolution has completed: resolve_request() resolves request.path_info, stores request.resolver_match, and returns the resolved callback plus args/kwargs; Django then passes those values to process_view immediately before calling the view (in both sync and async paths). django/core/handlers/base.py; docs/topics/http/middleware.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "M06",
+      "tool_calls": 3,
+      "tool_result_tokens": 9264
+    },
+    {
+      "address_score": 0.0,
+      "answer": "After the view (or view/exception middleware) produces a response, Django checks that it has a callable `render`. It then invokes each registered template-response middleware in reverse `MIDDLEWARE` order as `process_template_response(request, response)` (awaiting the adapted method on the async path), feeds each returned response to the next middleware, and finally renders the result automatically. Each hook must return a non-`None` response object that itself implements `render`; otherwise response validation/rendering fails. Sources: `django/core/handlers/base.py`, `docs/topics/http/middleware.txt`.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F2"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.1,
+      "supporting_addresses_found": [],
+      "task_id": "M07",
+      "tool_calls": 3,
+      "tool_result_tokens": 7258
+    },
+    {
+      "address_score": 0.0,
+      "answer": "process_exception is an opt-in middleware hook: BaseHandler invokes registered hooks only when the view call or deferred response rendering raises; it walks the exception middleware in order, uses the first truthy response, and returns None so the exception is re-raised if nobody handles it (django/core/handlers/base.py). convert_exception_to_response is an always-applied sync/async wrapper around every middleware/get_response callable: it catches any Exception escaping that layer and unconditionally turns it into an HTTP response through response_for_exception (known 4xx responses, otherwise an uncaught-exception/500 response), ensuring exceptions do not leak across middleware boundaries (django/core/handlers/exception.py; django/core/handlers/base.py).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "M08",
+      "tool_calls": 3,
+      "tool_result_tokens": 4529
+    },
+    {
+      "address_score": 1.0,
+      "answer": "SecurityMiddleware reads these settings in SecurityMiddleware.__init__: SECURE_HSTS_SECONDS, SECURE_HSTS_INCLUDE_SUBDOMAINS, SECURE_HSTS_PRELOAD, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_SSL_REDIRECT, SECURE_SSL_HOST, SECURE_REDIRECT_EXEMPT, SECURE_REFERRER_POLICY, and SECURE_CROSS_ORIGIN_OPENER_POLICY. It caches them on the middleware instance (and compiles each SECURE_REDIRECT_EXEMPT pattern); process_request then uses the SSL redirect/host/exemption values, while process_response uses the HSTS, nosniff, referrer-policy, and cross-origin-opener-policy values. Source: django/middleware/security.py (SecurityMiddleware.__init__, process_request, and process_response).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.9,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/middleware/security.py#SecurityMiddleware.__init__"
+      ],
+      "score": 0.95,
+      "supporting_addresses_found": [
+        "django/middleware/security.py#SecurityMiddleware.process_request",
+        "django/middleware/security.py#SecurityMiddleware.process_response"
+      ],
+      "task_id": "M09",
+      "tool_calls": 2,
+      "tool_result_tokens": 554
+    },
+    {
+      "address_score": 0.0,
+      "answer": "CommonMiddleware redirects in two cases: (1) during request processing, when PREPEND_WWW is enabled, the request has a nonempty host, and that host does not start with \"www.\"; it redirects to the www-prefixed host and, when appropriate, combines this with the slash redirect. (2) during response processing, when the response is 404 and should_redirect_with_slash() is true: APPEND_SLASH is enabled, path_info lacks a trailing slash, the original path is invalid, the slash-appended path is valid, and the matched view does not set should_append_slash=False. In DEBUG mode, attempting the slash form for DELETE, POST, PUT, or PATCH raises RuntimeError instead of redirecting. The redirect class defaults to HttpResponsePermanentRedirect. Source: django/middleware/common.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.25,
+      "facts_found": [
+        "F2",
+        "F8"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.125,
+      "supporting_addresses_found": [],
+      "task_id": "M10",
+      "tool_calls": 2,
+      "tool_result_tokens": 1593
+    },
+    {
+      "address_score": 0.0,
+      "answer": "GZipMiddleware skips compression when (1) a non-streaming response has fewer than 200 bytes of content, (2) the response already has a Content-Encoding header, (3) the request Accept-Encoding value is absent or does not match the gzip token, or (4) for a non-streaming response, the generated gzip representation is at least as large as the original. Streaming responses are not subject to the size checks. Source: django/middleware/gzip.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "M11",
+      "tool_calls": 3,
+      "tool_result_tokens": 646
+    },
+    {
+      "address_score": 1.0,
+      "answer": "The default MIDDLEWARE value is an empty list (`[]`). Source: django/conf/global_settings.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": null,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/conf/global_settings.py#MIDDLEWARE"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "M12",
+      "tool_calls": 1,
+      "tool_result_tokens": 48
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/core/handlers/base.py",
+      "arm": "baseline",
+      "capped": true,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L01",
+      "tool_calls": 3,
+      "tool_result_tokens": 60000
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/utils/deprecation.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L02",
+      "tool_calls": 2,
+      "tool_result_tokens": 2598
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py:BaseHandler.load_middleware",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L03",
+      "tool_calls": 2,
+      "tool_result_tokens": 2697
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/contrib/auth/checks.py:check_middleware\ndjango/contrib/auth/apps.py:AuthConfig.ready",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [
+        "django/contrib/auth/checks.py#check_middleware",
+        "django/contrib/auth/apps.py#AuthConfig.ready"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L04",
+      "tool_calls": 4,
+      "tool_result_tokens": 2755
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/conf/global_settings.py\ndjango/middleware/security.py\ndjango/core/checks/security/base.py\ntests/middleware/test_security.py\ndocs/ref/settings.txt\ndocs/ref/middleware.txt\ndocs/ref/checks.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L05",
+      "tool_calls": 5,
+      "tool_result_tokens": 18502
+    },
+    {
+      "address_score": 0.0,
+      "answer": "tests/auth_tests/test_checks.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 2,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L06",
+      "tool_calls": 3,
+      "tool_result_tokens": 3495
+    },
+    {
+      "address_score": 1.0,
+      "answer": "Middleware run in settings.MIDDLEWARE order on the request path (first listed is outermost and sees the request first), then unwind in the opposite order on the response path (last listed responds first). This is established in django/core/handlers/base.py#BaseHandler.load_middleware: it iterates reversed(settings.MIDDLEWARE), wraps the current handler with each middleware, and assigns the resulting outermost wrapper to _middleware_chain; the same method uses insert(0) for process_view hooks and append while reverse-iterating for template-response/exception hooks. django/core/handlers/base.py#BaseHandler.get_response starts processing by calling that chain.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.3333333333333333,
+      "facts_found": [
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.6666666666666666,
+      "supporting_addresses_found": [],
+      "task_id": "M01",
+      "tool_calls": 9,
+      "tool_result_tokens": 4439
+    },
+    {
+      "address_score": 1.0,
+      "answer": "Raising MiddlewareNotUsed while a middleware factory is instantiated causes Django to skip that middleware and continue constructing the middleware chain. In DEBUG mode, it emits a django.request debug log naming the middleware and includes the exception message when present; otherwise it is silently skipped. It is caught in django/core/handlers/base.py#BaseHandler.load_middleware (L26-L103, specifically the factory call/catch around L55-L70). The exception class is defined at django/core/exceptions.py#MiddlewareNotUsed (L117).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/exceptions.py#MiddlewareNotUsed",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "M02",
+      "tool_calls": 5,
+      "tool_result_tokens": 1482
+    },
+    {
+      "address_score": 1.0,
+      "answer": "A middleware factory declares capability with boolean `sync_capable` and `async_capable` attributes; absent attributes default to sync-capable (`True`) and not async-capable (`False`). Django provides `sync_only_middleware`, `async_only_middleware`, and `sync_and_async_middleware` decorators that set those flags. While building the stack, Django chooses a mode the middleware supports and adapts the downstream handler when the modes differ: sync callables are wrapped with `sync_to_async(..., thread_sensitive=True)` for async mode, and async callables with `async_to_sync` for sync mode. A middleware declaring neither capability raises `RuntimeError`. `MiddlewareMixin` declares both and switches to an async call path when its `get_response` is coroutine-based. Sources: django/utils/decorators.py#sync_and_async_middleware (L205-L212), django/utils/decorators.py#sync_only_middleware (L215-L222), django/utils/decorators.py#async_only_middleware (L225-L229), django/core/handlers/base.py#BaseHandler.load_middleware (L26-L103), django/core/handlers/base.py#BaseHandler.adapt_method_mode (L105-L135), django/utils/deprecation.py#MiddlewareMixin (L275-L331).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F4"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 6,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware",
+        "django/core/handlers/base.py#BaseHandler.adapt_method_mode"
+      ],
+      "score": 0.6,
+      "supporting_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "task_id": "M03",
+      "tool_calls": 14,
+      "tool_result_tokens": 2330
+    },
+    {
+      "address_score": 1.0,
+      "answer": "It fails immediately with ValueError: \"<view or Middleware.process_template_response> didn\u2019t return an HttpResponse object. It returned None instead.\" Both synchronous and asynchronous request paths call BaseHandler.check_response() after the view and after every process_template_response hook; check_response() is the code that raises the ValueError. django/core/handlers/base.py:175-227, django/core/handlers/base.py:229-299, django/core/handlers/base.py:318-342",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 3,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler.check_response"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "task_id": "M04",
+      "tool_calls": 8,
+      "tool_result_tokens": 1948
+    },
+    {
+      "address_score": 1.0,
+      "answer": "convert_exception_to_response wraps a sync or async get_response callable so exceptions cannot escape the middleware stack: known 4xx exceptions become their appropriate responses and all other exceptions become 500 responses, letting outer middleware always receive a response. In BaseHandler.load_middleware it is first applied to the core _get_response/_get_response_async handler, then applied again around every middleware instance as settings.MIDDLEWARE is assembled in reverse order. Sources: django/core/handlers/exception.py#convert_exception_to_response; django/core/handlers/base.py#BaseHandler.load_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/exception.py#convert_exception_to_response",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "M05",
+      "tool_calls": 6,
+      "tool_result_tokens": 1102
+    },
+    {
+      "address_score": 0.75,
+      "answer": "process_view is called after URL resolution has selected the view and produced its positional and keyword arguments, but before the resolved view itself is invoked. Each view-middleware hook receives (request, callback, callback_args, callback_kwargs); if one returns a response, later view middleware and the view are skipped. This ordering is the same in synchronous and asynchronous handling. django/core/handlers/base.py#BaseHandler._get_response; django/core/handlers/base.py#BaseHandler._get_response_async",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response"
+      ],
+      "score": 0.375,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "task_id": "M06",
+      "tool_calls": 8,
+      "tool_result_tokens": 3842
+    },
+    {
+      "address_score": 1.0,
+      "answer": "After the view (and view/exception middleware) produces a response, BaseHandler invokes template-response middleware only when that response has a callable render attribute. The registered hooks run in response order, each as process_template_response(request, response) (awaited in the async handler); each returned value becomes the response passed to the next hook. A hook must return a non-None, non-coroutine response, and the final/replacement response must continue to provide callable render(), because the handler renders it immediately afterward (awaiting an async render or adapting a sync one). Hooks are collected and sync/async-adapted while middleware is loaded. Sources: django/core/handlers/base.py:26-103, django/core/handlers/base.py:175-227, django/core/handlers/base.py:229-299, django/core/handlers/base.py:318-342.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.4,
+      "facts_found": [
+        "F1",
+        "F2"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 5,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response"
+      ],
+      "score": 0.7,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "task_id": "M07",
+      "tool_calls": 10,
+      "tool_result_tokens": 2579
+    },
+    {
+      "address_score": 1.0,
+      "answer": "process_exception is an optional middleware hook: Django invokes the registered hooks synchronously, in exception-middleware order, only for exceptions raised while calling the view or rendering its response; each hook may return a response to short-circuit the remaining hooks, or None to let handling continue, and an unhandled exception is re-raised (django/core/handlers/base.py#BaseHandler._get_response; django/core/handlers/base.py#BaseHandler._get_response_async; django/core/handlers/base.py#BaseHandler.process_exception_by_middleware). convert_exception_to_response, by contrast, is an internal sync/async wrapper applied around the core handler and every middleware. It catches any exception escaping that wrapped callable\u2014including middleware exceptions and view/render exceptions not handled by process_exception\u2014and always turns it into an HttpResponse via response_for_exception (known 4xx exceptions to their corresponding response, everything else to a 500), so exceptions do not leak across middleware boundaries (django/core/handlers/exception.py#convert_exception_to_response; django/core/handlers/base.py#BaseHandler.load_middleware).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F5"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.process_exception_by_middleware",
+        "django/core/handlers/exception.py#convert_exception_to_response"
+      ],
+      "score": 0.6,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response"
+      ],
+      "task_id": "M08",
+      "tool_calls": 10,
+      "tool_result_tokens": 3693
+    },
+    {
+      "address_score": 1.0,
+      "answer": "SecurityMiddleware reads all nine settings during __init__: SECURE_HSTS_SECONDS (django/middleware/security.py:11), SECURE_HSTS_INCLUDE_SUBDOMAINS (:12), SECURE_HSTS_PRELOAD (:13), SECURE_CONTENT_TYPE_NOSNIFF (:14), SECURE_SSL_REDIRECT (:15), SECURE_SSL_HOST (:16), SECURE_REDIRECT_EXEMPT (:17), SECURE_REFERRER_POLICY (:18), and SECURE_CROSS_ORIGIN_OPENER_POLICY (:19). They are cached on the middleware instance there; request/response processing uses those cached attributes rather than rereading settings.",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.9,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/middleware/security.py#SecurityMiddleware.__init__"
+      ],
+      "score": 0.95,
+      "supporting_addresses_found": [],
+      "task_id": "M09",
+      "tool_calls": 4,
+      "tool_result_tokens": 839
+    },
+    {
+      "address_score": 1.0,
+      "answer": "CommonMiddleware redirects in two cases: (1) during request processing, when PREPEND_WWW is enabled, the host is nonempty, and it does not already start with \"www.\"; it redirects to the same scheme at www.<host>, preserving the full path/query and, when the slash predicate also holds, appending the slash in that same redirect. (2) during response processing, when the response is 404 and the slash predicate holds. That predicate requires APPEND_SLASH enabled, a path not already ending in \"/\", the original path not resolving, the slash-appended path resolving, and the resolved view not opting out via should_append_slash=False. Slash URL construction raises RuntimeError instead of redirecting for DELETE/POST/PUT/PATCH while DEBUG is true. The default redirect class is HttpResponsePermanentRedirect. Sources: django/middleware/common.py#CommonMiddleware.process_request (L34-L60); django/middleware/common.py#CommonMiddleware.should_redirect_with_slash (L62-L74); django/middleware/common.py#CommonMiddleware.get_full_path_with_slash (L76-L98); django/middleware/common.py#CommonMiddleware.process_response (L100-L117).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.25,
+      "facts_found": [
+        "F3",
+        "F8"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/middleware/common.py#CommonMiddleware.process_request",
+        "django/middleware/common.py#CommonMiddleware.should_redirect_with_slash",
+        "django/middleware/common.py#CommonMiddleware.process_response"
+      ],
+      "score": 0.625,
+      "supporting_addresses_found": [
+        "django/middleware/common.py#CommonMiddleware.get_full_path_with_slash"
+      ],
+      "task_id": "M10",
+      "tool_calls": 8,
+      "tool_result_tokens": 2920
+    },
+    {
+      "address_score": 1.0,
+      "answer": "GZipMiddleware skips compression when a non-streaming response is under 200 bytes, when the response already has a Content-Encoding header, when the request HTTP_ACCEPT_ENCODING does not accept gzip, or (for a non-streaming response) when the gzip result is not smaller than the original. django/middleware/gzip.py#GZipMiddleware.process_response (L16-L48)",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 3,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/middleware/gzip.py#GZipMiddleware.process_response"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [],
+      "task_id": "M11",
+      "tool_calls": 6,
+      "tool_result_tokens": 1225
+    },
+    {
+      "address_score": 1.0,
+      "answer": "The default is an empty list: `MIDDLEWARE = []` (`django/conf/global_settings.py`, in `MIDDLEWARE`).",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": null,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/conf/global_settings.py#MIDDLEWARE"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "M12",
+      "tool_calls": 1,
+      "tool_result_tokens": 2383
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py#BaseHandler.load_middleware\ndjango/core/handlers/base.py#BaseHandler._get_response\ndjango/core/handlers/base.py#BaseHandler._get_response_async",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response",
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L01",
+      "tool_calls": 21,
+      "tool_result_tokens": 9882
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/utils/deprecation.py#MiddlewareMixin.__acall__",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L02",
+      "tool_calls": 10,
+      "tool_result_tokens": 4254
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py#BaseHandler.load_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L03",
+      "tool_calls": 6,
+      "tool_result_tokens": 1119
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/contrib/auth/checks.py#check_middleware\ndjango/contrib/auth/apps.py#AuthConfig.ready",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 10,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/contrib/auth/checks.py#check_middleware",
+        "django/contrib/auth/apps.py#AuthConfig.ready"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L04",
+      "tool_calls": 12,
+      "tool_result_tokens": 2159
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/conf/global_settings.py#SECURE_CONTENT_TYPE_NOSNIFF\ndjango/middleware/security.py#SecurityMiddleware\ndjango/core/checks/security/base.py#W001\ntests/middleware/test_security.py#SecurityMiddlewareTest",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L05",
+      "tool_calls": 17,
+      "tool_result_tokens": 9472
+    },
+    {
+      "address_score": 1.0,
+      "answer": "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware\ntests/auth_tests/test_checks.py#MiddlewareChecksTests.test_incorrect_order_with_login_required_middleware",
+      "arm": "agentlens",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 4,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_correct_order_with_login_required_middleware",
+        "tests/auth_tests/test_checks.py#MiddlewareChecksTests.test_incorrect_order_with_login_required_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L06",
+      "tool_calls": 6,
+      "tool_result_tokens": 1415
+    },
+    {
+      "address_score": 0.0,
+      "answer": "Requests traverse middleware in the order listed in settings.MIDDLEWARE (top to bottom); responses unwind through the middleware that handled the request in the reverse order (bottom to top). A short-circuiting middleware prevents inner layers and the view from running, so the response unwinds only through that middleware and the outer layers already entered. The order is established in BaseHandler.load_middleware(), which iterates reversed(settings.MIDDLEWARE) while wrapping the inner handler, making the first configured middleware the outermost callable. Source: django/core/handlers/base.py; documented in docs/topics/http/middleware.txt.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.3333333333333333,
+      "facts_found": [
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.16666666666666666,
+      "supporting_addresses_found": [],
+      "task_id": "M01",
+      "tool_calls": 3,
+      "tool_result_tokens": 13639
+    },
+    {
+      "address_score": 0.5,
+      "answer": "Raising `MiddlewareNotUsed` while the middleware factory is instantiated tells Django to omit that middleware from the middleware chain and continue loading the remaining middleware. If `DEBUG` is true, Django emits a `django.request` debug log, including the exception text when present. The exception is caught around the factory call in `BaseHandler.load_middleware()`: `django/core/handlers/base.py`. The exception class itself is defined in `django/core/exceptions.py` (and the behavior is documented in `docs/topics/http/middleware.txt`).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.25,
+      "supporting_addresses_found": [],
+      "task_id": "M02",
+      "tool_calls": 4,
+      "tool_result_tokens": 8348
+    },
+    {
+      "address_score": 0.0,
+      "answer": "Middleware advertises capability on its factory function or class with boolean sync_capable and async_capable attributes. Missing attributes default to sync_capable=True and async_capable=False; django.utils.decorators also provides sync_only_middleware, async_only_middleware, and sync_and_async_middleware to set the pair. While building the chain, Django chooses a mode each middleware supports. If that differs from the current downstream-handler mode, it adapts the handler: async_to_sync for an async callable needed synchronously, or sync_to_async(..., thread_sensitive=True) for a sync callable needed asynchronously. It likewise adapts process_view/process_template_response hooks (and keeps process_exception synchronous), and finally adapts the top of the chain back to the server interface mode, so unsupported modes work with a transition/performance penalty. Declaring both capabilities false raises RuntimeError. Sources: django/core/handlers/base.py; django/utils/decorators.py; docs/topics/http/middleware.txt.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.4,
+      "facts_found": [
+        "F1",
+        "F4"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.2,
+      "supporting_addresses_found": [],
+      "task_id": "M03",
+      "tool_calls": 4,
+      "tool_result_tokens": 8737
+    },
+    {
+      "address_score": 0.75,
+      "answer": "A `None` result is rejected rather than used as a response. In both the synchronous and asynchronous request paths, `BaseHandler._get_response()` / `_get_response_async()` call `BaseHandler.check_response()` immediately after the view and after every `process_template_response` hook; that method raises `ValueError` saying the named view or `<Middleware>.process_template_response` \u201cdidn\u2019t return an HttpResponse object. It returned None instead.\u201d This stops subsequent template-response processing/rendering. Source: `django/core/handlers/base.py` (`BaseHandler._get_response`, `BaseHandler._get_response_async`, and the raising code in `BaseHandler.check_response`). Regression coverage: `tests/handlers/tests.py` and `tests/middleware_exceptions/tests.py`.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response"
+      ],
+      "score": 0.875,
+      "supporting_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler._get_response_async"
+      ],
+      "task_id": "M04",
+      "tool_calls": 4,
+      "tool_result_tokens": 9710
+    },
+    {
+      "address_score": 1.0,
+      "answer": "convert_exception_to_response wraps a synchronous or asynchronous request handler so exceptions do not escape the middleware boundary: it turns recognized client errors (such as 404, 403, and 400 cases) into their appropriate responses and other uncaught exceptions into 500 responses, and forces deferred TemplateResponses produced during exception handling to render. BaseHandler.load_middleware first applies it around the core _get_response/_get_response_async handler, then, while constructing settings.MIDDLEWARE in reverse order, applies it around every middleware instance before that instance becomes the downstream handler for the next outer middleware. Thus each middleware can rely on its get_response returning a response rather than leaking an exception. Sources: django/core/handlers/exception.py (convert_exception_to_response, response_for_exception); django/core/handlers/base.py (BaseHandler.load_middleware).",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/exception.py#convert_exception_to_response",
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 0.5,
+      "supporting_addresses_found": [
+        "django/core/handlers/exception.py#response_for_exception"
+      ],
+      "task_id": "M05",
+      "tool_calls": 3,
+      "tool_result_tokens": 3871
+    },
+    {
+      "address_score": 0.0,
+      "answer": "Django calls process_view after URL resolution: _get_response() and _get_response_async() first call resolve_request(), which resolves request.path_info, assigns request.resolver_match, and returns the resolved callback plus args/kwargs; only then are process_view methods run, immediately before the view (unless one returns a response and short-circuits it). Sources: django/core/handlers/base.py; docs/topics/http/middleware.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "M06",
+      "tool_calls": 3,
+      "tool_result_tokens": 9264
+    },
+    {
+      "address_score": 0.0,
+      "answer": "After the view (or another middleware) returns, the handler invokes each registered hook as process_template_response(request, response) only when the response has a callable render method; the async path awaits the hook. Hooks run in reverse MIDDLEWARE order, each return value replaces response, and Django renders the final response automatically. Thus the triggering response, and every response returned by a hook, must be a non-None TemplateResponse-equivalent providing render(). Sources: django/core/handlers/base.py; docs/topics/http/middleware.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.4,
+      "facts_found": [
+        "F1",
+        "F2"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.2,
+      "supporting_addresses_found": [],
+      "task_id": "M07",
+      "tool_calls": 3,
+      "tool_result_tokens": 7258
+    },
+    {
+      "address_score": 0.0,
+      "answer": "`process_exception(request, exception)` is an optional middleware hook. `BaseHandler` registers these hooks in reverse/response order and invokes them only for exceptions raised by the view or by `TemplateResponse.render()`; each hook returns `None` to let the next hook/default handling continue, or an `HttpResponse` to stop the remaining exception hooks. The exception-hook stack is synchronous (async methods are adapted). By contrast, `convert_exception_to_response(get_response)` is an internal wrapper installed around the core handler and around every middleware. It catches any exception escaping the wrapped callable, including exceptions raised by middleware, and converts it to a response: known exceptions become their appropriate 4xx response and other exceptions become 500 responses (subject to `DEBUG_PROPAGATE_EXCEPTIONS`), so outer middleware receives a response rather than an exception. In short, `process_exception` is an application customization point for view/render exceptions; `convert_exception_to_response` is the universal safety boundary and default exception-to-HTTP translation. Sources: `django/core/handlers/base.py`, `django/core/handlers/exception.py`, `docs/topics/http/middleware.txt`.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.2,
+      "facts_found": [
+        "F5"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.1,
+      "supporting_addresses_found": [],
+      "task_id": "M08",
+      "tool_calls": 4,
+      "tool_result_tokens": 8565
+    },
+    {
+      "address_score": 0.0,
+      "answer": "SecurityMiddleware reads nine settings from django.conf.settings in SecurityMiddleware.__init__: SECURE_HSTS_SECONDS, SECURE_HSTS_INCLUDE_SUBDOMAINS, SECURE_HSTS_PRELOAD, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_SSL_REDIRECT, SECURE_SSL_HOST, SECURE_REDIRECT_EXEMPT, SECURE_REFERRER_POLICY, and SECURE_CROSS_ORIGIN_OPENER_POLICY. They are read and cached on the middleware instance (with SECURE_REDIRECT_EXEMPT entries compiled as regexes) in django/middleware/security.py.",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.9,
+      "facts_found": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.45,
+      "supporting_addresses_found": [],
+      "task_id": "M09",
+      "tool_calls": 2,
+      "tool_result_tokens": 554
+    },
+    {
+      "address_score": 0.0,
+      "answer": "CommonMiddleware redirects in two cases: (1) during request processing, when PREPEND_WWW is enabled and the request has a nonempty host that does not start with `www.`; this redirect prepends `www.` and also appends a slash in the same redirect if the slash test succeeds. (2) during response processing, when the response is 404 and the slash test succeeds: APPEND_SLASH is enabled, the path does not already end in `/`, the original path is not valid, the slash-appended path is valid, and the matched view has not set `should_append_slash=False`. Redirects use `response_redirect_class` (a permanent redirect by default). In DEBUG, attempting the slash redirect for DELETE, POST, PUT, or PATCH raises RuntimeError instead of redirecting. Source: django/middleware/common.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.125,
+      "facts_found": [
+        "F8"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.0625,
+      "supporting_addresses_found": [],
+      "task_id": "M10",
+      "tool_calls": 4,
+      "tool_result_tokens": 2151
+    },
+    {
+      "address_score": 0.0,
+      "answer": "GZipMiddleware skips compression when a non-streaming response body is under 200 bytes; when the response already has a Content-Encoding header; when the request Accept-Encoding header is absent or does not contain gzip as a token; or, for a non-streaming response, when the generated compressed body is not shorter than the original. Streaming responses bypass the size/profitability checks. Source: django/middleware/gzip.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 0.0,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "M11",
+      "tool_calls": 2,
+      "tool_result_tokens": 1372
+    },
+    {
+      "address_score": 1.0,
+      "answer": "The default MIDDLEWARE value is an empty list (`MIDDLEWARE = []`). Source: django/conf/global_settings.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": 1.0,
+      "facts_found": [
+        "F1"
+      ],
+      "forbidden_claims_found": [],
+      "navigation": null,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/conf/global_settings.py#MIDDLEWARE"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "M12",
+      "tool_calls": 1,
+      "tool_result_tokens": 5
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/core/handlers/base.py\ndocs/topics/http/middleware.txt\ntests/middleware_exceptions/middleware.py\ntests/middleware_exceptions/tests.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L01",
+      "tool_calls": 13,
+      "tool_result_tokens": 44634
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/utils/deprecation.py:MiddlewareMixin",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/utils/deprecation.py#MiddlewareMixin"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L02",
+      "tool_calls": 5,
+      "tool_result_tokens": 34054
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/core/handlers/base.py:BaseHandler.load_middleware",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/core/handlers/base.py#BaseHandler.load_middleware"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L03",
+      "tool_calls": 2,
+      "tool_result_tokens": 2697
+    },
+    {
+      "address_score": 1.0,
+      "answer": "django/contrib/auth/checks.py:check_middleware\ndjango/contrib/auth/apps.py:AuthConfig.ready",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [
+        "django/contrib/auth/checks.py#check_middleware",
+        "django/contrib/auth/apps.py#AuthConfig.ready"
+      ],
+      "score": 1.0,
+      "supporting_addresses_found": [],
+      "task_id": "L04",
+      "tool_calls": 3,
+      "tool_result_tokens": 2674
+    },
+    {
+      "address_score": 0.0,
+      "answer": "django/conf/global_settings.py\ndjango/middleware/security.py\ntests/middleware/test_security.py\ndocs/ref/settings.txt\ndocs/ref/middleware.txt",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 1,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L05",
+      "tool_calls": 6,
+      "tool_result_tokens": 13864
+    },
+    {
+      "address_score": 0.0,
+      "answer": "tests/auth_tests/test_checks.py",
+      "arm": "baseline",
+      "capped": false,
+      "fact_score": null,
+      "facts_found": [],
+      "forbidden_claims_found": [],
+      "navigation": 2,
+      "penalty": 0.0,
+      "repetition": 3,
+      "required_addresses_found": [],
+      "score": 0.0,
+      "supporting_addresses_found": [],
+      "task_id": "L06",
+      "tool_calls": 3,
+      "tool_result_tokens": 3495
+    }
+  ],
+  "subject": {
+    "commit": "e2a424605ac2e7e6e799496542fb2997207e2f23",
+    "repository": "django/django",
+    "tag": "6.0.7",
+    "tag_object": "c7b3ee972494d7d9903db3db7cbe2e9ffe20f457"
+  }
+}
