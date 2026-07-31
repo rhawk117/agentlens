@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import tempfile
@@ -8,6 +9,7 @@ from pathlib import Path
 from unittest import mock
 
 import bench_tool
+import detect_leaks
 from bench_tool import cap_result, parse_run_id, validate_baseline, validate_linerange
 from grade import address_found, contains_asserted
 from matching import phrase_matches
@@ -290,6 +292,69 @@ class SubprocessEnvironmentTests(unittest.TestCase):
         self.assertIn("PATH", env)
         self.assertEqual(env["NO_COLOR"], "1")
         self.assertEqual(env["LC_ALL"], "C")
+
+
+class LeakDetectionTests(unittest.TestCase):
+    """The check that catches a worker answering from memory rather than retrieval."""
+
+    def setUp(self) -> None:
+        self.runs = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.runs)
+        patch = mock.patch.object(detect_leaks, "run_directory", self.run_directory)
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def run_directory(self, run_id: str) -> Path:
+        directory = self.runs / run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        return directory
+
+    def write(self, run_id: str, answer: str, records: list[dict]) -> None:
+        directory = self.run_directory(run_id)
+        (directory / "answer.txt").write_text(answer, encoding="utf-8")
+        (directory / "transcript.jsonl").write_text(
+            "\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8"
+        )
+
+    def test_cited_path_present_in_output_is_clean(self) -> None:
+        self.write(
+            "r1-agentlens-M01",
+            "Edit django/core/handlers/base.py to fix it.",
+            [
+                {
+                    "stdout": "django/core/handlers/base.py:26: def load_middleware",
+                    "stderr": "",
+                    "args": [],
+                }
+            ],
+        )
+        self.assertEqual(detect_leaks.unsupported_citations("r1-agentlens-M01"), [])
+
+    def test_path_only_in_the_arguments_is_clean(self) -> None:
+        # Asking about a path and being told nothing is there still means the
+        # path entered this run through the wrapper, not from memory.
+        self.write(
+            "r1-agentlens-M02",
+            "See django/urls/base.py",
+            [{"stdout": "", "stderr": "no match", "args": ["slice", "django/urls/base.py"]}],
+        )
+        self.assertEqual(detect_leaks.unsupported_citations("r1-agentlens-M02"), [])
+
+    def test_path_never_retrieved_is_flagged(self) -> None:
+        self.write(
+            "r1-baseline-M03",
+            "The answer is in django/core/handlers/base.py",
+            [{"stdout": "django/urls/resolvers.py:12: something else", "stderr": "", "args": []}],
+        )
+        self.assertEqual(
+            detect_leaks.unsupported_citations("r1-baseline-M03"),
+            ["django/core/handlers/base.py"],
+        )
+
+    def test_a_run_with_no_answer_is_not_judged(self) -> None:
+        directory = self.run_directory("r1-agentlens-M04")
+        (directory / "transcript.jsonl").write_text("", encoding="utf-8")
+        self.assertIsNone(detect_leaks.unsupported_citations("r1-agentlens-M04"))
 
 
 class RunIdTests(unittest.TestCase):
