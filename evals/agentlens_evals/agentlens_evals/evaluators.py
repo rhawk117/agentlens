@@ -4,6 +4,10 @@ Thin wrappers: all scoring arithmetic lives in grading.py, which is the
 verbatim grade.py port. An evaluator that recomputed anything would be a
 second implementation to keep in sync -- exactly what this module exists to
 avoid.
+
+Navigation is reported as call index 1..25; a run that never retrieved gold
+is charged one past the call cap (NAVIGATION_CAP_SENTINEL), matching
+grade.py's aggregation.
 """
 
 from __future__ import annotations
@@ -15,8 +19,6 @@ from pydantic_evals.evaluators import Evaluator, EvaluatorContext
 
 from agentlens_evals.grading import RunArtifacts, grade_artifacts
 
-# Navigation is reported as call index 1..25; a run that never retrieved gold
-# is charged one past the call cap, matching grade.py's aggregation.
 NAVIGATION_CAP_SENTINEL = 26.0
 
 

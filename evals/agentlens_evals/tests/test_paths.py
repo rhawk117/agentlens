@@ -1,3 +1,7 @@
+"""test_agentlens_binary_has_no_default asserts target/release must never be
+consulted implicitly.
+"""
+
 from pathlib import Path
 
 from agentlens_evals import paths
@@ -17,5 +21,4 @@ def test_campaign_shape() -> None:
 
 
 def test_agentlens_binary_has_no_default() -> None:
-    # target/release must never be consulted implicitly.
     assert paths.AGENTLENS is None or "target" not in paths.AGENTLENS.parts

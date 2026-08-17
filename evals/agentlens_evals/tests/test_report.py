@@ -1,3 +1,7 @@
+"""test_regrade_of_runs_v2_passes_the_preregistered_thresholds reproduces the
+published v0.2.0 outcome: every falsification threshold passes.
+"""
+
 import pytest
 
 from agentlens_evals import paths, report
@@ -15,7 +19,6 @@ def test_regrade_of_runs_v2_passes_the_preregistered_thresholds() -> None:
     results = report.grade_campaign(RUNS_V2, paths.REPETITIONS, list(paths.ARMS))
     assert results["matcher_version"] == 2
     assert len(results["runs"]) == paths.EXPECTED_RUNS
-    # The published v0.2.0 outcome: every falsification threshold passes.
     assert results["benchmark_failed"] is False
     for control in ("baseline", "linerange"):
         assert control in results["comparisons"]

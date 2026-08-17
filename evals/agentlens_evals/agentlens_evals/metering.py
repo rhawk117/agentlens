@@ -1,4 +1,33 @@
 #!/usr/bin/env python3
+"""Per-call metering wrapper: the only command a worker session may invoke.
+
+subject_env() builds an allowlist environment rather than os.environ with
+overrides: anything inherited is a variable whose value differs between
+machines and operators, and a tool that reads one produces different output
+-- or, as RIPGREP_CONFIG_PATH did, a warning that gets counted as result
+tokens against a control arm. LC_ALL/LANG are pinned to C for deterministic
+collation and byte handling, since rg and sed both sort and match
+differently under a locale that is not C; TERM is pinned to "dumb" because
+some tools probe it and emit escape sequences when it looks capable.
+
+LINERANGE_TOOLS excludes `cat`: Arm C exists to price precise line-range
+reads, and given `cat` it would collapse into Arm B and measure nothing the
+baseline does not already measure.
+
+require_subject_file resolves the path before the containment check, which
+is what stops a symlink planted in the corpus from pointing out of it.
+
+validate_linerange gates Arm C, where the worker gets `rg` to locate and
+`sed` to read. `sed` is a programming language, not a pager: its `w` command
+writes arbitrary files, `r` reads them, `e` runs a shell, and `-i` rewrites
+the subject corpus in place, which would silently corrupt every run
+scheduled after it. So validation does not filter dangerous forms out; it
+admits exactly one form, `sed -n 'START[,END]p' FILE`, and refuses
+everything else. SED_PRINT_RANGE matches `12p` or `12,80p` and nothing else,
+anchored with fullmatch so no trailing `;w file` or `e cmd` can ride along
+after the print command. An allowlist of one cannot be talked around.
+"""
+
 from __future__ import annotations
 
 import hashlib
@@ -17,8 +46,6 @@ CALL_CAP = 25
 TOKEN_CAP = 60_000
 AGENTLENS_TOOLS = {"slice", "map", "find", "literals", "callers", "packet", "dead"}
 BASELINE_TOOLS = {"rg", "cat"}
-# No `cat`: Arm C exists to price precise line-range reads. Given `cat` it would
-# collapse into Arm B and measure nothing the baseline does not already measure.
 LINERANGE_TOOLS = {"rg", "sed"}
 ARM_TOOLS = {
     "agentlens": AGENTLENS_TOOLS,
@@ -70,28 +97,15 @@ SAFE_RG_VALUE_OPTIONS = {
     "-t",
     "-T",
 }
-# `12p` or `12,80p` and nothing else. Anchored with fullmatch, so no trailing
-# `;w file` or `e cmd` can ride along after the print command.
 SED_PRINT_RANGE = re.compile(r"\d+(,\d+)?p")
 
 
 def subject_env() -> dict[str, str]:
-    """Build the environment every measured command runs under.
-
-    An allowlist, not os.environ with overrides. Anything inherited is a
-    variable whose value differs between machines and operators, and a tool
-    that reads one produces different output -- or, as RIPGREP_CONFIG_PATH did,
-    a warning that gets counted as result tokens against a control arm. The
-    benchmark's premise is that the arms differ only in the tools they hold.
-    """
     return {
         "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
-        # Deterministic collation and byte handling: rg and sed both sort and
-        # match differently under a locale that is not C.
         "LC_ALL": "C",
         "LANG": "C",
         "NO_COLOR": "1",
-        # Some tools probe TERM and emit escape sequences when it looks capable.
         "TERM": "dumb",
     }
 
@@ -130,11 +144,6 @@ def safe_argument(argument: str) -> bool:
 
 
 def require_subject_file(argument: str, tool: str) -> None:
-    """Confirm `argument` names a real file inside the corpus.
-
-    Resolving before the containment check is what stops a symlink planted in
-    the corpus from pointing out of it.
-    """
     candidate = (DJANGO_ROOT / argument).resolve()
     if not candidate.is_file() or not candidate.is_relative_to(DJANGO_ROOT):
         die(f"{tool} target is not a subject file: {argument}")
@@ -154,15 +163,6 @@ def validate_baseline(tool: str, args: list[str]) -> None:
 
 
 def validate_linerange(tool: str, args: list[str]) -> None:
-    """Gate Arm C, where the worker gets `rg` to locate and `sed` to read.
-
-    `sed` is a programming language, not a pager. Its `w` command writes
-    arbitrary files, `r` reads them, `e` runs a shell, and `-i` rewrites the
-    subject corpus in place -- which would silently corrupt every run
-    scheduled after it. So this does not filter dangerous forms out; it admits
-    exactly one form, `sed -n 'START[,END]p' FILE`, and refuses everything
-    else. An allowlist of one cannot be talked around.
-    """
     if any(not safe_argument(arg) for arg in args):
         die("absolute and parent-traversal arguments are forbidden")
     if tool == "rg":

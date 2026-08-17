@@ -221,7 +221,6 @@ def render_markdown(results: dict[str, Any]) -> str:
 
 
 def evaluation_reports(runs_root: Path, repetitions: int, arms: list[str]):
-    """Derived pydantic-evals reports, one evaluate pass per arm x repetition."""
     tasks = load_tasks()
     reports = []
     for repetition in range(1, repetitions + 1):

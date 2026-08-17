@@ -1,3 +1,10 @@
+"""Metering wrapper subprocess tests.
+
+test_linerange_admits_exactly_one_sed_form's malformed forms each probe a
+distinct sed attack: a command riding the print range, a missing file
+argument, an in-place edit, and a shell escape.
+"""
+
 from __future__ import annotations
 
 import json
@@ -70,10 +77,10 @@ def test_linerange_admits_exactly_one_sed_form(corpus, runs_root) -> None:
     )
     assert ok.returncode == 0 and "line 5" in ok.stdout
     for args in (
-        ["-n", "1,5p;w /tmp/x", "pkg/mod.py"],  # command riding the range
-        ["-n", "1,5p"],  # missing file
-        ["-i", "1,5p", "pkg/mod.py"],  # in-place edit
-        ["-n", "e id", "pkg/mod.py"],  # shell escape
+        ["-n", "1,5p;w /tmp/x", "pkg/mod.py"],
+        ["-n", "1,5p"],
+        ["-i", "1,5p", "pkg/mod.py"],
+        ["-n", "e id", "pkg/mod.py"],
     ):
         result = invoke(corpus, runs_root, "r1-linerange-M01", "sed", *args)
         assert result.returncode == 2, args

@@ -189,8 +189,6 @@ async def run_campaign(version: str, runs_root: Path, concurrency: int = 4) -> d
         async with semaphore:
             await worker.dispatch(run_id, prompt, options)
 
-    # Start events append sequentially in schedule order before any dispatch
-    # completes out of order; a resumed run keeps its original start event.
     pending: list[asyncio.Task] = []
     for run_id in outstanding:
         if run_id not in started:

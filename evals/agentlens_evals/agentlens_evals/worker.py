@@ -7,7 +7,40 @@ a PreToolUse hook, which runs before the CLI's own "safe command"
 auto-approval and so is the layer that actually stops it, and the
 ``can_use_tool`` permission callback, kept as defense in depth for whatever
 the hook doesn't intercept. Bash is the only tool, and the only Bash command
-either layer permits is this run's own metering-wrapper invocation.
+either layer permits is this run's own metering-wrapper invocation. The
+CLI's built-in "safe command" auto-approval let commands like `echo` or
+`cat` through `can_use_tool` unchallenged, observed empirically in a live
+smoke session; the PreToolUse hook fires before that heuristic, so it is the
+layer that must carry enforcement.
+
+``_tool_call_permitted`` is the one decision both layers enforce, fail-closed:
+any input shape other than ``Bash`` with a string ``command`` field is denied
+without inspection.
+
+WORKER_MODEL is pinned by decision, not configuration: cost (a prior
+campaign was cut from 5 to 3 repetitions over expense) and comparability
+(v1/v2 attestations record this model). Dispatch refuses anything else.
+
+UNQUOTED_METACHARACTERS matches shell metacharacters outside single quotes,
+which would turn one wrapper call into two commands; quoted answers may
+contain anything.
+
+worker_options omits Read/Grep/Glob/Write/Edit/etc. from ``tools`` entirely
+(not merely unapproved), sets ``allowed_tools=[]`` so nothing is
+auto-approved and every call reaches the callback, registers the PreToolUse
+hook with no matcher so it catches every tool call rather than only Bash
+(the hook itself denies anything that isn't Bash), and sets
+``setting_sources=[]`` so no CLAUDE.md, settings-file hooks, or user
+settings apply.
+
+dispatch relies on ``ClaudeSDKClient.connect()`` with no prompt holding the
+control channel open for the life of the ``async with`` block: it never
+spawns the SDK's ``stream_input()`` closing task (that only happens for a
+non-None prompt -- see ``claude_agent_sdk.client.ClaudeSDKClient._connect_inner``),
+so stdin stays open across the whole permission round-trip regardless of the
+sdk_mcp_servers/hooks-gated closing logic ``query()``'s one-shot prompt
+generator relies on instead (that gate is what failed a prior campaign, back
+when no hooks were registered).
 """
 
 from __future__ import annotations
@@ -27,14 +60,11 @@ from claude_agent_sdk import (
 
 from agentlens_evals.paths import DJANGO_ROOT, PROJECT_ROOT, REPO_ROOT
 
-# Pinned by decision, not configuration: cost (a prior campaign was cut from 5
-# to 3 repetitions over expense) and comparability (v1/v2 attestations record
-# this model). Dispatch refuses anything else.
 WORKER_MODEL = "claude-haiku-4-5-20251001"
 
 
 class WorkerModelError(RuntimeError):
-    """Dispatch was configured with a model other than the pinned worker model."""
+    pass
 
 
 ARM_INTERFACE = {
@@ -52,8 +82,6 @@ ARM_INTERFACE = {
     ),
 }
 
-# Shell metacharacters outside single quotes turn one wrapper call into two
-# commands. Quoted answers may contain anything.
 UNQUOTED_METACHARACTERS = re.compile(r"[;&|<>`\n]|\$\(")
 
 
@@ -101,11 +129,6 @@ DENY_REASON = "only this run's metering-wrapper invocation is permitted"
 
 
 def _tool_call_permitted(tool_name: Any, tool_input: Any, run_id: str) -> bool:
-    """The one decision both the hook and the permission callback enforce.
-
-    Fail-closed: any input shape other than ``Bash`` with a string
-    ``command`` field is denied without inspection.
-    """
     if tool_name != "Bash" or not isinstance(tool_input, dict):
         return False
     command = tool_input.get("command")
@@ -124,14 +147,6 @@ def permission_callback(run_id: str):
 
 
 def pretooluse_hook(run_id: str):
-    """PreToolUse hook: the layer that actually stops the CLI's built-in
-    "safe command" auto-approval, which bypasses ``can_use_tool`` entirely
-    for commands like ``echo`` or ``cat`` (observed empirically in a smoke
-    session). PreToolUse fires before that heuristic, so it is the layer
-    that must carry the enforcement; ``can_use_tool`` stays registered as
-    defense in depth.
-    """
-
     async def hook(input_data: dict, tool_use_id: str | None, context: dict):
         tool_name = input_data.get("tool_name")
         tool_input = input_data.get("tool_input")
@@ -155,17 +170,13 @@ def pretooluse_hook(run_id: str):
 def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOptions:
     return ClaudeAgentOptions(
         model=WORKER_MODEL,
-        tools=["Bash"],  # Read/Grep/Glob/Write/Edit/etc. are absent from the
-        # model's tool context entirely, not merely unapproved.
-        allowed_tools=[],  # nothing auto-approved: every call reaches the callback
+        tools=["Bash"],
+        allowed_tools=[],
         can_use_tool=permission_callback(run_id),
-        # matcher=None matches every tool call, not just Bash: the hook itself
-        # denies anything that isn't Bash, so this is the layer that catches
-        # Read/Grep/etc. too, ahead of the CLI's own safe-command heuristic.
         hooks={"PreToolUse": [HookMatcher(hooks=[pretooluse_hook(run_id)])]},
         permission_mode="default",
         cwd=str(REPO_ROOT),
-        setting_sources=[],  # no CLAUDE.md, no settings-file hooks, no user settings
+        setting_sources=[],
         max_turns=60,
         env={
             "BENCH_RUNS_ROOT": str(runs_root),
@@ -177,14 +188,6 @@ def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOpt
 
 
 async def dispatch(run_id: str, prompt: str, options: ClaudeAgentOptions) -> str | None:
-    # ClaudeSDKClient.connect() with no prompt holds the control channel open
-    # for the life of the `async with` block: it never spawns the SDK's
-    # stream_input() closing task (that only happens for a non-None prompt --
-    # see claude_agent_sdk.client.ClaudeSDKClient._connect_inner), so stdin
-    # stays open across the whole permission round-trip regardless of the
-    # sdk_mcp_servers/hooks-gated closing logic query()'s one-shot prompt
-    # generator relies on instead (that gate is what failed the prior
-    # campaign, back when no hooks were registered).
     if options.model != WORKER_MODEL:
         raise WorkerModelError(
             f"worker model must be {WORKER_MODEL}, got {options.model!r}"

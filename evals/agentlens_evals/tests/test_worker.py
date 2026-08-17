@@ -1,3 +1,16 @@
+"""Worker isolation tests.
+
+test_pretooluse_hook_denies_safe_command_heuristic_targets exercises exactly
+the commands the CLI's built-in "safe command" auto-approval let through
+can_use_tool unchallenged in a live smoke session; the hook is the layer
+meant to catch them instead.
+
+_FakeClient stands in for ClaudeSDKClient: connect() with no prompt is what
+keeps the SDK's control channel open for the whole permission round-trip
+(see worker.dispatch's module docstring) -- it asserts dispatch relies on
+that shape rather than the one-shot query() function's prompt generator.
+"""
+
 import pytest
 
 from agentlens_evals import worker
@@ -8,7 +21,7 @@ RUN = "r1-linerange-M03"
 def test_prompt_carries_isolation_interface_and_submit_contract() -> None:
     prompt = worker.render_prompt(RUN, "What does BaseHandler do?")
     assert "one independent benchmark worker" in prompt
-    assert "sed line-range reads" in prompt  # linerange arm interface
+    assert "sed line-range reads" in prompt
     assert worker.wrapper_invocation(RUN) in prompt
     assert "submit exactly once" in prompt
     assert "Task M03: What does BaseHandler do?" in prompt
@@ -23,7 +36,7 @@ def test_command_permitted_only_for_the_wrapper() -> None:
     good = worker.wrapper_invocation(RUN) + " rg get_response django"
     assert worker.command_permitted(good, RUN)
     submit = worker.wrapper_invocation(RUN) + " submit 'found; it & works | fine'"
-    assert worker.command_permitted(submit, RUN)  # metacharacters inside quotes
+    assert worker.command_permitted(submit, RUN)
     assert not worker.command_permitted("cat /etc/passwd", RUN)
     assert not worker.command_permitted(good + " && cat /etc/passwd", RUN)
     assert not worker.command_permitted(good + " ; rm -rf /", RUN)
@@ -46,9 +59,6 @@ async def test_permission_callback_denies_non_bash_tools() -> None:
 
 
 async def test_pretooluse_hook_denies_safe_command_heuristic_targets() -> None:
-    # These are exactly the commands the CLI's built-in "safe command"
-    # auto-approval let through can_use_tool unchallenged in the live smoke
-    # session; the hook is the layer meant to catch them instead.
     hook = worker.pretooluse_hook(RUN)
 
     verdict = await hook(
@@ -88,7 +98,6 @@ async def test_pretooluse_hook_allows_the_exact_wrapper_invocation() -> None:
 async def test_pretooluse_hook_fails_closed_on_malformed_input() -> None:
     hook = worker.pretooluse_hook(RUN)
 
-    # Missing tool_input, tool_input not a dict, command not a string.
     for malformed in (
         {"tool_name": "Bash"},
         {"tool_name": "Bash", "tool_input": "not a dict"},
@@ -107,14 +116,6 @@ async def test_dispatch_refuses_any_model_but_haiku(tmp_path) -> None:
 
 
 class _FakeClient:
-    """Stand-in for ClaudeSDKClient: records connect/query and replays messages.
-
-    connect() with no prompt is what keeps the SDK's control channel open for
-    the whole permission round-trip (see worker.dispatch's comment) -- this
-    fake asserts dispatch relies on that shape rather than the one-shot
-    ``query()`` function's prompt generator.
-    """
-
     def __init__(self, calls: dict[str, object], messages: list[object], *, options):
         self._calls = calls
         self._messages = messages
@@ -157,7 +158,7 @@ async def test_dispatch_holds_the_client_open_and_sends_prompt_via_query(
 
     result = await worker.dispatch(RUN, "prompt text", options)
 
-    assert calls["connect_prompt"] == "unset"  # __aenter__ ran: connect() held open
+    assert calls["connect_prompt"] == "unset"
     assert calls["query_prompt"] == "prompt text"
     assert result == "submitted"
 

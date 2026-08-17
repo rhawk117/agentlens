@@ -6,6 +6,14 @@ under test comes only from BENCH_AGENTLENS, which the campaign driver sets
 from a hash-verified manifest, never from target/release -- and the frozen
 harness directory is exposed read-only as HARNESS_ROOT because the campaign
 inputs (tasks, gold hashes, protocol, schedule) stay there.
+
+DJANGO_ROOT defaults *outside* the repository on purpose: a checkout of
+Django inside the tree would be indexed by `agentlens dead` and walked by
+`rg`, contaminating every arm.
+
+REPETITIONS_SCHEDULED is pre-registered at 5; campaigns execute REPETITIONS
+(3). The schedule file is never regenerated to match the execution -- that
+is the one edit a benchmark author must never make.
 """
 
 from __future__ import annotations
@@ -19,9 +27,6 @@ REPO_ROOT = PROJECT_ROOT.parent.parent
 HARNESS_ROOT = REPO_ROOT / "evals" / "harness"
 BIN_ROOT = REPO_ROOT / "evals" / "bin"
 
-# The subject corpus defaults *outside* the repository on purpose: a checkout
-# of Django inside the tree would be indexed by `agentlens dead` and walked by
-# `rg`, contaminating every arm.
 DJANGO_ROOT = Path(
     os.environ.get("BENCH_DJANGO_ROOT", Path.home() / "dev" / "django-6.0.7")
 ).resolve()
@@ -33,9 +38,6 @@ RUNS_ROOT = Path(
 
 TASK_COUNT = 18
 ARMS = ("agentlens", "baseline", "linerange")
-# Pre-registered at 5; campaigns execute 3. The schedule file is never
-# regenerated to match the execution -- that is the one edit a benchmark
-# author must never make.
 REPETITIONS_SCHEDULED = 5
 REPETITIONS = 3
 EXPECTED_RUNS = TASK_COUNT * REPETITIONS * len(ARMS)

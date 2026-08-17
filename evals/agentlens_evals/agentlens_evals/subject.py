@@ -19,7 +19,7 @@ from agentlens_evals.paths import BIN_ROOT, REPO_ROOT
 
 
 class SubjectError(RuntimeError):
-    """The binary under test cannot be trusted; refuse to run."""
+    pass
 
 
 def binary_path(version: str) -> Path:

@@ -3,6 +3,12 @@
 Matcher version 2. Any behavioral difference from evals/harness/grade.py on
 the runs_v2 corpus is a port bug (verification gate 1) -- do not "improve"
 anything here.
+
+Arm C (linerange) reads a span rather than a file, so call_retrieves treats a
+sed call as retrieval when the span it asked for overlaps the gold span, not
+merely when it named the file. Without this, every Arm C run would score as
+never having found anything and its navigation metric would be uniformly
+capped.
 """
 
 from __future__ import annotations
@@ -129,10 +135,6 @@ def call_retrieves(
         requested = {arg.replace("\\", "/") for arg in args}
         return any(gold["address"].split("#", 1)[0] in requested for gold in golds)
     if tool == "sed":
-        # Arm C reads a span rather than a file, so retrieval means the span it
-        # asked for overlaps the gold span -- not merely that it named the file.
-        # Without this, every Arm C run would score as never having found
-        # anything and its navigation metric would be uniformly capped.
         if int(record["exit_code"]) != 0 or not record["stdout"] or len(args) != 3:
             return False
         span = re.fullmatch(r"(\d+)(?:,(\d+))?p", args[1])
@@ -280,7 +282,6 @@ def grade_artifacts(task: dict[str, Any], artifacts: RunArtifacts) -> dict[str, 
 
 
 def grade_run(task: dict[str, Any], arm: str, run_dir: Path) -> dict[str, Any]:
-    """Harness-shaped entry point: same signature and output as grade.py's."""
     answer_path = run_dir / "answer.txt"
     if not answer_path.exists():
         raise FileNotFoundError(f"missing answer: {answer_path}")

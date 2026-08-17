@@ -19,15 +19,28 @@ steps, each of which was needed by observed misses on the dev half:
 
 Negation parity is enforced, not inherited: a gold phrase that does not negate
 cannot be satisfied by a window that does. That is what stops "skips
-compression" from matching "does not skip compression".
+compression" from matching "does not skip compression". Negations are kept as
+tokens rather than dropped as stopwords, because they are the one class of
+function word that reverses meaning.
+
+Synonym classes below are the equivalences the gold phrases and the answers
+actually disagreed on, not a general thesaurus. Suffix stripping is applied
+longest-first so "ies" beats "s", and is deliberately crude: a real
+lemmatizer is a dependency and a source of version drift for a graded number.
+A bare "continue" must land where "continues" lands: stripping "es" gives
+"continu", so the unsuffixed form has to lose its trailing "e" too, or the
+two spellings of one word never meet.
+
+window_size bounds how much answer text one gold phrase may be spread across:
+wide enough that a phrase restated with extra qualifiers still matches,
+narrow enough that unrelated tokens from separate sentences cannot be
+stitched into a false positive.
 """
 
 from __future__ import annotations
 
 import re
 
-# Dropped before matching: present in nearly every sentence, so they widen the
-# window without discriminating between a right answer and a wrong one.
 STOPWORDS = frozenset(
     (
         "a",
@@ -83,12 +96,10 @@ STOPWORDS = frozenset(
     )
 )
 
-# Negation is kept rather than dropped: it is the one function word that
-# reverses meaning, and dropping it would let an answer match a claim it denies.
-NEGATIONS = frozenset(("not", "no", "never", "neither", "nor", "without", "none", "cannot"))
+NEGATIONS = frozenset(
+    ("not", "no", "never", "neither", "nor", "without", "none", "cannot")
+)
 
-# Each class collapses to its first member. These are the equivalences the gold
-# phrases and the answers actually disagreed on -- not a general thesaurus.
 SYNONYM_CLASSES: tuple[tuple[str, ...], ...] = (
     ("less", "smaller", "shorter", "fewer", "under", "below", "lower"),
     ("more", "larger", "longer", "greater", "over", "above", "higher"),
@@ -110,8 +121,6 @@ SYNONYM_CLASSES: tuple[tuple[str, ...], ...] = (
 )
 SYNONYMS = {word: group[0] for group in SYNONYM_CLASSES for word in group}
 
-# Applied longest-first so "ies" beats "s". Deliberately crude: a real lemmatizer
-# is a dependency and a source of version drift for a graded number.
 SUFFIXES = ("ingly", "edly", "ies", "ing", "ers", "est", "ed", "es", "er", "ly", "s")
 
 
@@ -120,9 +129,6 @@ def stem(token: str) -> str:
         if len(token) > len(suffix) + 2 and token.endswith(suffix):
             base = token[: -len(suffix)]
             return base + "y" if suffix == "ies" else base.rstrip("e")
-    # A bare "continue" must land where "continues" lands: stripping "es" gives
-    # "continu", so the unsuffixed form has to lose its trailing "e" too, or the
-    # two spellings of one word never meet.
     return token.rstrip("e") if len(token) > 3 else token
 
 
@@ -133,7 +139,6 @@ def canonical(token: str) -> str:
 
 
 def tokenize(text: str) -> list[str]:
-    """Canonical content tokens, negations preserved as `not`."""
     lowered = text.lower().replace("_", " ")
     words = re.findall(r"[a-z0-9]+", lowered)
     tokens: list[str] = []
@@ -146,12 +151,6 @@ def tokenize(text: str) -> list[str]:
 
 
 def window_size(phrase_length: int) -> int:
-    """How much answer text one gold phrase may be spread across.
-
-    Wide enough that a phrase restated with extra qualifiers still matches,
-    narrow enough that unrelated tokens from separate sentences cannot be
-    stitched into a false positive.
-    """
     return max(phrase_length * 3, phrase_length + 10)
 
 
@@ -171,8 +170,6 @@ def phrase_matches(answer: str, phrase: str) -> bool:
         present = set(window)
         if not content <= present:
             continue
-        # Parity: a phrase that does not negate cannot be met by a window that
-        # does, and a phrase that negates needs the negation to be there.
         if negated_phrase != ("not" in present):
             continue
         return True
@@ -180,5 +177,4 @@ def phrase_matches(answer: str, phrase: str) -> bool:
 
 
 def fact_satisfied(answer: str, fact: dict) -> bool:
-    """A gold fact is satisfied when any one of its accepted phrasings matches."""
     return any(phrase_matches(answer, phrase) for phrase in fact["any_of"])

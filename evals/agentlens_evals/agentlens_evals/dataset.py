@@ -5,6 +5,9 @@ localization, each with gold addresses, accepted fact phrasings, and forbidden
 claims. Its hashes are pre-registered beside it; loading verifies both, the
 same check grade.py made, so a graded number can never come from an edited
 task set.
+
+verify_gold reads HARNESS_ROOT as a module global rather than a parameter so
+tests can point it elsewhere via monkeypatch.
 """
 
 from __future__ import annotations
@@ -21,7 +24,7 @@ from agentlens_evals.paths import HARNESS_ROOT
 
 
 class GoldError(RuntimeError):
-    """The task set does not match its pre-registered hashes."""
+    pass
 
 
 class GoldAddress(BaseModel):
@@ -49,7 +52,6 @@ class BenchTask(BaseModel):
 
 
 def verify_gold() -> bytes:
-    # HARNESS_ROOT is read as a module global so tests can point it elsewhere.
     task_bytes = (HARNESS_ROOT / "tasks.json").read_bytes()
     expected_blake3 = (HARNESS_ROOT / "gold.blake3").read_text().split()[0]
     expected_sha256 = (HARNESS_ROOT / "gold.sha256").read_text().split()[0]
