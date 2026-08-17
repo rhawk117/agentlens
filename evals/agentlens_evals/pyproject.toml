@@ -1,0 +1,25 @@
+[project]
+name = "agentlens-evals"
+version = "0.1.0"
+description = "Formal, re-runnable benchmark campaigns for agentlens"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2",
+    "pydantic-evals>=2.31,<3",
+    "claude-agent-sdk",
+    "tiktoken==0.8.0",
+    "blake3",
+]
+
+[project.scripts]
+agentlens-evals = "agentlens_evals.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
