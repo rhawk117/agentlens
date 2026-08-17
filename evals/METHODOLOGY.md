@@ -1,7 +1,9 @@
 # agentlens benchmark — Django middleware (v2)
 
-**Status: current specification. Pre-registered before the v0.2.0 run, with one
-post-hoc deviation recorded in §6 (the campaign ran 3 repetitions, not 5).**
+**Status: current specification. Pre-registered before the v0.2.0 run, with two
+post-hoc deviations recorded in §6: the campaign ran 3 repetitions rather than
+5, and its first execution was discarded for a binary-provenance failure and
+re-run on 2026-08-17.**
 
 This is the single source of truth for how the benchmark is run and scored.
 Two earlier documents describe the v0.1.0 campaign and are superseded:
@@ -295,6 +297,33 @@ Report median and interquartile range. Single-run agent benchmarks are noise.
 > repetitions would have supported. One incidental benefit — with 3 arms
 > rotating over 3 repetitions, each arm led the schedule exactly once.
 
+
+> **Deviation: the first v0.2.0 execution was discarded and the campaign
+> re-run on 2026-08-17.** After the 2026-07-30 execution had been graded and
+> its results published, the binary under test was found to have been rebuilt
+> mid-campaign: `target/release/agentlens` — the path the wrapper resolves —
+> carries a build time of 2026-07-30 23:56, inside the campaign's 23:42–00:34
+> execution window. Runs on either side of that instant cannot be attested to
+> the same build, so the execution and its numbers were withdrawn in full and
+> the corpus archived at `.eval/archive-v2-attempt1-mixed-binary/`. The
+> discard decision rests on provenance evidence alone and was made before any
+> re-run number existed.
+>
+> The re-run used the same protocol, schedule, gold, caps and thresholds. The
+> binary's SHA-256 was verified against the `protocol.json` pin before the
+> first worker was dispatched, and the subject checkout was re-cloned and
+> re-verified against the pinned commit. Two operational incidents are
+> recorded rather than smoothed over: the operator paused the campaign once
+> mid-run to verify the worker model, and 19 of the 162 runs required a second
+> worker session — 14 stranded by that pause and 5 whose worker composed an
+> answer but never invoked `submit`. A second session continues the same run
+> against its remaining call and token budget; `submit` remains once-only, and
+> no answer was discarded or re-rolled.
+>
+> The structural fix — campaigns resolving a hash-verified binary directory
+> instead of `target/release/` — is planned as part of the formal evals
+> module.
+
 **Randomisation.** Task order is shuffled per repetition from a recorded seed
 (`20260730`), and arm order is rotated by repetition rather than alternated,
 since there are three arms. The full schedule is generated deterministically by
@@ -402,6 +431,12 @@ into every wrapper invocation.
 not independently proven.** A subagent cannot produce a runtime model-ID
 receipt. This was also true of v0.1.0 and is not fixed here; it is stated so
 nobody mistakes the attestation for verification.
+
+The 2026-08-17 re-run strengthens the attestation one step without closing the
+gap: the dispatch-side transcripts for all 162 worker sessions record the model
+identifier on every API message, and every one reads
+`claude-haiku-4-5-20251001`. That is still a record made by the dispatching
+harness rather than a receipt produced by the worker, so the caveat stands.
 
 The v0.1.0 campaign used a different worker model. That, plus the matcher
 change and the environment leak, is why cross-campaign comparison is reported
