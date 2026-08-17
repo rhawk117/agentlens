@@ -17,7 +17,7 @@ All commands from `evals/agentlens_evals/`, or prefix `uv run --project evals/ag
 
 | Step | Command | Why |
 |---|---|---|
-| Preconditions | `Cargo.toml` version == X; corpus pin (below); `uv run pytest -q` green (44 tests) | catch drift before spending budget |
+| Preconditions | `Cargo.toml` version == X; corpus pin (below); `uv run pytest -q` green (49 tests) | catch drift before spending budget |
 | Pin binary | `agentlens-evals install --version X` | cargo build → `evals/bin/X/` + sha256 manifest; every later command re-hashes and refuses on mismatch |
 | Fresh runs root | pass `--runs-root .eval/runs_<label>` on **every** command | the default is `.eval/runs_v2` — the completed v0.2.0 corpus. Reusing it silently reports old answers as the new campaign |
 | Dispatch | `agentlens-evals run --tool-version X --runs-root … --concurrency 4` | the **only** command that spends API money. Workers are pinned `claude-haiku-4-5-20251001`; dispatch refuses any other model |

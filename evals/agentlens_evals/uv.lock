@@ -29,7 +29,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "blake3" },
-    { name = "claude-agent-sdk" },
+    { name = "claude-agent-sdk", specifier = "==0.2.139" },
     { name = "pydantic", specifier = ">=2" },
     { name = "pydantic-evals", specifier = ">=2.31,<3" },
     { name = "tiktoken", specifier = "==0.8.0" },
