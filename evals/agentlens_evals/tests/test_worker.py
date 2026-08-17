@@ -1,3 +1,5 @@
+from collections.abc import AsyncIterable
+
 import pytest
 
 from agentlens_evals import worker
@@ -50,6 +52,28 @@ async def test_dispatch_refuses_any_model_but_haiku(tmp_path) -> None:
     options.model = "claude-fable-5"
     with pytest.raises(worker.WorkerModelError):
         await worker.dispatch(RUN, "prompt", options)
+
+
+async def test_dispatch_sends_streaming_prompt_when_can_use_tool_is_set(
+    tmp_path, monkeypatch
+) -> None:
+    # The SDK's can_use_tool callback requires the prompt to arrive as an
+    # AsyncIterable of message dicts, not a plain str -- see
+    # claude_agent_sdk._internal.client._process_query_inner.
+    options = worker.worker_options(RUN, tmp_path, tmp_path / "agentlens")
+    captured: dict[str, object] = {}
+
+    async def fake_query(*, prompt, options):
+        captured["prompt"] = prompt
+        return
+        yield  # pragma: no cover - makes this an async generator
+
+    monkeypatch.setattr(worker, "query", fake_query)
+
+    await worker.dispatch(RUN, "prompt text", options)
+
+    assert isinstance(captured["prompt"], AsyncIterable)
+    assert not isinstance(captured["prompt"], str)
 
 
 def test_worker_options_are_hermetic(tmp_path) -> None:

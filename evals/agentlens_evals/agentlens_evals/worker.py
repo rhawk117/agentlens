@@ -9,7 +9,9 @@ command permitted is this run's own metering-wrapper invocation.
 from __future__ import annotations
 
 import re
+from collections.abc import AsyncIterator
 from pathlib import Path
+from typing import Any
 
 from claude_agent_sdk import (
     ClaudeAgentOptions,
@@ -123,12 +125,24 @@ def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOpt
     )
 
 
+async def _single_user_message(prompt: str) -> AsyncIterator[dict[str, Any]]:
+    # options.can_use_tool forces streaming mode: the SDK rejects a plain str
+    # prompt whenever a permission callback is configured (see
+    # claude_agent_sdk._internal.client._process_query_inner).
+    yield {
+        "type": "user",
+        "session_id": "",
+        "message": {"role": "user", "content": prompt},
+        "parent_tool_use_id": None,
+    }
+
+
 async def dispatch(run_id: str, prompt: str, options: ClaudeAgentOptions) -> str | None:
     if options.model != WORKER_MODEL:
         raise WorkerModelError(
             f"worker model must be {WORKER_MODEL}, got {options.model!r}"
         )
-    async for message in query(prompt=prompt, options=options):
+    async for message in query(prompt=_single_user_message(prompt), options=options):
         if isinstance(message, ResultMessage):
             return message.result if message.subtype == "success" else None
     return None
