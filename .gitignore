@@ -34,6 +34,11 @@ __pycache__/
 # corpora were split per campaign, leaving 13 MB showing up as untracked.
 .eval/
 
+# Binary under test for eval campaigns: installed by `agentlens-evals install`,
+# pinned by manifest.json (version + sha256). Never committed; never resolved
+# from target/release at campaign time.
+evals/bin/
+
 # Staged phase snapshot and loop scratchpad. Never committed: the migration
 # copies source OUT of here, and the zip itself must not land in a phase PR.
 .agent-lens-phase/
