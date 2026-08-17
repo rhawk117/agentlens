@@ -29,7 +29,7 @@ from agentlens_evals.grading import (
     load_run,
     quartiles,
 )
-from agentlens_evals.paths import HARNESS_ROOT
+from agentlens_evals.paths import HARNESS_ROOT, RunId
 
 
 def grade_campaign(
@@ -45,7 +45,7 @@ def grade_campaign(
     for repetition in repetition_range:
         for arm in arms:
             for task in tasks:
-                run_dir = runs_root / f"repetition-{repetition}" / arm / task["id"]
+                run_dir = RunId(repetition, arm, task["id"]).directory(runs_root)
                 graded = grade_run(task, arm, run_dir)
                 graded["repetition"] = repetition
                 runs.append(graded)

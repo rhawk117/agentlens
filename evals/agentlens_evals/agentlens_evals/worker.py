@@ -58,7 +58,7 @@ from claude_agent_sdk import (
     ResultMessage,
 )
 
-from agentlens_evals.paths import DJANGO_ROOT, PROJECT_ROOT, REPO_ROOT
+from agentlens_evals.paths import DJANGO_ROOT, PROJECT_ROOT, REPO_ROOT, RunId
 
 WORKER_MODEL = "claude-haiku-4-5-20251001"
 
@@ -92,7 +92,8 @@ def wrapper_invocation(run_id: str) -> str:
 
 
 def render_prompt(run_id: str, task_prompt: str) -> str:
-    _repetition, arm, task_id = run_id.split("-", 2)
+    parsed = RunId.parse(run_id)
+    arm, task_id = parsed.arm, parsed.task_id
     common = (
         "You are one independent benchmark worker answering one question about the "
         "pinned Django 6.0.7 source checkout. Use only evidence retrieved during "

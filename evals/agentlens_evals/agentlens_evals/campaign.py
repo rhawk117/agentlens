@@ -20,7 +20,13 @@ from pathlib import Path
 
 from agentlens_evals import subject, worker
 from agentlens_evals.dataset import tasks_by_id
-from agentlens_evals.paths import ARMS, EXPECTED_RUNS, HARNESS_ROOT, REPETITIONS
+from agentlens_evals.paths import (
+    ARMS,
+    EXPECTED_RUNS,
+    HARNESS_ROOT,
+    REPETITIONS,
+    RunId,
+)
 
 CITED_PATH = re.compile(r"\b((?:[\w.-]+/)+[\w.-]+\.py)\b")
 
@@ -38,8 +44,7 @@ def scheduled_runs() -> list[str]:
 
 
 def run_directory(run_id: str, runs_root: Path) -> Path:
-    repetition, arm, task_id = run_id.split("-", 2)
-    return runs_root / f"repetition-{repetition[1:]}" / arm / task_id
+    return RunId.parse(run_id).directory(runs_root)
 
 
 def is_complete(run_id: str, runs_root: Path) -> bool:
@@ -56,7 +61,7 @@ def campaign_status(runs_root: Path) -> dict:
         if (run_directory(run, runs_root) / "transcript.jsonl").exists()
     ]
     per_arm = {
-        arm: sum(1 for run in complete if run.split("-", 2)[1] == arm) for arm in ARMS
+        arm: sum(1 for run in complete if RunId.parse(run).arm == arm) for arm in ARMS
     }
     return {
         "complete": len(complete),
@@ -183,7 +188,7 @@ async def run_campaign(version: str, runs_root: Path, concurrency: int = 4) -> d
     semaphore = asyncio.Semaphore(concurrency)
 
     async def execute(run_id: str) -> None:
-        _repetition, _arm, task_id = run_id.split("-", 2)
+        task_id = RunId.parse(run_id).task_id
         prompt = worker.render_prompt(run_id, tasks[task_id].prompt)
         options = worker.worker_options(run_id, runs_root, binary)
         async with semaphore:
@@ -192,7 +197,7 @@ async def run_campaign(version: str, runs_root: Path, concurrency: int = 4) -> d
     pending: list[asyncio.Task] = []
     for run_id in outstanding:
         if run_id not in started:
-            _repetition, _arm, task_id = run_id.split("-", 2)
+            task_id = RunId.parse(run_id).task_id
             record_start(
                 runs_root, run_id, worker.render_prompt(run_id, tasks[task_id].prompt)
             )

@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from agentlens_evals.matching import fact_satisfied
-from agentlens_evals.paths import DJANGO_ROOT
+from agentlens_evals.paths import DJANGO_ROOT, RunId
 
 MATCHER_VERSION = 2
 REFERENCE_ARM = "agentlens"
@@ -202,8 +202,9 @@ class RunArtifacts:
 
 
 def load_run(run_id: str, runs_root: Path) -> RunArtifacts:
-    repetition, arm, task_id = run_id.split("-", 2)
-    run_dir = runs_root / f"repetition-{repetition[1:]}" / arm / task_id
+    parsed = RunId.parse(run_id)
+    arm = parsed.arm
+    run_dir = parsed.directory(runs_root)
     answer_path = run_dir / "answer.txt"
     if not answer_path.exists():
         raise FileNotFoundError(f"missing answer: {answer_path}")

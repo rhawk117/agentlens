@@ -40,7 +40,14 @@ from pathlib import Path
 
 import tiktoken
 
-from agentlens_evals.paths import AGENTLENS, ARMS, DJANGO_ROOT, REPETITIONS, RUNS_ROOT
+from agentlens_evals.paths import (
+    AGENTLENS,
+    ARMS,
+    DJANGO_ROOT,
+    REPETITIONS,
+    RUNS_ROOT,
+    RunId,
+)
 
 CALL_CAP = 25
 TOKEN_CAP = 60_000
@@ -239,7 +246,7 @@ def main() -> None:
         die("usage: bench_tool.py RUN_ID TOOL ARGS...")
     run_id, tool, *args = sys.argv[1:]
     repetition, arm, task_id = parse_run_id(run_id)
-    run_dir = RUNS_ROOT / f"repetition-{repetition}" / arm / task_id
+    run_dir = RunId(repetition, arm, task_id).directory(RUNS_ROOT)
     run_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = run_dir / "metadata.json"
     if not metadata_path.exists():
