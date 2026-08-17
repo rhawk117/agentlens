@@ -46,6 +46,7 @@ def invoke(corpus: Path, runs_root: Path, *argv: str, agentlens: str | None = No
         capture_output=True,
         text=True,
         env=env,
+        check=False,
     )
 
 

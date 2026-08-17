@@ -16,9 +16,25 @@ from agentlens_evals import grading, paths
 
 RUNS_V2 = paths.REPO_ROOT / ".eval" / "runs_v2"
 
+
+def _missing_corpus_reason() -> str | None:
+    missing = []
+    if not RUNS_V2.is_dir():
+        missing.append(f"the runs_v2 corpus at {RUNS_V2}")
+    if not paths.django_root().is_dir():
+        missing.append(f"the Django checkout at {paths.django_root()}")
+    if not missing:
+        return None
+    return (
+        f"missing {' and '.join(missing)}: the parity gate cannot compare "
+        "grading.grade_run against the frozen harness without the archived corpus"
+    )
+
+
+_CORPUS_SKIP_REASON = _missing_corpus_reason()
 pytestmark = pytest.mark.skipif(
-    not RUNS_V2.is_dir() or not paths.DJANGO_ROOT.is_dir(),
-    reason="requires the frozen runs_v2 corpus and the Django checkout",
+    _CORPUS_SKIP_REASON is not None,
+    reason=_CORPUS_SKIP_REASON or "",
 )
 
 

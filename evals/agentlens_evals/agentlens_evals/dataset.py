@@ -6,14 +6,15 @@ claims. Its hashes are pre-registered beside it; loading verifies both, the
 same check grade.py made, so a graded number can never come from an edited
 task set.
 
-verify_gold reads HARNESS_ROOT as a module global rather than a parameter so
-tests can point it elsewhere via monkeypatch.
+verify_gold takes harness_root as a parameter, defaulting to paths.HARNESS_ROOT,
+so a test can point it at a fake harness directory directly.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 from typing import Literal
 
 from blake3 import blake3
@@ -51,10 +52,10 @@ class BenchTask(BaseModel):
     forbidden_claims: list[str]
 
 
-def verify_gold() -> bytes:
-    task_bytes = (HARNESS_ROOT / "tasks.json").read_bytes()
-    expected_blake3 = (HARNESS_ROOT / "gold.blake3").read_text().split()[0]
-    expected_sha256 = (HARNESS_ROOT / "gold.sha256").read_text().split()[0]
+def verify_gold(harness_root: Path = HARNESS_ROOT) -> bytes:
+    task_bytes = (harness_root / "tasks.json").read_bytes()
+    expected_blake3 = (harness_root / "gold.blake3").read_text().split()[0]
+    expected_sha256 = (harness_root / "gold.sha256").read_text().split()[0]
     actual_blake3 = blake3(task_bytes).hexdigest()
     actual_sha256 = hashlib.sha256(task_bytes).hexdigest()
     if actual_blake3 != expected_blake3 or actual_sha256 != expected_sha256:

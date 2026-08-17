@@ -20,8 +20,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from agentlens_evals import paths
 from agentlens_evals.matching import fact_satisfied
-from agentlens_evals.paths import DJANGO_ROOT, RunId
+from agentlens_evals.paths import RunId
 
 MATCHER_VERSION = 2
 REFERENCE_ARM = "agentlens"
@@ -105,7 +106,7 @@ def forbidden_penalty(answer: str, claims: list[str]) -> tuple[float, list[str]]
 
 
 def source_lines(gold: dict[str, Any]) -> set[str]:
-    path = DJANGO_ROOT / gold["address"].split("#", 1)[0]
+    path = paths.django_root() / gold["address"].split("#", 1)[0]
     lines = path.read_text(encoding="utf-8").splitlines()
     start = int(gold["start_line"]) - 1
     end = int(gold["end_line"])

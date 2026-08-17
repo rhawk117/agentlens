@@ -58,7 +58,8 @@ from claude_agent_sdk import (
     ResultMessage,
 )
 
-from agentlens_evals.paths import DJANGO_ROOT, PROJECT_ROOT, REPO_ROOT, RunId
+from agentlens_evals import paths
+from agentlens_evals.paths import PROJECT_ROOT, REPO_ROOT, RunId
 
 WORKER_MODEL = "claude-haiku-4-5-20251001"
 
@@ -186,7 +187,7 @@ def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOpt
         env={
             "BENCH_RUNS_ROOT": str(runs_root),
             "BENCH_AGENTLENS": str(binary),
-            "BENCH_DJANGO_ROOT": str(DJANGO_ROOT),
+            "BENCH_DJANGO_ROOT": str(paths.django_root()),
             "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
         },
     )

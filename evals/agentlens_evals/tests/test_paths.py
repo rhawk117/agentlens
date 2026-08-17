@@ -24,7 +24,8 @@ def test_campaign_shape() -> None:
 
 
 def test_agentlens_binary_has_no_default() -> None:
-    assert paths.AGENTLENS is None or "target" not in paths.AGENTLENS.parts
+    binary = paths.agentlens_binary()
+    assert binary is None or "target" not in binary.parts
 
 
 def test_run_id_parses_a_well_formed_string() -> None:

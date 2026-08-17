@@ -12,7 +12,7 @@ import hashlib
 import json
 import shutil
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from agentlens_evals.paths import BIN_ROOT, REPO_ROOT
@@ -73,7 +73,7 @@ def install(version: str) -> Path:
     destination = binary_path(version)
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(built, destination)
-    write_manifest(version, destination, commit, datetime.now(timezone.utc).isoformat())
+    write_manifest(version, destination, commit, datetime.now(UTC).isoformat())
     return destination
 
 

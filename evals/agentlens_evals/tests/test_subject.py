@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from agentlens_evals import paths, subject
+from agentlens_evals import subject
 
 
 @pytest.fixture()

@@ -19,7 +19,7 @@ def test_loads_the_frozen_task_set() -> None:
             assert not task.required_facts, task.id
 
 
-def test_gold_hash_mismatch_refuses(tmp_path, monkeypatch) -> None:
+def test_gold_hash_mismatch_refuses(tmp_path) -> None:
     fake = tmp_path / "harness"
     fake.mkdir()
     for name in ("tasks.json", "gold.sha256", "gold.blake3"):
@@ -27,9 +27,8 @@ def test_gold_hash_mismatch_refuses(tmp_path, monkeypatch) -> None:
     (fake / "tasks.json").write_text(
         (fake / "tasks.json").read_text(encoding="utf-8") + "\n", encoding="utf-8"
     )
-    monkeypatch.setattr(dataset, "HARNESS_ROOT", fake)
     with pytest.raises(dataset.GoldError):
-        dataset.verify_gold()
+        dataset.verify_gold(harness_root=fake)
 
 
 def test_dataset_one_case_per_task_in_schedule_order() -> None:

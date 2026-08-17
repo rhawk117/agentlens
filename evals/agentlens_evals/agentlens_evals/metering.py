@@ -40,14 +40,8 @@ from pathlib import Path
 
 import tiktoken
 
-from agentlens_evals.paths import (
-    AGENTLENS,
-    ARMS,
-    DJANGO_ROOT,
-    REPETITIONS,
-    RUNS_ROOT,
-    RunId,
-)
+from agentlens_evals import paths
+from agentlens_evals.paths import ARMS, REPETITIONS, RunId
 
 CALL_CAP = 25
 TOKEN_CAP = 60_000
@@ -151,8 +145,9 @@ def safe_argument(argument: str) -> bool:
 
 
 def require_subject_file(argument: str, tool: str) -> None:
-    candidate = (DJANGO_ROOT / argument).resolve()
-    if not candidate.is_file() or not candidate.is_relative_to(DJANGO_ROOT):
+    django_root = paths.django_root()
+    candidate = (django_root / argument).resolve()
+    if not candidate.is_file() or not candidate.is_relative_to(django_root):
         die(f"{tool} target is not a subject file: {argument}")
 
 
@@ -246,7 +241,7 @@ def main() -> None:
         die("usage: bench_tool.py RUN_ID TOOL ARGS...")
     run_id, tool, *args = sys.argv[1:]
     repetition, arm, task_id = parse_run_id(run_id)
-    run_dir = RunId(repetition, arm, task_id).directory(RUNS_ROOT)
+    run_dir = RunId(repetition, arm, task_id).directory(paths.runs_root())
     run_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = run_dir / "metadata.json"
     if not metadata_path.exists():
@@ -288,14 +283,15 @@ def main() -> None:
         validate_linerange(tool, args)
         command = [tool, *args]
     else:
-        if AGENTLENS is None:
+        agentlens_binary = paths.agentlens_binary()
+        if agentlens_binary is None:
             die("BENCH_AGENTLENS is not set; refuse to guess the binary under test")
         if any(not safe_argument(arg) for arg in args):
             die("absolute and parent-traversal arguments are forbidden")
-        command = [str(AGENTLENS), tool, *args]
+        command = [str(agentlens_binary), tool, *args]
     completed = subprocess.run(
         command,
-        cwd=DJANGO_ROOT,
+        cwd=paths.django_root(),
         check=False,
         capture_output=True,
         text=True,

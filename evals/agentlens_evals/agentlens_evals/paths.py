@@ -7,9 +7,12 @@ from a hash-verified manifest, never from target/release -- and the frozen
 harness directory is exposed read-only as HARNESS_ROOT because the campaign
 inputs (tasks, gold hashes, protocol, schedule) stay there.
 
-DJANGO_ROOT defaults *outside* the repository on purpose: a checkout of
-Django inside the tree would be indexed by `agentlens dead` and walked by
-`rg`, contaminating every arm.
+django_root(), agentlens_binary() and runs_root() resolve BENCH_DJANGO_ROOT,
+BENCH_AGENTLENS and BENCH_RUNS_ROOT at call time rather than at import, so a
+test can set the environment variable directly instead of monkeypatching a
+module attribute. django_root() defaults *outside* the repository on
+purpose: a checkout of Django inside the tree would be indexed by
+`agentlens dead` and walked by `rg`, contaminating every arm.
 
 REPETITIONS_SCHEDULED is pre-registered at 5; campaigns execute REPETITIONS
 (3). The schedule file is never regenerated to match the execution -- that
@@ -35,14 +38,23 @@ REPO_ROOT = PROJECT_ROOT.parent.parent
 HARNESS_ROOT = REPO_ROOT / "evals" / "harness"
 BIN_ROOT = REPO_ROOT / "evals" / "bin"
 
-DJANGO_ROOT = Path(
-    os.environ.get("BENCH_DJANGO_ROOT", Path.home() / "dev" / "django-6.0.7")
-).resolve()
-_agentlens = os.environ.get("BENCH_AGENTLENS")
-AGENTLENS = Path(_agentlens).resolve() if _agentlens else None
-RUNS_ROOT = Path(
-    os.environ.get("BENCH_RUNS_ROOT", REPO_ROOT / ".eval" / "runs_v2")
-).resolve()
+
+def django_root() -> Path:
+    return Path(
+        os.environ.get("BENCH_DJANGO_ROOT", Path.home() / "dev" / "django-6.0.7")
+    ).resolve()
+
+
+def agentlens_binary() -> Path | None:
+    raw = os.environ.get("BENCH_AGENTLENS")
+    return Path(raw).resolve() if raw else None
+
+
+def runs_root() -> Path:
+    return Path(
+        os.environ.get("BENCH_RUNS_ROOT", REPO_ROOT / ".eval" / "runs_v2")
+    ).resolve()
+
 
 TASK_COUNT = 18
 ARMS = ("agentlens", "baseline", "linerange")

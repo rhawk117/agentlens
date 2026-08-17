@@ -7,9 +7,9 @@ import asyncio
 import sys
 from pathlib import Path
 
-from agentlens_evals import campaign, report, subject
+from agentlens_evals import campaign, paths, report, subject
 from agentlens_evals.campaign import CampaignError
-from agentlens_evals.paths import ARMS, REPETITIONS, RUNS_ROOT
+from agentlens_evals.paths import ARMS, REPETITIONS
 from agentlens_evals.report import ReportError
 
 
@@ -22,21 +22,21 @@ def main() -> None:
 
     run = commands.add_parser("run", help="execute a campaign")
     run.add_argument("--tool-version", required=True)
-    run.add_argument("--runs-root", type=Path, default=RUNS_ROOT)
+    run.add_argument("--runs-root", type=Path, default=paths.runs_root())
     run.add_argument("--concurrency", type=int, default=4)
 
     status = commands.add_parser("status", help="complete / stranded / pending")
-    status.add_argument("--runs-root", type=Path, default=RUNS_ROOT)
+    status.add_argument("--runs-root", type=Path, default=paths.runs_root())
 
     grade = commands.add_parser("grade", help="grade a campaign into results.json")
-    grade.add_argument("--runs-root", type=Path, default=RUNS_ROOT)
+    grade.add_argument("--runs-root", type=Path, default=paths.runs_root())
     grade.add_argument("--repetitions", type=int, default=REPETITIONS)
     grade.add_argument("--arms", nargs="+", default=list(ARMS))
 
     rep = commands.add_parser(
         "report", help="markdown + derived pydantic-evals reports"
     )
-    rep.add_argument("--runs-root", type=Path, default=RUNS_ROOT)
+    rep.add_argument("--runs-root", type=Path, default=paths.runs_root())
     rep.add_argument("--repetitions", type=int, default=REPETITIONS)
     rep.add_argument("--arms", nargs="+", default=list(ARMS))
 
