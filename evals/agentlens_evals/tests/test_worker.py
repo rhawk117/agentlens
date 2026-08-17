@@ -45,6 +45,60 @@ async def test_permission_callback_denies_non_bash_tools() -> None:
     assert verdict.behavior == "allow"
 
 
+async def test_pretooluse_hook_denies_safe_command_heuristic_targets() -> None:
+    # These are exactly the commands the CLI's built-in "safe command"
+    # auto-approval let through can_use_tool unchallenged in the live smoke
+    # session; the hook is the layer meant to catch them instead.
+    hook = worker.pretooluse_hook(RUN)
+
+    verdict = await hook(
+        {"tool_name": "Bash", "tool_input": {"command": "cat foo"}}, "id", {}
+    )
+    assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+    verdict = await hook(
+        {"tool_name": "Bash", "tool_input": {"command": "echo hi"}}, "id", {}
+    )
+    assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+async def test_pretooluse_hook_denies_non_bash_tools() -> None:
+    hook = worker.pretooluse_hook(RUN)
+
+    verdict = await hook(
+        {"tool_name": "Read", "tool_input": {"file_path": "/etc/passwd"}}, "id", {}
+    )
+    assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+async def test_pretooluse_hook_allows_the_exact_wrapper_invocation() -> None:
+    hook = worker.pretooluse_hook(RUN)
+
+    verdict = await hook(
+        {
+            "tool_name": "Bash",
+            "tool_input": {"command": worker.wrapper_invocation(RUN) + " map ."},
+        },
+        "id",
+        {},
+    )
+    assert verdict["hookSpecificOutput"]["permissionDecision"] == "allow"
+
+
+async def test_pretooluse_hook_fails_closed_on_malformed_input() -> None:
+    hook = worker.pretooluse_hook(RUN)
+
+    # Missing tool_input, tool_input not a dict, command not a string.
+    for malformed in (
+        {"tool_name": "Bash"},
+        {"tool_name": "Bash", "tool_input": "not a dict"},
+        {"tool_name": "Bash", "tool_input": {"command": None}},
+        {},
+    ):
+        verdict = await hook(malformed, "id", {})
+        assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
 async def test_dispatch_refuses_any_model_but_haiku(tmp_path) -> None:
     options = worker.worker_options(RUN, tmp_path, tmp_path / "agentlens")
     options.model = "claude-fable-5"
@@ -114,5 +168,7 @@ def test_worker_options_are_hermetic(tmp_path) -> None:
     assert options.setting_sources == []
     assert options.tools == ["Bash"]
     assert options.allowed_tools == []
+    assert list(options.hooks.keys()) == ["PreToolUse"]
+    assert len(options.hooks["PreToolUse"][0].hooks) == 1
     assert options.env["BENCH_RUNS_ROOT"] == str(tmp_path)
     assert options.env["CLAUDE_CODE_DISABLE_AUTO_MEMORY"] == "1"

@@ -2,18 +2,24 @@
 
 The prompt semantics are ported from attest.py:render_prompt; the isolation
 that eval_subject_gate.py provided for interactive dispatch is provided here
-by the SDK permission callback -- Bash is the only tool, and the only Bash
-command permitted is this run's own metering-wrapper invocation.
+in two layers, both driven by the same decision (``_tool_call_permitted``):
+a PreToolUse hook, which runs before the CLI's own "safe command"
+auto-approval and so is the layer that actually stops it, and the
+``can_use_tool`` permission callback, kept as defense in depth for whatever
+the hook doesn't intercept. Bash is the only tool, and the only Bash command
+either layer permits is this run's own metering-wrapper invocation.
 """
 
 from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 from claude_agent_sdk import (
     ClaudeAgentOptions,
     ClaudeSDKClient,
+    HookMatcher,
     PermissionResultAllow,
     PermissionResultDeny,
     ResultMessage,
@@ -91,18 +97,59 @@ def command_permitted(command: str, run_id: str) -> bool:
     return not UNQUOTED_METACHARACTERS.search(unquoted)
 
 
+DENY_REASON = "only this run's metering-wrapper invocation is permitted"
+
+
+def _tool_call_permitted(tool_name: Any, tool_input: Any, run_id: str) -> bool:
+    """The one decision both the hook and the permission callback enforce.
+
+    Fail-closed: any input shape other than ``Bash`` with a string
+    ``command`` field is denied without inspection.
+    """
+    if tool_name != "Bash" or not isinstance(tool_input, dict):
+        return False
+    command = tool_input.get("command")
+    if not isinstance(command, str):
+        return False
+    return command_permitted(command, run_id)
+
+
 def permission_callback(run_id: str):
     async def can_use_tool(tool_name: str, input_data: dict, context):
-        if tool_name == "Bash" and command_permitted(
-            str(input_data.get("command", "")), run_id
-        ):
+        if _tool_call_permitted(tool_name, input_data, run_id):
             return PermissionResultAllow()
-        return PermissionResultDeny(
-            message="only this run's metering-wrapper invocation is permitted",
-            interrupt=False,
-        )
+        return PermissionResultDeny(message=DENY_REASON, interrupt=False)
 
     return can_use_tool
+
+
+def pretooluse_hook(run_id: str):
+    """PreToolUse hook: the layer that actually stops the CLI's built-in
+    "safe command" auto-approval, which bypasses ``can_use_tool`` entirely
+    for commands like ``echo`` or ``cat`` (observed empirically in a smoke
+    session). PreToolUse fires before that heuristic, so it is the layer
+    that must carry the enforcement; ``can_use_tool`` stays registered as
+    defense in depth.
+    """
+
+    async def hook(input_data: dict, tool_use_id: str | None, context: dict):
+        tool_name = input_data.get("tool_name")
+        tool_input = input_data.get("tool_input")
+        if _tool_call_permitted(tool_name, tool_input, run_id):
+            decision = "allow"
+            reason = None
+        else:
+            decision = "deny"
+            reason = DENY_REASON
+        hook_specific_output: dict[str, Any] = {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": decision,
+        }
+        if reason is not None:
+            hook_specific_output["permissionDecisionReason"] = reason
+        return {"hookSpecificOutput": hook_specific_output}
+
+    return hook
 
 
 def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOptions:
@@ -112,9 +159,13 @@ def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOpt
         # model's tool context entirely, not merely unapproved.
         allowed_tools=[],  # nothing auto-approved: every call reaches the callback
         can_use_tool=permission_callback(run_id),
+        # matcher=None matches every tool call, not just Bash: the hook itself
+        # denies anything that isn't Bash, so this is the layer that catches
+        # Read/Grep/etc. too, ahead of the CLI's own safe-command heuristic.
+        hooks={"PreToolUse": [HookMatcher(hooks=[pretooluse_hook(run_id)])]},
         permission_mode="default",
         cwd=str(REPO_ROOT),
-        setting_sources=[],  # no CLAUDE.md, no hooks, no user settings
+        setting_sources=[],  # no CLAUDE.md, no settings-file hooks, no user settings
         max_turns=60,
         env={
             "BENCH_RUNS_ROOT": str(runs_root),
@@ -130,10 +181,10 @@ async def dispatch(run_id: str, prompt: str, options: ClaudeAgentOptions) -> str
     # for the life of the `async with` block: it never spawns the SDK's
     # stream_input() closing task (that only happens for a non-None prompt --
     # see claude_agent_sdk.client.ClaudeSDKClient._connect_inner), so stdin
-    # stays open across the whole permission round-trip. query()'s one-shot
-    # prompt generator does not have this guarantee: stream_input() drains it
-    # immediately and closes stdin unless sdk_mcp_servers or hooks are set,
-    # which we don't set -- that was the prior campaign's failure mode.
+    # stays open across the whole permission round-trip regardless of the
+    # sdk_mcp_servers/hooks-gated closing logic query()'s one-shot prompt
+    # generator relies on instead (that gate is what failed the prior
+    # campaign, back when no hooks were registered).
     if options.model != WORKER_MODEL:
         raise WorkerModelError(
             f"worker model must be {WORKER_MODEL}, got {options.model!r}"
