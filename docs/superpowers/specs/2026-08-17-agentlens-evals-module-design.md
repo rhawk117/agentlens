@@ -1,6 +1,6 @@
 # agentlens-evals: a formal, re-runnable benchmark module
 
-Status: draft for review. Branch: `eval/pydantic-evals-module` off `dev`.
+Status: approved for implementation. Branch: `eval/rerun-v0.2.0-campaign` off `dev`.
 
 ## Why this exists
 
