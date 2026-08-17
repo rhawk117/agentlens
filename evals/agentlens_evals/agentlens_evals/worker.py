@@ -9,16 +9,14 @@ command permitted is this run's own metering-wrapper invocation.
 from __future__ import annotations
 
 import re
-from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any
 
 from claude_agent_sdk import (
     ClaudeAgentOptions,
+    ClaudeSDKClient,
     PermissionResultAllow,
     PermissionResultDeny,
     ResultMessage,
-    query,
 )
 
 from agentlens_evals.paths import DJANGO_ROOT, PROJECT_ROOT, REPO_ROOT
@@ -110,6 +108,8 @@ def permission_callback(run_id: str):
 def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOptions:
     return ClaudeAgentOptions(
         model=WORKER_MODEL,
+        tools=["Bash"],  # Read/Grep/Glob/Write/Edit/etc. are absent from the
+        # model's tool context entirely, not merely unapproved.
         allowed_tools=[],  # nothing auto-approved: every call reaches the callback
         can_use_tool=permission_callback(run_id),
         permission_mode="default",
@@ -125,24 +125,22 @@ def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOpt
     )
 
 
-async def _single_user_message(prompt: str) -> AsyncIterator[dict[str, Any]]:
-    # options.can_use_tool forces streaming mode: the SDK rejects a plain str
-    # prompt whenever a permission callback is configured (see
-    # claude_agent_sdk._internal.client._process_query_inner).
-    yield {
-        "type": "user",
-        "session_id": "",
-        "message": {"role": "user", "content": prompt},
-        "parent_tool_use_id": None,
-    }
-
-
 async def dispatch(run_id: str, prompt: str, options: ClaudeAgentOptions) -> str | None:
+    # ClaudeSDKClient.connect() with no prompt holds the control channel open
+    # for the life of the `async with` block: it never spawns the SDK's
+    # stream_input() closing task (that only happens for a non-None prompt --
+    # see claude_agent_sdk.client.ClaudeSDKClient._connect_inner), so stdin
+    # stays open across the whole permission round-trip. query()'s one-shot
+    # prompt generator does not have this guarantee: stream_input() drains it
+    # immediately and closes stdin unless sdk_mcp_servers or hooks are set,
+    # which we don't set -- that was the prior campaign's failure mode.
     if options.model != WORKER_MODEL:
         raise WorkerModelError(
             f"worker model must be {WORKER_MODEL}, got {options.model!r}"
         )
-    async for message in query(prompt=_single_user_message(prompt), options=options):
-        if isinstance(message, ResultMessage):
-            return message.result if message.subtype == "success" else None
+    async with ClaudeSDKClient(options=options) as client:
+        await client.query(prompt)
+        async for message in client.receive_response():
+            if isinstance(message, ResultMessage):
+                return message.result if message.subtype == "success" else None
     return None

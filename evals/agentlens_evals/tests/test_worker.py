@@ -1,5 +1,3 @@
-from collections.abc import AsyncIterable
-
 import pytest
 
 from agentlens_evals import worker
@@ -54,32 +52,67 @@ async def test_dispatch_refuses_any_model_but_haiku(tmp_path) -> None:
         await worker.dispatch(RUN, "prompt", options)
 
 
-async def test_dispatch_sends_streaming_prompt_when_can_use_tool_is_set(
+class _FakeClient:
+    """Stand-in for ClaudeSDKClient: records connect/query and replays messages.
+
+    connect() with no prompt is what keeps the SDK's control channel open for
+    the whole permission round-trip (see worker.dispatch's comment) -- this
+    fake asserts dispatch relies on that shape rather than the one-shot
+    ``query()`` function's prompt generator.
+    """
+
+    def __init__(self, calls: dict[str, object], messages: list[object], *, options):
+        self._calls = calls
+        self._messages = messages
+        self.options = options
+
+    async def __aenter__(self):
+        self._calls["connect_prompt"] = "unset"
+        return self
+
+    async def __aexit__(self, *exc_info):
+        return False
+
+    async def query(self, prompt):
+        self._calls["query_prompt"] = prompt
+
+    async def receive_response(self):
+        for message in self._messages:
+            yield message
+
+
+async def test_dispatch_holds_the_client_open_and_sends_prompt_via_query(
     tmp_path, monkeypatch
 ) -> None:
-    # The SDK's can_use_tool callback requires the prompt to arrive as an
-    # AsyncIterable of message dicts, not a plain str -- see
-    # claude_agent_sdk._internal.client._process_query_inner.
     options = worker.worker_options(RUN, tmp_path, tmp_path / "agentlens")
-    captured: dict[str, object] = {}
+    calls: dict[str, object] = {}
+    result_message = worker.ResultMessage(
+        subtype="success",
+        duration_ms=1,
+        duration_api_ms=1,
+        is_error=False,
+        num_turns=1,
+        session_id="s",
+        result="submitted",
+    )
 
-    async def fake_query(*, prompt, options):
-        captured["prompt"] = prompt
-        return
-        yield  # pragma: no cover - makes this an async generator
+    def fake_client(*, options):
+        return _FakeClient(calls, [result_message], options=options)
 
-    monkeypatch.setattr(worker, "query", fake_query)
+    monkeypatch.setattr(worker, "ClaudeSDKClient", fake_client)
 
-    await worker.dispatch(RUN, "prompt text", options)
+    result = await worker.dispatch(RUN, "prompt text", options)
 
-    assert isinstance(captured["prompt"], AsyncIterable)
-    assert not isinstance(captured["prompt"], str)
+    assert calls["connect_prompt"] == "unset"  # __aenter__ ran: connect() held open
+    assert calls["query_prompt"] == "prompt text"
+    assert result == "submitted"
 
 
 def test_worker_options_are_hermetic(tmp_path) -> None:
     options = worker.worker_options(RUN, tmp_path, tmp_path / "agentlens")
     assert options.model == worker.WORKER_MODEL
     assert options.setting_sources == []
+    assert options.tools == ["Bash"]
     assert options.allowed_tools == []
     assert options.env["BENCH_RUNS_ROOT"] == str(tmp_path)
     assert options.env["CLAUDE_CODE_DISABLE_AUTO_MEMORY"] == "1"
