@@ -67,6 +67,10 @@ class WorkerModelError(RuntimeError):
     pass
 
 
+class DispatchError(RuntimeError):
+    pass
+
+
 ARM_INTERFACE = {
     "agentlens": (
         "Available research commands: slice, map, find, literals, callers, packet, and dead.\n"
@@ -188,7 +192,7 @@ def worker_options(run_id: str, runs_root: Path, binary: Path) -> ClaudeAgentOpt
     )
 
 
-async def dispatch(run_id: str, prompt: str, options: ClaudeAgentOptions) -> str | None:
+async def dispatch(run_id: str, prompt: str, options: ClaudeAgentOptions) -> str:
     if options.model != WORKER_MODEL:
         raise WorkerModelError(
             f"worker model must be {WORKER_MODEL}, got {options.model!r}"
@@ -197,5 +201,9 @@ async def dispatch(run_id: str, prompt: str, options: ClaudeAgentOptions) -> str
         await client.query(prompt)
         async for message in client.receive_response():
             if isinstance(message, ResultMessage):
-                return message.result if message.subtype == "success" else None
-    return None
+                if message.subtype == "success":
+                    return message.result
+                raise DispatchError(
+                    f"run {run_id} ended with non-success result: {message.subtype}"
+                )
+    raise DispatchError(f"run {run_id} produced no result message")

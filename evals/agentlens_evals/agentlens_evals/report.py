@@ -32,11 +32,15 @@ from agentlens_evals.grading import (
 from agentlens_evals.paths import HARNESS_ROOT, RunId
 
 
+class ReportError(RuntimeError):
+    pass
+
+
 def grade_campaign(
     runs_root: Path, repetitions: int, arms: list[str]
 ) -> dict[str, Any]:
     if REFERENCE_ARM not in arms:
-        raise SystemExit(f"{REFERENCE_ARM} must be among the graded arms")
+        raise ReportError(f"{REFERENCE_ARM} must be among the graded arms")
     task_bytes = dataset_module.verify_gold()
     tasks = [task.model_dump() for task in load_tasks()]
     repetition_range = range(1, repetitions + 1)

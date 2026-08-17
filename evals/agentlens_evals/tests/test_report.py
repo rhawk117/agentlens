@@ -41,5 +41,5 @@ def test_derived_pydantic_evals_reports_cover_every_pass() -> None:
 
 
 def test_grade_requires_the_reference_arm(tmp_path) -> None:
-    with pytest.raises(SystemExit, match="agentlens must be among"):
+    with pytest.raises(report.ReportError, match="agentlens must be among"):
         report.grade_campaign(tmp_path, 1, ["baseline"])

@@ -31,6 +31,10 @@ from agentlens_evals.paths import (
 CITED_PATH = re.compile(r"\b((?:[\w.-]+/)+[\w.-]+\.py)\b")
 
 
+class CampaignError(RuntimeError):
+    pass
+
+
 def scheduled_runs() -> list[str]:
     schedule = json.loads((HARNESS_ROOT / "schedule.json").read_text(encoding="utf-8"))[
         "schedule"
@@ -99,7 +103,7 @@ def record_start(runs_root: Path, run_id: str, prompt: str) -> None:
     ]
     if not expected or run_id != expected[0]:
         wanted = expected[0] if expected else "<none>"
-        raise SystemExit(f"run order mismatch: expected {wanted}, got {run_id}")
+        raise CampaignError(f"run order mismatch: expected {wanted}, got {run_id}")
     directory = run_directory(run_id, runs_root)
     directory.mkdir(parents=True, exist_ok=True)
     prompt_path = directory / "prompt.txt"
@@ -125,7 +129,7 @@ def record_complete(runs_root: Path, run_id: str) -> None:
     answer = directory / "answer.txt"
     transcript = directory / "transcript.jsonl"
     if not answer.exists() or not transcript.exists():
-        raise SystemExit(f"incomplete artifacts for {run_id}")
+        raise CampaignError(f"incomplete artifacts for {run_id}")
     append_event(
         runs_root,
         {
@@ -178,7 +182,9 @@ async def run_campaign(version: str, runs_root: Path, concurrency: int = 4) -> d
     binary = subject.verify(version)
     runs = scheduled_runs()
     if len(runs) != EXPECTED_RUNS:
-        raise SystemExit(f"schedule yields {len(runs)} runs, expected {EXPECTED_RUNS}")
+        raise CampaignError(
+            f"schedule yields {len(runs)} runs, expected {EXPECTED_RUNS}"
+        )
     tasks = tasks_by_id()
     outstanding = [run for run in runs if not is_complete(run, runs_root)]
 
@@ -187,12 +193,16 @@ async def run_campaign(version: str, runs_root: Path, concurrency: int = 4) -> d
     }
     semaphore = asyncio.Semaphore(concurrency)
 
-    async def execute(run_id: str) -> None:
+    async def execute(run_id: str) -> bool:
         task_id = RunId.parse(run_id).task_id
         prompt = worker.render_prompt(run_id, tasks[task_id].prompt)
         options = worker.worker_options(run_id, runs_root, binary)
         async with semaphore:
-            await worker.dispatch(run_id, prompt, options)
+            try:
+                await worker.dispatch(run_id, prompt, options)
+            except worker.DispatchError:
+                return False
+        return True
 
     pending: list[asyncio.Task] = []
     for run_id in outstanding:
@@ -202,8 +212,8 @@ async def run_campaign(version: str, runs_root: Path, concurrency: int = 4) -> d
                 runs_root, run_id, worker.render_prompt(run_id, tasks[task_id].prompt)
             )
         pending.append(asyncio.ensure_future(execute(run_id)))
-    if pending:
-        await asyncio.gather(*pending)
+    dispatch_results = await asyncio.gather(*pending) if pending else []
+    failed_dispatches = sum(1 for succeeded in dispatch_results if not succeeded)
 
     completed_events = {
         event["run_id"]
@@ -221,4 +231,5 @@ async def run_campaign(version: str, runs_root: Path, concurrency: int = 4) -> d
         "complete": sum(is_complete(run, runs_root) for run in runs),
         "breaches": breaches,
         "memorised_capped": memorised,
+        "failed_dispatches": failed_dispatches,
     }

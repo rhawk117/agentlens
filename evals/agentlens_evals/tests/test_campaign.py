@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from agentlens_evals import campaign, paths
+from agentlens_evals import campaign, paths, worker
 
 
 def test_schedule_matches_the_frozen_harness_order() -> None:
@@ -53,7 +53,7 @@ def test_status_counts_complete_stranded_pending(tmp_path) -> None:
 def test_attestation_start_order_is_enforced(tmp_path) -> None:
     runs = campaign.scheduled_runs()
     campaign.record_start(tmp_path, runs[0], "prompt zero")
-    with pytest.raises(SystemExit, match="run order mismatch"):
+    with pytest.raises(campaign.CampaignError, match="run order mismatch"):
         campaign.record_start(tmp_path, runs[5], "out of order")
     campaign.record_start(tmp_path, runs[1], "prompt one")
     events = campaign.read_events(tmp_path)
@@ -119,3 +119,39 @@ async def test_run_campaign_dispatches_only_outstanding(tmp_path, monkeypatch) -
     assert sorted(dispatched) == sorted(runs[:2])
     assert summary["dispatched"] == 2
     assert summary["breaches"] == []
+
+
+async def test_run_campaign_counts_a_failed_dispatch_without_aborting(
+    tmp_path, monkeypatch
+) -> None:
+    runs = campaign.scheduled_runs()
+    for run_id in runs[2:]:
+        seed_run(
+            tmp_path,
+            run_id,
+            answer="already done",
+            transcript=[{"stdout": "", "stderr": "", "args": []}],
+        )
+    monkeypatch.setattr(
+        campaign.subject, "verify", lambda version: Path("/fake/agentlens")
+    )
+
+    failing_run = runs[0]
+    succeeding_run = runs[1]
+
+    async def fake_dispatch(run_id, prompt, options):
+        if run_id == failing_run:
+            raise worker.DispatchError(f"run {run_id} ended with non-success result")
+        seed_run(
+            tmp_path,
+            run_id,
+            answer="worker answer",
+            transcript=[{"stdout": "", "stderr": "", "args": []}],
+        )
+        return "submitted"
+
+    monkeypatch.setattr(campaign.worker, "dispatch", fake_dispatch)
+    summary = await campaign.run_campaign("9.9.9", tmp_path, concurrency=2)
+    assert summary["failed_dispatches"] == 1
+    assert campaign.is_complete(succeeding_run, tmp_path)
+    assert not campaign.is_complete(failing_run, tmp_path)

@@ -8,7 +8,9 @@ import sys
 from pathlib import Path
 
 from agentlens_evals import campaign, report, subject
+from agentlens_evals.campaign import CampaignError
 from agentlens_evals.paths import ARMS, REPETITIONS, RUNS_ROOT
+from agentlens_evals.report import ReportError
 
 
 def main() -> None:
@@ -40,39 +42,43 @@ def main() -> None:
 
     options = parser.parse_args()
 
-    if options.command == "install":
-        binary = subject.install(options.version)
-        print(f"installed {binary}")
-    elif options.command == "run":
-        summary = asyncio.run(
-            campaign.run_campaign(
-                options.tool_version, options.runs_root, options.concurrency
+    try:
+        if options.command == "install":
+            binary = subject.install(options.version)
+            print(f"installed {binary}")
+        elif options.command == "run":
+            summary = asyncio.run(
+                campaign.run_campaign(
+                    options.tool_version, options.runs_root, options.concurrency
+                )
             )
-        )
-        print(summary)
-        if summary["breaches"]:
-            sys.exit(1)
-    elif options.command == "status":
-        state = campaign.campaign_status(options.runs_root)
-        print(f"complete   {state['complete']}/{state['total']}")
-        for arm, count in state["per_arm"].items():
-            print(f"  {arm:10s} {count}")
-        if state["stranded"]:
-            print(f"stranded (transcript, no answer): {len(state['stranded'])}")
-            for run_id in state["stranded"]:
-                print(f"  {run_id}")
-    elif options.command == "grade":
-        results = report.grade_campaign(
-            options.runs_root, options.repetitions, options.arms
-        )
-        path = report.write_results(results, options.runs_root)
-        print(f"wrote {path}; benchmark_failed={results['benchmark_failed']}")
-    elif options.command == "report":
-        results = report.grade_campaign(
-            options.runs_root, options.repetitions, options.arms
-        )
-        print(report.render_markdown(results))
-        for evaluation in report.evaluation_reports(
-            options.runs_root, options.repetitions, options.arms
-        ):
-            evaluation.print()
+            print(summary)
+            if summary["breaches"]:
+                sys.exit(1)
+        elif options.command == "status":
+            state = campaign.campaign_status(options.runs_root)
+            print(f"complete   {state['complete']}/{state['total']}")
+            for arm, count in state["per_arm"].items():
+                print(f"  {arm:10s} {count}")
+            if state["stranded"]:
+                print(f"stranded (transcript, no answer): {len(state['stranded'])}")
+                for run_id in state["stranded"]:
+                    print(f"  {run_id}")
+        elif options.command == "grade":
+            results = report.grade_campaign(
+                options.runs_root, options.repetitions, options.arms
+            )
+            path = report.write_results(results, options.runs_root)
+            print(f"wrote {path}; benchmark_failed={results['benchmark_failed']}")
+        elif options.command == "report":
+            results = report.grade_campaign(
+                options.runs_root, options.repetitions, options.arms
+            )
+            print(report.render_markdown(results))
+            for evaluation in report.evaluation_reports(
+                options.runs_root, options.repetitions, options.arms
+            ):
+                evaluation.print()
+    except (CampaignError, ReportError) as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)
