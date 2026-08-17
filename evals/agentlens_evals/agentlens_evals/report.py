@@ -36,15 +36,12 @@ class ReportError(RuntimeError):
     pass
 
 
-def grade_campaign(
-    runs_root: Path, repetitions: int, arms: list[str]
-) -> dict[str, Any]:
-    if REFERENCE_ARM not in arms:
-        raise ReportError(f"{REFERENCE_ARM} must be among the graded arms")
-    task_bytes = dataset_module.verify_gold()
-    tasks = [task.model_dump() for task in load_tasks()]
-    repetition_range = range(1, repetitions + 1)
-
+def load_graded_runs(
+    tasks: list[dict[str, Any]],
+    arms: list[str],
+    repetition_range: range,
+    runs_root: Path,
+) -> list[dict[str, Any]]:
     runs: list[dict[str, Any]] = []
     for repetition in repetition_range:
         for arm in arms:
@@ -53,7 +50,12 @@ def grade_campaign(
                 graded = grade_run(task, arm, run_dir)
                 graded["repetition"] = repetition
                 runs.append(graded)
+    return runs
 
+
+def per_task_summary(
+    tasks: list[dict[str, Any]], arms: list[str], runs: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for run in runs:
         grouped[(run["arm"], run["task_id"])].append(run)
@@ -76,7 +78,12 @@ def grade_campaign(
                 "capped_runs": sum(bool(r["capped"]) for r in arm_runs),
             }
         per_task.append(row)
+    return per_task
 
+
+def per_repetition_metrics(
+    arms: list[str], repetition_range: range, runs: list[dict[str, Any]]
+) -> dict[str, list[dict[str, Any]]]:
     repetition_metrics: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for arm in arms:
         for repetition in repetition_range:
@@ -103,10 +110,16 @@ def grade_campaign(
                     "capped_runs": sum(bool(run["capped"]) for run in arm_runs),
                 }
             )
-    arm_summary: dict[str, Any] = {}
+    return repetition_metrics
+
+
+def arm_summary(
+    arms: list[str], repetition_metrics: dict[str, list[dict[str, Any]]]
+) -> dict[str, Any]:
+    summary: dict[str, Any] = {}
     for arm in arms:
         metrics = repetition_metrics[arm]
-        arm_summary[arm] = {
+        summary[arm] = {
             "accuracy": quartiles([metric["accuracy"] for metric in metrics]),
             "cost_tokens_per_point": quartiles(
                 [metric["cost_tokens_per_point"] for metric in metrics]
@@ -117,9 +130,16 @@ def grade_campaign(
             "repetitions": metrics,
             "capped_runs": sum(metric["capped_runs"] for metric in metrics),
         }
+    return summary
 
-    protocol = json.loads((HARNESS_ROOT / "protocol.json").read_text())
-    thresholds = protocol["falsification"]
+
+def falsify_against_protocol(
+    arms: list[str],
+    per_task: list[dict[str, Any]],
+    repetition_metrics: dict[str, list[dict[str, Any]]],
+    repetition_range: range,
+    thresholds: dict[str, Any],
+) -> dict[str, Any]:
     comparisons: dict[str, Any] = {}
     for control in [arm for arm in arms if arm != REFERENCE_ARM]:
         head_to_head = {"agentlens_wins": 0, "control_wins": 0, "ties": 0}
@@ -165,6 +185,27 @@ def grade_campaign(
             "falsification": failures,
             "failed": any(failures.values()),
         }
+    return comparisons
+
+
+def grade_campaign(
+    runs_root: Path, repetitions: int, arms: list[str]
+) -> dict[str, Any]:
+    if REFERENCE_ARM not in arms:
+        raise ReportError(f"{REFERENCE_ARM} must be among the graded arms")
+    task_bytes = dataset_module.verify_gold()
+    tasks = [task.model_dump() for task in load_tasks()]
+    repetition_range = range(1, repetitions + 1)
+
+    runs = load_graded_runs(tasks, arms, repetition_range, runs_root)
+    per_task = per_task_summary(tasks, arms, runs)
+    repetition_metrics = per_repetition_metrics(arms, repetition_range, runs)
+    arms_graded = arm_summary(arms, repetition_metrics)
+
+    protocol = json.loads((HARNESS_ROOT / "protocol.json").read_text())
+    comparisons = falsify_against_protocol(
+        arms, per_task, repetition_metrics, repetition_range, protocol["falsification"]
+    )
 
     return {
         "subject": protocol["subject"],
@@ -173,7 +214,7 @@ def grade_campaign(
         "arms_graded": list(arms),
         "gold_blake3": blake3(task_bytes).hexdigest(),
         "gold_sha256": hashlib.sha256(task_bytes).hexdigest(),
-        "arms": arm_summary,
+        "arms": arms_graded,
         "comparisons": comparisons,
         "benchmark_failed": any(entry["failed"] for entry in comparisons.values()),
         "per_task": per_task,

@@ -50,13 +50,6 @@ def is_negated(text: str, position: int) -> bool:
     )
 
 
-def contains_asserted(text: str, candidate: str) -> bool:
-    for match in re.finditer(re.escape(candidate), text):
-        if not is_negated(text, match.start()):
-            return True
-    return False
-
-
 def selector_name(address: str) -> str:
     selector = address.split("#", 1)[1]
     if selector.startswith("L"):
